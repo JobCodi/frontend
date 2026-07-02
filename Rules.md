@@ -28,7 +28,7 @@ src/
 │   │   └── mypage/
 │   └── api/                         # route handlers only when needed
 ├── components/
-│   ├── ui/                          # reusable primitives
+│   ├── ui/                          # shadcn/ui primitives
 │   ├── layout/
 │   └── feedback/
 ├── features/
@@ -41,9 +41,10 @@ src/
 │   ├── api/
 │   ├── auth/
 │   ├── config/
+│   ├── query/                       # TanStack Query client/options
 │   ├── schemas/
 │   └── utils/
-├── store/
+├── store/                           # Zustand stores
 ├── styles/
 └── types/
 ```
@@ -54,8 +55,10 @@ src/
 features/<feature>/
 ├── components/
 ├── hooks/
+├── queries/                         # feature TanStack Query hooks/options
 ├── schemas/
 ├── services/
+├── stores/                          # feature-local Zustand stores when needed
 ├── types.ts
 └── index.ts
 ```
@@ -94,6 +97,15 @@ interface ButtonProps extends React.ComponentProps<'button'> {
 - Keep client state local unless shared across distant components.
 - Shared client state belongs in `store/` or feature-owned stores.
 - Do not fetch application data in `useEffect` when a Server Component can fetch it.
+
+### State, query, and UI library rules
+
+- shadcn/ui is the default component primitive system. Do not create custom primitives before checking whether shadcn/ui already covers the need.
+- TanStack Query owns client-side server state: queries, mutations, retries, optimistic updates, and invalidation.
+- Zustand owns client-only state: wizard progress, temporary interview answers, UI preferences, and cross-component local state.
+- Do not store API response caches in Zustand. Use TanStack Query for that.
+- Keep query keys typed and colocated under `lib/query` or `features/*/queries`.
+- Keep Zustand stores small and feature-scoped unless state is truly global.
 
 ### API/data rules
 

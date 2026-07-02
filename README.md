@@ -10,7 +10,9 @@ The frontend owns the user journey from landing to onboarding, AI interview, res
 
 - Framework: Next.js App Router
 - UI: React + TypeScript
-- Styling: Tailwind CSS or a project design system
+- Styling / UI: Tailwind CSS + shadcn/ui
+- Server state: TanStack Query where client-side caching/mutations are needed
+- Client state: Zustand for small, explicit app/flow state
 - Data fetching: Server Components first; Client Components only for interaction
 - Forms: React Hook Form + schema validation, or equivalent
 - Testing: Vitest / Testing Library / Playwright as needed
@@ -39,6 +41,13 @@ npm run dev
 npm run lint
 npm run build
 ```
+
+## Frontend Library Rules
+
+- Use shadcn/ui as the default UI primitive layer.
+- Use Zustand for client-only flow state such as interview progress, temporary selections, and UI preferences.
+- Use TanStack Query for client-side server state, cache invalidation, and mutations when Server Components are not enough.
+- Do not duplicate server state into Zustand.
 
 ## Next.js Rules
 
