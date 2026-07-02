@@ -1,6 +1,6 @@
-# RoleFit Frontend
+# JobCodi Frontend
 
-Next.js frontend for **롤핏**, an AI-based job discovery and recommendation platform.
+Next.js frontend for **JobCodi**, an AI-based job discovery and recommendation platform.
 
 ## Role
 
@@ -27,7 +27,7 @@ AI Job Interview
 Resume Upload
 Resume Analysis Result
 Job Candidate Comparison
-RoleFit Report
+JobCodi Report
 My Page
 ```
 

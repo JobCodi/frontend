@@ -1,6 +1,6 @@
-# RoleFit Frontend Rules
+# JobCodi Frontend Rules
 
-This document defines the default frontend structure and TypeScript conventions for the RoleFit Next.js project.
+This document defines the default frontend structure and TypeScript conventions for the JobCodi Next.js project.
 
 ## 1. Project Structure
 
