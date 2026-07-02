@@ -1,6 +1,6 @@
 # AGENTS.md
 
-This repository is the Next.js frontend for JIKMUPICK.
+This repository is the Next.js frontend for RollFit.
 
 ## Mandatory Rules
 

@@ -1,6 +1,6 @@
-# JIKMUPICK Frontend
+# RollFit Frontend
 
-Next.js frontend for **직무픽**, an AI-based job discovery and recommendation platform.
+Next.js frontend for **롤핏**, an AI-based job discovery and recommendation platform.
 
 ## Role
 
@@ -27,7 +27,7 @@ AI Job Interview
 Resume Upload
 Resume Analysis Result
 Job Candidate Comparison
-JIKMUPICK Report
+RollFit Report
 My Page
 ```
 
