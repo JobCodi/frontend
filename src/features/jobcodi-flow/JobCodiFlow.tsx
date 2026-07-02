@@ -2,7 +2,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import styles from "./rolefit-flow.module.css";
+import styles from "./jobcodi-flow.module.css";
 
 type StepId =
   | "home"
@@ -55,7 +55,7 @@ const priorityItems = [
   { label: "준비 난이도 낮음", value: 68, color: "green" },
 ] as const;
 
-export function RoleFitFlow() {
+export function JobCodiFlow() {
   const [index, setIndex] = useState(0);
   const active = steps[index];
   const progress = useMemo(() => Math.round(((index + 1) / steps.length) * 100), [index]);
@@ -67,7 +67,7 @@ export function RoleFitFlow() {
   return (
     <main className={styles.shell}>
       <section className={styles.contextPanel} aria-labelledby="product-title">
-        <span className={styles.eyebrow}>RoleFit MVP Preview</span>
+        <span className={styles.eyebrow}>JobCodi MVP Preview</span>
         <h1 id="product-title">프로토타입을 실제 모바일 화면으로 개선 구현</h1>
         <p>
           와이어프레임의 핵심 흐름은 유지하고, 카드 대비·CTA·진행 상태·추천 근거를 강화한
@@ -88,7 +88,7 @@ export function RoleFitFlow() {
         </div>
       </section>
 
-      <section className={styles.phone} aria-label={`RoleFit ${active.label} 화면`}>
+      <section className={styles.phone} aria-label={`JobCodi ${active.label} 화면`}>
         <div className={styles.statusBar} aria-hidden="true">
           <span>9:41</span>
           <span className={styles.statusIcons}>▰▰</span>
@@ -153,7 +153,7 @@ function HomeScreen({ goNext, goTo }: { goNext: () => void; goTo: (target: StepI
       <div className={styles.brandRow}>
         <span className={styles.logoMark}>픽</span>
         <div>
-          <strong>직무픽</strong>
+          <strong>JobCodi</strong>
           <p>AI 직무 추천 플랫폼</p>
         </div>
       </div>
@@ -167,7 +167,7 @@ function HomeScreen({ goNext, goTo }: { goNext: () => void; goTo: (target: StepI
         <button className={styles.secondaryButton} onClick={() => goTo("resume")} type="button">이력서로 추천받기</button>
       </div>
       <section className={styles.recommendBox}>
-        <h3>직무픽은 이렇게 추천해요</h3>
+        <h3>JobCodi는 이렇게 추천해요</h3>
         {[
           ["AI 인터뷰", "성향 파악", "primary"],
           ["이력 분석", "경험 추출", "green"],
@@ -285,7 +285,7 @@ function CompareScreen({ goNext }: { goNext: () => void }) {
 function ReportScreen() {
   return (
     <div className={styles.stackLarge}>
-      <PageHeader title="직무픽 리포트" subtitle="추천 이유와 다음 액션을 한 번에 확인하세요." />
+      <PageHeader title="JobCodi 리포트" subtitle="추천 이유와 다음 액션을 한 번에 확인하세요." />
       <section className={styles.reportHero}>
         <div><span>가장 잘 맞는 직무</span><strong>서비스기획</strong><p>현재 이력과 업무 성향이 가장 잘 맞아요.</p></div>
         <b>88<small>점</small></b>

@@ -1,5 +1,5 @@
-import { RoleFitFlow } from "@/features/rolefit-flow/RoleFitFlow";
+import { JobCodiFlow } from "@/features/jobcodi-flow/JobCodiFlow";
 
 export default function HomePage() {
-  return <RoleFitFlow />;
+  return <JobCodiFlow />;
 }
