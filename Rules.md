@@ -1,6 +1,6 @@
-# Rolefit Frontend Rules
+# RoleFit Frontend Rules
 
-This document defines the default frontend structure and TypeScript conventions for the Rolefit Next.js project.
+This document defines the default frontend structure and TypeScript conventions for the RoleFit Next.js project.
 
 ## 1. Project Structure
 
