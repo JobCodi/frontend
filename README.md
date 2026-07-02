@@ -1,4 +1,4 @@
-# RollFit Frontend
+# Rolefit Frontend
 
 Next.js frontend for **롤핏**, an AI-based job discovery and recommendation platform.
 
@@ -27,7 +27,7 @@ AI Job Interview
 Resume Upload
 Resume Analysis Result
 Job Candidate Comparison
-RollFit Report
+Rolefit Report
 My Page
 ```
 

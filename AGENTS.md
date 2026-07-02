@@ -1,6 +1,6 @@
 # AGENTS.md
 
-This repository is the Next.js frontend for RollFit.
+This repository is the Next.js frontend for Rolefit.
 
 ## Mandatory Rules
 
