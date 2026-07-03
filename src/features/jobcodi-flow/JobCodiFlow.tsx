@@ -489,13 +489,82 @@ function CompareStep({ jobs, expandedJob, onExpand, onPrev, onNext }: { jobs: Jo
   );
 }
 
+function buildReportText(basicInfo: BasicInfo, parsedResume: ParsedResume, jobs: JobMatch[]) {
+  const topJob = jobs[0];
+  return [
+    "[JobCodi 종합 커리어 매칭 리포트]",
+    `상태: ${basicInfo.status}`,
+    `희망 조건: ${basicInfo.region} · ${basicInfo.workType} · ${basicInfo.salary}`,
+    `1순위 추천 직무: ${topJob.jobName} (${topJob.score}점)`,
+    `핵심 스킬: ${parsedResume.skills.slice(0, 5).join(", ")}`,
+    `강점 키워드: ${parsedResume.strengths.join(", ")}`,
+    `요약: ${parsedResume.summary}`,
+    `다음 액션: ${jobDetails[topJob.jobName]?.project ?? "추천 직무에 맞춘 포트폴리오 프로젝트를 1개 정리하세요."}`,
+  ].join("\n");
+}
+
+function createFeedback(parsedResume: ParsedResume, jobs: JobMatch[]) {
+  const topJob = jobs[0];
+  const detail = jobDetails[topJob.jobName] ?? jobDetails["서비스기획"];
+  const hasMetric = parsedResume.experiences.some((item) => /\d|%|개선|증가|감소|달성/.test(item));
+  const hasCollaboration = parsedResume.strengths.includes("#협업강점") || parsedResume.experiences.some((item) => /협업|개발자|디자이너|이해관계자/.test(item));
+  return {
+    strengths: [
+      hasMetric ? "성과가 숫자로 드러나 이력서 설득력이 높습니다." : "경험 서술의 방향은 명확하지만, 수치 성과를 추가하면 설득력이 커집니다.",
+      hasCollaboration ? "개발·디자인 등 협업 맥락이 있어 직무 전환 스토리로 연결하기 좋습니다." : `${topJob.jobName} 직무에 맞춰 협업 대상과 본인 역할을 더 드러내면 좋습니다.`,
+      `${parsedResume.skills.slice(0, 3).join(", ")} 스킬이 ${topJob.jobName} 추천 근거로 잘 연결됩니다.`,
+    ],
+    improvements: [
+      `${detail.gapSkills[0]} 역량을 보여주는 산출물 링크를 1개 추가하세요.`,
+      `${detail.project} 프로젝트를 포트폴리오 첫 항목으로 정리하세요.`,
+      "경험마다 문제 정의 → 실행 → 결과 → 배운 점 순서로 3~4줄 요약을 붙이세요.",
+    ],
+  };
+}
+
 function ReportStep({ basicInfo, parsedResume, jobs, feedback, onFeedback, onRestart }: { basicInfo: BasicInfo; parsedResume: ParsedResume; jobs: JobMatch[]; feedback: boolean; onFeedback: () => void; onRestart: () => void }) {
   const topJob = jobs[0];
+  const [saveStatus, setSaveStatus] = useState("리포트 저장");
+  const [copyStatus, setCopyStatus] = useState("공유 텍스트 복사");
+  const feedbackItems = createFeedback(parsedResume, jobs);
+  const reportText = buildReportText(basicInfo, parsedResume, jobs);
+
+  const saveReport = () => {
+    const report = {
+      id: `jobcodi-${Date.now()}`,
+      createdAt: new Date().toISOString(),
+      topJob: topJob.jobName,
+      score: topJob.score,
+      basicInfo,
+      parsedResume,
+      jobs: jobs.slice(0, 3),
+    };
+    const prev = JSON.parse(localStorage.getItem("jobcodi.reports") ?? "[]") as unknown[];
+    localStorage.setItem("jobcodi.reports", JSON.stringify([report, ...prev].slice(0, 5)));
+    setSaveStatus("저장 완료");
+  };
+
+  const copyReport = async () => {
+    try {
+      await navigator.clipboard.writeText(reportText);
+      setCopyStatus("복사 완료");
+    } catch {
+      setCopyStatus("복사 실패");
+    }
+  };
+
   return (
     <div className={styles.reportStack}>
-      <section className={styles.reportHero}><div><span>종합 커리어 매칭 리포트 완성</span><h2>김코디 님의 종합 커리어 진단서</h2><p>{basicInfo.status} 상태와 {parsedResume.skills.slice(0, 3).join(", ")} 스킬을 바탕으로 도출된 최종 추천입니다.</p></div><button onClick={onRestart} type="button">새 진단 시작</button></section>
+      <section className={styles.reportHero}>
+        <div><span>종합 커리어 매칭 리포트 완성</span><h2>김코디 님의 종합 커리어 진단서</h2><p>{basicInfo.status} 상태와 {parsedResume.skills.slice(0, 3).join(", ")} 스킬을 바탕으로 도출된 최종 추천입니다.</p></div>
+        <div className={styles.reportHeroActions}><button onClick={saveReport} type="button">{saveStatus}</button><button onClick={onRestart} type="button">새 진단 시작</button></div>
+      </section>
       <section className={styles.reportGrid}><article className={styles.scorePanel}><Donut score={topJob.score} /><div><span>1순위 추천 최적 직무</span><h3>{topJob.jobName}</h3><p>{parsedResume.summary}</p><div className={styles.tagCloud}>{parsedResume.strengths.map((tag) => <span key={tag}>{tag}</span>)}</div></div></article><article className={styles.panelSoft}><h3>추천 Top 3 로드맵</h3>{jobs.slice(0, 3).map((job, index) => <div className={styles.roadmapItem} key={job.jobName}><b>{index + 1}</b><span><strong>{job.jobName}</strong><small>{job.score}점 · 포트폴리오 액션 준비</small></span></div>)}</article></section>
-      <section className={styles.panel}>{feedback ? <div className={styles.feedbackGrid}><InfoCard title="강점" items={["전환율 개선처럼 수치화된 성과가 명확합니다.", "디자인/개발 협업 경험이 서비스기획 직무와 잘 연결됩니다."]} /><InfoCard title="보완" items={["PRD/화면정의서 산출물 링크를 추가하세요.", "GA4 지표 분석 범위와 의사결정 과정을 구체화하세요."]} /></div> : <button className={styles.feedbackButton} onClick={onFeedback} type="button">✨ 이력서 피드백 받기</button>}</section>
+      <section className={styles.panel}>{feedback ? <div className={styles.feedbackGrid}><InfoCard title="강점" items={feedbackItems.strengths} /><InfoCard title="보완" items={feedbackItems.improvements} /></div> : <button className={styles.feedbackButton} onClick={onFeedback} type="button">✨ 맞춤 이력서 피드백 받기</button>}</section>
+      <section className={styles.reportActionPanel}>
+        <div><h3>리포트 공유</h3><p>상담, 포트폴리오 정리, 멘토 피드백 요청에 바로 붙여넣을 수 있는 요약 텍스트를 생성했습니다.</p></div>
+        <button onClick={copyReport} type="button">{copyStatus}</button>
+      </section>
     </div>
   );
 }
