@@ -49,6 +49,16 @@ interface JobMatch {
   expectedPostCount: string;
 }
 
+interface SavedReport {
+  id: string;
+  createdAt: string;
+  topJob: string;
+  score: number;
+  basicInfo: BasicInfo;
+  parsedResume: ParsedResume;
+  jobs: JobMatch[];
+}
+
 const stepOrder: StepId[] = ["landing", "basic", "interview", "resume", "analysis", "weights", "compare", "report"];
 const wizardSteps: Array<{ id: StepId; label: string; eyebrow: string }> = [
   { id: "basic", label: "기본 정보", eyebrow: "Profile" },
@@ -199,6 +209,15 @@ export function JobCodiFlow() {
   const [jobs, setJobs] = useState<JobMatch[]>(baselineJobs);
   const [expandedJob, setExpandedJob] = useState<string | null>("서비스기획");
   const [resumeFeedback, setResumeFeedback] = useState(false);
+  const [savedReports, setSavedReports] = useState<SavedReport[]>(() => {
+    if (typeof window === "undefined") return [];
+    try {
+      const reports = JSON.parse(window.localStorage.getItem("jobcodi.reports") ?? "[]") as SavedReport[];
+      return Array.isArray(reports) ? reports : [];
+    } catch {
+      return [];
+    }
+  });
 
   const stepIndex = stepOrder.indexOf(step);
   const activeWizardIndex = Math.max(0, wizardSteps.findIndex((item) => item.id === step));
@@ -216,6 +235,22 @@ export function JobCodiFlow() {
   };
 
   const goPrev = () => setStep(stepOrder[Math.max(stepIndex - 1, 1)]);
+
+  const loadSavedReport = (report: SavedReport) => {
+    setBasicInfo(report.basicInfo);
+    setParsedResume(report.parsedResume);
+    setJobs(report.jobs.length ? report.jobs : baselineJobs);
+    setExpandedJob(report.topJob);
+    setResumeFeedback(false);
+    setStep("report");
+  };
+
+  const clearSavedReports = () => {
+    localStorage.removeItem("jobcodi.reports");
+    setSavedReports([]);
+  };
+
+  const rememberSavedReport = (report: SavedReport) => setSavedReports((prev) => [report, ...prev.filter((item) => item.id !== report.id)].slice(0, 5));
 
   if (step === "landing") {
     return <LandingPage onStartInterview={() => setStep("basic")} onStartResume={() => setStep("resume")} />;
@@ -251,7 +286,7 @@ export function JobCodiFlow() {
           {step === "analysis" && <ResumeAnalysisStep parsedResume={parsedResume} onChange={setParsedResume} onPrev={() => setStep("resume")} onNext={() => setStep("weights")} />}
           {step === "weights" && <WeightsStep weights={weights} jobs={jobs} onWeights={setWeights} onJobs={setJobs} onPrev={() => setStep("analysis")} onNext={() => setStep("compare")} />}
           {step === "compare" && <CompareStep jobs={jobs} expandedJob={expandedJob} onExpand={setExpandedJob} onPrev={() => setStep("weights")} onNext={() => setStep("report")} />}
-          {step === "report" && <ReportStep basicInfo={basicInfo} parsedResume={parsedResume} jobs={jobs} feedback={resumeFeedback} onFeedback={() => setResumeFeedback(true)} onRestart={reset} />}
+          {step === "report" && <ReportStep basicInfo={basicInfo} parsedResume={parsedResume} jobs={jobs} feedback={resumeFeedback} savedReports={savedReports} onFeedback={() => setResumeFeedback(true)} onRestart={reset} onSave={rememberSavedReport} onLoadSaved={loadSavedReport} onClearSaved={clearSavedReports} />}
         </section>
       </div>
       <footer className={styles.footer}>© 2026 JobCodi AI Career Diagnostics. 모든 이력 데이터는 안전한 진단 환경에서 처리됩니다.</footer>
@@ -522,7 +557,7 @@ function createFeedback(parsedResume: ParsedResume, jobs: JobMatch[]) {
   };
 }
 
-function ReportStep({ basicInfo, parsedResume, jobs, feedback, onFeedback, onRestart }: { basicInfo: BasicInfo; parsedResume: ParsedResume; jobs: JobMatch[]; feedback: boolean; onFeedback: () => void; onRestart: () => void }) {
+function ReportStep({ basicInfo, parsedResume, jobs, feedback, savedReports, onFeedback, onRestart, onSave, onLoadSaved, onClearSaved }: { basicInfo: BasicInfo; parsedResume: ParsedResume; jobs: JobMatch[]; feedback: boolean; savedReports: SavedReport[]; onFeedback: () => void; onRestart: () => void; onSave: (report: SavedReport) => void; onLoadSaved: (report: SavedReport) => void; onClearSaved: () => void }) {
   const topJob = jobs[0];
   const [saveStatus, setSaveStatus] = useState("리포트 저장");
   const [copyStatus, setCopyStatus] = useState("공유 텍스트 복사");
@@ -530,7 +565,7 @@ function ReportStep({ basicInfo, parsedResume, jobs, feedback, onFeedback, onRes
   const reportText = buildReportText(basicInfo, parsedResume, jobs);
 
   const saveReport = () => {
-    const report = {
+    const report: SavedReport = {
       id: `jobcodi-${Date.now()}`,
       createdAt: new Date().toISOString(),
       topJob: topJob.jobName,
@@ -539,8 +574,10 @@ function ReportStep({ basicInfo, parsedResume, jobs, feedback, onFeedback, onRes
       parsedResume,
       jobs: jobs.slice(0, 3),
     };
-    const prev = JSON.parse(localStorage.getItem("jobcodi.reports") ?? "[]") as unknown[];
-    localStorage.setItem("jobcodi.reports", JSON.stringify([report, ...prev].slice(0, 5)));
+    const prev = JSON.parse(localStorage.getItem("jobcodi.reports") ?? "[]") as SavedReport[];
+    const next = [report, ...prev.filter((item) => item.id !== report.id)].slice(0, 5);
+    localStorage.setItem("jobcodi.reports", JSON.stringify(next));
+    onSave(report);
     setSaveStatus("저장 완료");
   };
 
@@ -565,7 +602,38 @@ function ReportStep({ basicInfo, parsedResume, jobs, feedback, onFeedback, onRes
         <div><h3>리포트 공유</h3><p>상담, 포트폴리오 정리, 멘토 피드백 요청에 바로 붙여넣을 수 있는 요약 텍스트를 생성했습니다.</p></div>
         <button onClick={copyReport} type="button">{copyStatus}</button>
       </section>
+      <SavedReportsPanel reports={savedReports} onLoad={onLoadSaved} onClear={onClearSaved} />
     </div>
+  );
+}
+
+function formatSavedDate(value: string) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "저장일 알 수 없음";
+  return new Intl.DateTimeFormat("ko-KR", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }).format(date);
+}
+
+function SavedReportsPanel({ reports, onLoad, onClear }: { reports: SavedReport[]; onLoad: (report: SavedReport) => void; onClear: () => void }) {
+  return (
+    <section className={styles.savedReportsPanel}>
+      <header>
+        <div><span>Saved Reports</span><h3>최근 저장 리포트</h3></div>
+        {reports.length > 0 && <button onClick={onClear} type="button">전체 삭제</button>}
+      </header>
+      {reports.length === 0 ? (
+        <div className={styles.savedEmpty}><strong>아직 저장된 리포트가 없습니다.</strong><p>상단의 ‘리포트 저장’을 누르면 최근 5개 진단 결과를 이곳에서 다시 확인할 수 있습니다.</p></div>
+      ) : (
+        <div className={styles.savedReportList}>
+          {reports.map((report) => (
+            <article key={report.id}>
+              <div><strong>{report.topJob}</strong><span>{formatSavedDate(report.createdAt)} · {report.score}점</span></div>
+              <p>{report.parsedResume.skills.slice(0, 4).join(", ")} · {report.parsedResume.strengths.slice(0, 2).join(" ")}</p>
+              <button onClick={() => onLoad(report)} type="button">불러오기</button>
+            </article>
+          ))}
+        </div>
+      )}
+    </section>
   );
 }
 
