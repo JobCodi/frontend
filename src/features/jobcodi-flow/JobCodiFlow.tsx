@@ -93,6 +93,62 @@ const initialResume: ParsedResume = {
   summary: "사용자 분석 경험과 프로덕트 관리 경험을 겸비하고 있어, 정량 지표 분석 능력을 탑재한 서비스 기획자 및 CRM 마케터 직군으로 매칭 확률이 높습니다.",
 };
 
+function pickKeywords(source: string, dictionary: Record<string, string[]>) {
+  const normalized = source.toLowerCase();
+  return Object.entries(dictionary)
+    .filter(([, keys]) => keys.some((key) => normalized.includes(key.toLowerCase())))
+    .map(([label]) => label);
+}
+
+function analyzeResumeInput(source: string, fileName?: string): ParsedResume {
+  const text = `${fileName ?? ""}\n${source}`.trim();
+  const skills = [
+    ...pickKeywords(text, {
+      GA4: ["ga4", "google analytics", "구글 애널리틱스"],
+      SQL: ["sql", "query", "쿼리"],
+      Python: ["python", "파이썬", "pandas"],
+      Figma: ["figma", "피그마", "와이어프레임"],
+      Notion: ["notion", "노션"],
+      Excel: ["excel", "엑셀", "스프레드시트"],
+      Jira: ["jira", "지라", "백로그"],
+    }),
+  ];
+  const strengths = [
+    ...pickKeywords(text, {
+      "#데이터분석": ["데이터", "분석", "지표", "전환율", "코호트", "sql", "ga4"],
+      "#문제발견": ["문제", "개선", "이탈", "가설", "실험"],
+      "#기획성향": ["기획", "pm", "prd", "요구사항", "스토리보드", "와이어프레임"],
+      "#협업강점": ["협업", "커뮤니케이션", "개발자", "디자이너", "이해관계자"],
+      "#성장지향": ["학습", "스터디", "개선", "회고", "성장"],
+    }),
+  ];
+  const jobKeywords = [
+    ...pickKeywords(text, {
+      "#서비스기획": ["서비스기획", "서비스 기획", "pm", "prd", "요구사항", "와이어프레임", "스토리보드"],
+      "#CRM마케팅": ["crm", "마케팅", "캠페인", "리텐션", "이메일", "푸시"],
+      "#데이터분석": ["데이터 분석", "sql", "python", "dashboard", "대시보드", "ga4"],
+      "#그로스마케팅": ["그로스", "ab", "a/b", "전환율", "퍼널"],
+    }),
+  ];
+  const cleanedLines = source
+    .split(/\n+/)
+    .map((line) => line.replace(/^[-*•\s]+/, "").trim())
+    .filter(Boolean);
+  const metricLines = cleanedLines.filter((line) => /\d|%|개선|증가|감소|달성/.test(line));
+  const experienceLines = [...new Set([...metricLines, ...cleanedLines])].slice(0, 4);
+  const finalSkills = skills.length ? skills : initialResume.skills;
+  const finalStrengths = strengths.length ? strengths : initialResume.strengths;
+  const finalJobs = jobKeywords.length ? jobKeywords : initialResume.jobKeywords;
+
+  return {
+    experiences: experienceLines.length ? experienceLines : initialResume.experiences,
+    skills: [...new Set(finalSkills)].slice(0, 8),
+    strengths: [...new Set(finalStrengths)].slice(0, 6),
+    jobKeywords: [...new Set(finalJobs)].slice(0, 5),
+    summary: `${fileName ? `${fileName}에서` : "입력한 이력 내용에서"} ${[...new Set(finalSkills)].slice(0, 3).join(", ")} 역량과 ${[...new Set(finalStrengths)].slice(0, 2).join(" · ")} 신호가 확인되었습니다. JobCodi는 이를 바탕으로 ${[...new Set(finalJobs)].slice(0, 2).join(" / ") || "서비스기획 / CRM마케팅"} 직무와의 연결 가능성을 우선 검토합니다.`,
+  };
+}
+
 const jobDetails: Record<string, { salary: string; tools: string[]; gapSkills: string[]; project: string; description: string }> = {
   서비스기획: {
     salary: "평균 3,600만 ~ 4,500만원",
@@ -191,7 +247,7 @@ export function JobCodiFlow() {
         <section className={styles.stage}>
           {step === "basic" && <BasicInfoStep data={basicInfo} onChange={setBasicInfo} onNext={() => setStep("interview")} />}
           {step === "interview" && <InterviewStep basicInfo={basicInfo} chatHistory={chatHistory} personalityTags={personalityTags} jobs={jobs} onChat={setChatHistory} onTags={setPersonalityTags} onJobs={setJobs} onPrev={goPrev} onNext={() => setStep("resume")} />}
-          {step === "resume" && <ResumeUploadStep onPrev={() => setStep("interview")} onNext={() => setStep("analysis")} />}
+          {step === "resume" && <ResumeUploadStep onPrev={() => setStep("interview")} onAnalyze={(nextResume) => { setParsedResume(nextResume); setStep("analysis"); }} />}
           {step === "analysis" && <ResumeAnalysisStep parsedResume={parsedResume} onChange={setParsedResume} onPrev={() => setStep("resume")} onNext={() => setStep("weights")} />}
           {step === "weights" && <WeightsStep weights={weights} jobs={jobs} onWeights={setWeights} onJobs={setJobs} onPrev={() => setStep("analysis")} onNext={() => setStep("compare")} />}
           {step === "compare" && <CompareStep jobs={jobs} expandedJob={expandedJob} onExpand={setExpandedJob} onPrev={() => setStep("weights")} onNext={() => setStep("report")} />}
@@ -324,13 +380,66 @@ function InterviewStep({ basicInfo, chatHistory, personalityTags, jobs, onChat, 
   );
 }
 
-function ResumeUploadStep({ onPrev, onNext }: { onPrev: () => void; onNext: () => void }) {
+function ResumeUploadStep({ onPrev, onAnalyze }: { onPrev: () => void; onAnalyze: (resume: ParsedResume) => void }) {
+  const [fileName, setFileName] = useState("resume_jobcodi_sample.pdf");
+  const [resumeText, setResumeText] = useState("프로모션 랜딩 페이지 전환율을 GA4로 분석하고, Figma 와이어프레임 개선안을 만들어 가입 전환율을 12%에서 18%로 개선했습니다.\n개발자·디자이너와 협업해 요구사항을 정리하고 Notion/Jira로 백로그를 관리했습니다.");
+  const [isReadingFile, setIsReadingFile] = useState(false);
+  const canAnalyze = fileName.trim().length > 0 || resumeText.trim().length >= 20;
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    setFileName(file.name);
+    if (file.type.startsWith("text/") || file.name.endsWith(".txt") || file.name.endsWith(".md")) {
+      setIsReadingFile(true);
+      const reader = new FileReader();
+      reader.onload = () => {
+        setResumeText(String(reader.result ?? ""));
+        setIsReadingFile(false);
+      };
+      reader.onerror = () => setIsReadingFile(false);
+      reader.readAsText(file);
+    }
+  };
+
+  const runAnalysis = () => {
+    onAnalyze(analyzeResumeInput(resumeText, fileName));
+  };
+
+  const preview = analyzeResumeInput(resumeText, fileName);
+
   return (
     <section className={styles.panel}>
-      <StepTitle icon="📤" title="이력서 업로드" desc="PDF, DOCX, 텍스트 이력서를 업로드하면 경험·스킬·성과 키워드를 자동 추출합니다." />
-      <div className={styles.uploadBox}><span>📎</span><strong>resume_jobcodi_sample.pdf</strong><p>샘플 이력서가 업로드된 상태로 시뮬레이션됩니다.</p></div>
-      <div className={styles.resumePreview}><h3>분석 예정 항목</h3><div><span>정량 성과</span><span>사용 툴</span><span>협업 경험</span><span>직무 키워드</span></div></div>
-      <NavActions prevLabel="AI 인터뷰로" nextLabel="이력 분석 보기" onPrev={onPrev} onNext={onNext} />
+      <StepTitle icon="📤" title="이력서 업로드" desc="파일을 선택하거나 핵심 경험을 붙여넣으면 JobCodi가 경험·스킬·직무 키워드를 추출합니다." />
+      <div className={styles.resumeInputGrid}>
+        <label className={styles.uploadBox}>
+          <input type="file" accept=".txt,.md,.pdf,.doc,.docx" onChange={handleFileChange} />
+          <span>📎</span>
+          <strong>{fileName || "이력서 파일 선택"}</strong>
+          <p>{isReadingFile ? "텍스트 파일을 읽는 중입니다..." : "PDF/DOCX는 파일명과 붙여넣은 텍스트를 기준으로 분석을 시뮬레이션합니다."}</p>
+          <b>파일 선택하기</b>
+        </label>
+        <div className={styles.resumeTextBox}>
+          <label htmlFor="resume-text">핵심 경험 붙여넣기</label>
+          <textarea
+            id="resume-text"
+            value={resumeText}
+            onChange={(event) => setResumeText(event.target.value)}
+            placeholder="예: GA4로 전환율을 분석하고 Figma 와이어프레임을 개선해 가입 전환율을 12%에서 18%로 높였습니다."
+          />
+          <small>{resumeText.trim().length}자 입력됨 · 20자 이상이면 분석 가능</small>
+        </div>
+      </div>
+      <div className={styles.resumePreview}>
+        <h3>실시간 추출 미리보기</h3>
+        <div>
+          {preview.skills.slice(0, 5).map((skill) => <span key={skill}>{skill}</span>)}
+          {preview.strengths.slice(0, 4).map((tag) => <span key={tag}>{tag}</span>)}
+          {preview.jobKeywords.slice(0, 3).map((tag) => <span key={tag}>{tag}</span>)}
+        </div>
+        <p>{preview.summary}</p>
+      </div>
+      <NavActions prevLabel="AI 인터뷰로" nextLabel="이력 분석 보기" onPrev={onPrev} onNext={runAnalysis} disabled={!canAnalyze || isReadingFile} />
     </section>
   );
 }
