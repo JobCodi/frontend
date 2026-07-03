@@ -1,5 +1,9 @@
 # JobCodi Frontend
 
+<p align="center">
+  <img src="public/brand/01_primary_horizontal_logo.png" alt="JobCodi" width="520" />
+</p>
+
 Next.js frontend for **JobCodi**, an AI-based job discovery and recommendation platform.
 
 ## Role

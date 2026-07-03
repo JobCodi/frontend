@@ -1,6 +1,7 @@
 
 "use client";
 
+import Image from "next/image";
 import { useMemo, useState } from "react";
 import styles from "./jobcodi-flow.module.css";
 
@@ -151,7 +152,7 @@ function HomeScreen({ goNext, goTo }: { goNext: () => void; goTo: (target: StepI
   return (
     <div className={styles.stackLarge}>
       <div className={styles.brandRow}>
-        <span className={styles.logoMark}>픽</span>
+        <Image className={styles.logoImage} src="/brand/05_app_icon_white.png" alt="JobCodi 로고" width={42} height={42} priority />
         <div>
           <strong>JobCodi</strong>
           <p>AI 직무 추천 플랫폼</p>
