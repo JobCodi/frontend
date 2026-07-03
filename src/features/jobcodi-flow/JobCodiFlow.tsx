@@ -557,12 +557,45 @@ function createFeedback(parsedResume: ParsedResume, jobs: JobMatch[]) {
   };
 }
 
+function createActionItems(job: JobMatch, parsedResume: ParsedResume) {
+  const detail = jobDetails[job.jobName] ?? jobDetails["서비스기획"];
+  return [
+    `${detail.gapSkills[0]} 보완을 위한 2시간 학습 자료 1개 선택`,
+    `${detail.project} 포트폴리오 초안 작성`,
+    `${parsedResume.experiences[0] ?? "대표 경험"}을 STAR 구조로 5문장 정리`,
+    `${job.jobName} 공고 5개를 비교해 반복 키워드 10개 추출`,
+    `${parsedResume.skills.slice(0, 3).join("/")} 스킬이 드러나는 이력서 bullet 3개 작성`,
+  ];
+}
+
+function readChecklistState(jobName: string) {
+  if (typeof window === "undefined") return [];
+  try {
+    const saved = JSON.parse(window.localStorage.getItem(`jobcodi.actions.${jobName}`) ?? "[]") as string[];
+    return Array.isArray(saved) ? saved : [];
+  } catch {
+    return [];
+  }
+}
+
 function ReportStep({ basicInfo, parsedResume, jobs, feedback, savedReports, onFeedback, onRestart, onSave, onLoadSaved, onClearSaved }: { basicInfo: BasicInfo; parsedResume: ParsedResume; jobs: JobMatch[]; feedback: boolean; savedReports: SavedReport[]; onFeedback: () => void; onRestart: () => void; onSave: (report: SavedReport) => void; onLoadSaved: (report: SavedReport) => void; onClearSaved: () => void }) {
   const topJob = jobs[0];
   const [saveStatus, setSaveStatus] = useState("리포트 저장");
   const [copyStatus, setCopyStatus] = useState("공유 텍스트 복사");
+  const [completedActions, setCompletedActions] = useState<string[]>(() => readChecklistState(topJob.jobName));
   const feedbackItems = createFeedback(parsedResume, jobs);
+  const actionItems = createActionItems(topJob, parsedResume);
+  const completedCount = actionItems.filter((item) => completedActions.includes(item)).length;
+  const actionProgress = Math.round((completedCount / actionItems.length) * 100);
   const reportText = buildReportText(basicInfo, parsedResume, jobs);
+
+  const toggleAction = (item: string) => {
+    setCompletedActions((current) => {
+      const next = current.includes(item) ? current.filter((value) => value !== item) : [...current, item];
+      localStorage.setItem(`jobcodi.actions.${topJob.jobName}`, JSON.stringify(next));
+      return next;
+    });
+  };
 
   const saveReport = () => {
     const report: SavedReport = {
@@ -597,6 +630,7 @@ function ReportStep({ basicInfo, parsedResume, jobs, feedback, savedReports, onF
         <div className={styles.reportHeroActions}><button onClick={saveReport} type="button">{saveStatus}</button><button onClick={onRestart} type="button">새 진단 시작</button></div>
       </section>
       <section className={styles.reportGrid}><article className={styles.scorePanel}><Donut score={topJob.score} /><div><span>1순위 추천 최적 직무</span><h3>{topJob.jobName}</h3><p>{parsedResume.summary}</p><div className={styles.tagCloud}>{parsedResume.strengths.map((tag) => <span key={tag}>{tag}</span>)}</div></div></article><article className={styles.panelSoft}><h3>추천 Top 3 로드맵</h3>{jobs.slice(0, 3).map((job, index) => <div className={styles.roadmapItem} key={job.jobName}><b>{index + 1}</b><span><strong>{job.jobName}</strong><small>{job.score}점 · 포트폴리오 액션 준비</small></span></div>)}</article></section>
+      <ActionChecklist items={actionItems} completed={completedActions} progress={actionProgress} onToggle={toggleAction} />
       <section className={styles.panel}>{feedback ? <div className={styles.feedbackGrid}><InfoCard title="강점" items={feedbackItems.strengths} /><InfoCard title="보완" items={feedbackItems.improvements} /></div> : <button className={styles.feedbackButton} onClick={onFeedback} type="button">✨ 맞춤 이력서 피드백 받기</button>}</section>
       <section className={styles.reportActionPanel}>
         <div><h3>리포트 공유</h3><p>상담, 포트폴리오 정리, 멘토 피드백 요청에 바로 붙여넣을 수 있는 요약 텍스트를 생성했습니다.</p></div>
@@ -611,6 +645,30 @@ function formatSavedDate(value: string) {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return "저장일 알 수 없음";
   return new Intl.DateTimeFormat("ko-KR", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }).format(date);
+}
+
+function ActionChecklist({ items, completed, progress, onToggle }: { items: string[]; completed: string[]; progress: number; onToggle: (item: string) => void }) {
+  return (
+    <section className={styles.actionChecklist}>
+      <header>
+        <div><span>Next Actions</span><h3>추천 직무 실행 체크리스트</h3><p>진단 결과를 실제 지원 준비로 연결하는 5단계 액션입니다.</p></div>
+        <strong>{progress}% 완료</strong>
+      </header>
+      <div className={styles.actionProgress}><span style={{ width: `${progress}%` }} /></div>
+      <div className={styles.actionList}>
+        {items.map((item, index) => {
+          const isDone = completed.includes(item);
+          return (
+            <label key={item} className={isDone ? styles.actionDone : styles.actionItem}>
+              <input type="checkbox" checked={isDone} onChange={() => onToggle(item)} />
+              <b>{index + 1}</b>
+              <span>{item}</span>
+            </label>
+          );
+        })}
+      </div>
+    </section>
+  );
 }
 
 function SavedReportsPanel({ reports, onLoad, onClear }: { reports: SavedReport[]; onLoad: (report: SavedReport) => void; onClear: () => void }) {
