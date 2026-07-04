@@ -12,6 +12,7 @@ The onboarding IA covers the user journey before the final recommendation report
 4. Resume upload / text input
 5. Resume analysis review
 6. Recommendation priority weighting
+7. Final report and 30/90 day action plan
 
 The goal is to make the question list, choice sets, and browser state contract explicit before the flow is connected to a backend API.
 
@@ -152,6 +153,36 @@ When inline editing is added, edits should update `parsedResume` directly and pr
 | 워라밸 | `weights.workLife` | 10 | 5–45 |
 
 Changing a range input recalculates `jobs` and re-sorts recommendations.
+
+## Step 6. Final report and 30/90 day action plan
+
+### Report sections
+
+| Section | Source | Purpose |
+| --- | --- | --- |
+| Fit score hero | `jobs[0]`, `parsedResume.summary` | Shows the top recommended role and why it fits. |
+| Recommendation Top 3 roadmap | `jobs.slice(0, 3)` | Keeps alternate role options visible. |
+| 30/90 day action plan | `createActionPlan(jobs[0], parsedResume)` | Converts the recommendation into short-term and mid-term execution steps. |
+| Action checklist | `createActionItems(jobs[0], parsedResume)` | Tracks immediate preparation actions in browser storage. |
+| Application board | `createApplicationLeads(jobs[0], parsedResume)` | Simulates target application leads and status movement. |
+| Resume feedback | `createFeedback(parsedResume, jobs)` | Separates strengths and improvement areas. |
+| Share text | `buildReportText(...)` | Produces copyable report text including the 30/90 day plan. |
+
+### Action plan contract
+
+The 30/90 day action plan returns two phases:
+
+```ts
+interface ActionPlanPhase {
+  phase: "30일" | "90일";
+  title: string;
+  focus: string;
+  actions: string[];
+  outcome: string;
+}
+```
+
+The 30-day phase should focus on portfolio evidence and first application readiness. The 90-day phase should focus on repeated applications, feedback loops, and deeper proof of the gap skills for the top recommended role.
 
 ## Stored / persisted browser state
 
