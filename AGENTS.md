@@ -17,6 +17,12 @@ This repository is the Next.js frontend for JobCodi.
 - Pull requests must link the issue with `Closes #<number>` or `Refs #<number>`.
 - Do not mix unrelated issues in one PR.
 
+## Commit Messages
+
+- Commit messages must be written in Korean.
+- Keep the conventional type prefix when useful, but write the subject itself in Korean, for example `docs: 온보딩 IA 문서 추가`.
+- PR titles and bodies may include English technical terms when clearer, but commit subjects should remain Korean by default.
+
 ## Verification
 
 Before claiming work is complete, run the relevant checks once scripts exist:
