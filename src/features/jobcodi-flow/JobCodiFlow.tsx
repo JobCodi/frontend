@@ -71,6 +71,14 @@ interface ApplicationLead {
   prepAction: string;
 }
 
+interface ActionPlanPhase {
+  phase: "30일" | "90일";
+  title: string;
+  focus: string;
+  actions: string[];
+  outcome: string;
+}
+
 const stepOrder: StepId[] = ["landing", "basic", "interview", "resume", "analysis", "weights", "compare", "report"];
 const wizardSteps: Array<{ id: StepId; label: string; eyebrow: string }> = [
   { id: "basic", label: "기본 정보", eyebrow: "Profile" },
@@ -536,7 +544,7 @@ function CompareStep({ jobs, expandedJob, onExpand, onPrev, onNext }: { jobs: Jo
   );
 }
 
-function buildReportText(basicInfo: BasicInfo, parsedResume: ParsedResume, jobs: JobMatch[]) {
+function buildReportText(basicInfo: BasicInfo, parsedResume: ParsedResume, jobs: JobMatch[], actionPlan: ActionPlanPhase[]) {
   const topJob = jobs[0];
   return [
     "[JobCodi 종합 커리어 매칭 리포트]",
@@ -546,8 +554,41 @@ function buildReportText(basicInfo: BasicInfo, parsedResume: ParsedResume, jobs:
     `핵심 스킬: ${parsedResume.skills.slice(0, 5).join(", ")}`,
     `강점 키워드: ${parsedResume.strengths.join(", ")}`,
     `요약: ${parsedResume.summary}`,
+    "",
+    "[30/90일 실행 계획]",
+    ...actionPlan.flatMap((phase) => [
+      `${phase.phase} - ${phase.title}`,
+      `초점: ${phase.focus}`,
+      ...phase.actions.map((action, index) => `${index + 1}. ${action}`),
+      `완료 산출물: ${phase.outcome}`,
+    ]),
+    "",
     `다음 액션: ${jobDetails[topJob.jobName]?.project ?? "추천 직무에 맞춘 포트폴리오 프로젝트를 1개 정리하세요."}`,
   ].join("\n");
+}
+
+async function copyTextToClipboard(text: string) {
+  if (navigator.clipboard?.writeText) {
+    try {
+      await navigator.clipboard.writeText(text);
+      return;
+    } catch {
+      // Fall through to the textarea fallback for browser/permission edge cases.
+    }
+  }
+  return new Promise<void>((resolve, reject) => {
+    const textarea = document.createElement("textarea");
+    textarea.value = text;
+    textarea.setAttribute("readonly", "true");
+    textarea.style.position = "fixed";
+    textarea.style.top = "-9999px";
+    document.body.appendChild(textarea);
+    textarea.select();
+    const copied = document.execCommand("copy");
+    document.body.removeChild(textarea);
+    if (copied) resolve();
+    else reject(new Error("copy command failed"));
+  });
 }
 
 function createFeedback(parsedResume: ParsedResume, jobs: JobMatch[]) {
@@ -577,6 +618,36 @@ function createActionItems(job: JobMatch, parsedResume: ParsedResume) {
     `${parsedResume.experiences[0] ?? "대표 경험"}을 STAR 구조로 5문장 정리`,
     `${job.jobName} 공고 5개를 비교해 반복 키워드 10개 추출`,
     `${parsedResume.skills.slice(0, 3).join("/")} 스킬이 드러나는 이력서 bullet 3개 작성`,
+  ];
+}
+
+function createActionPlan(job: JobMatch, parsedResume: ParsedResume): ActionPlanPhase[] {
+  const detail = jobDetails[job.jobName] ?? jobDetails["서비스기획"];
+  const primarySkill = parsedResume.skills[0] ?? detail.tools[0] ?? "핵심 실무 도구";
+  const topExperience = parsedResume.experiences[0] ?? "대표 경험";
+  return [
+    {
+      phase: "30일",
+      title: "지원 가능한 포트폴리오 기반 만들기",
+      focus: `${job.jobName} 공고에서 반복되는 역량을 빠르게 보완하고 첫 지원에 쓸 증거를 만듭니다.`,
+      actions: [
+        `${detail.gapSkills[0]} 학습 자료 2개를 고르고 핵심 개념을 1페이지로 정리`,
+        `${topExperience} 경험을 문제 정의 → 실행 → 결과 → 배운 점 구조로 재작성`,
+        `${detail.project} 산출물 초안을 만들고 ${primarySkill} 활용 근거를 추가`,
+      ],
+      outcome: "이력서 상단 bullet 3개와 포트폴리오 초안 1개",
+    },
+    {
+      phase: "90일",
+      title: "실전 지원과 역량 증명 루프 만들기",
+      focus: "지원 결과를 회고하며 부족 역량을 보완하고 더 높은 매칭 직무로 확장합니다.",
+      actions: [
+        `${job.jobName} 공고 20개를 비교해 반복 요구사항과 내 경험 매핑표 작성`,
+        `${detail.gapSkills.slice(0, 2).join("·")} 역량을 보여주는 미니 프로젝트를 완성`,
+        "지원/면접 피드백을 주 1회 정리해 이력서와 포트폴리오를 업데이트",
+      ],
+      outcome: "지원 기록 10건, 개선된 포트폴리오 2차본, 면접 답변 스크립트 5개",
+    },
   ];
 }
 
@@ -638,14 +709,16 @@ function ReportStep({ basicInfo, parsedResume, jobs, feedback, savedReports, onF
   const topJob = jobs[0];
   const [saveStatus, setSaveStatus] = useState("리포트 저장");
   const [copyStatus, setCopyStatus] = useState("공유 텍스트 복사");
+  const [showShareText, setShowShareText] = useState(false);
   const [completedActions, setCompletedActions] = useState<string[]>(() => readChecklistState(topJob.jobName));
   const [applicationStatuses, setApplicationStatuses] = useState<Record<string, ApplicationStatus>>(() => readApplicationStatuses(topJob.jobName));
   const feedbackItems = createFeedback(parsedResume, jobs);
   const actionItems = createActionItems(topJob, parsedResume);
+  const actionPlan = createActionPlan(topJob, parsedResume);
   const applicationLeads = createApplicationLeads(topJob, parsedResume);
   const completedCount = actionItems.filter((item) => completedActions.includes(item)).length;
   const actionProgress = Math.round((completedCount / actionItems.length) * 100);
-  const reportText = buildReportText(basicInfo, parsedResume, jobs);
+  const reportText = buildReportText(basicInfo, parsedResume, jobs, actionPlan);
 
   const toggleAction = (item: string) => {
     setCompletedActions((current) => {
@@ -681,11 +754,12 @@ function ReportStep({ basicInfo, parsedResume, jobs, feedback, savedReports, onF
   };
 
   const copyReport = async () => {
+    setShowShareText(true);
     try {
-      await navigator.clipboard.writeText(reportText);
+      await copyTextToClipboard(reportText);
       setCopyStatus("복사 완료");
     } catch {
-      setCopyStatus("복사 실패");
+      setCopyStatus("텍스트 표시됨");
     }
   };
 
@@ -696,12 +770,14 @@ function ReportStep({ basicInfo, parsedResume, jobs, feedback, savedReports, onF
         <div className={styles.reportHeroActions}><button onClick={saveReport} type="button">{saveStatus}</button><button onClick={onRestart} type="button">새 진단 시작</button></div>
       </section>
       <section className={styles.reportGrid}><article className={styles.scorePanel}><Donut score={topJob.score} /><div><span>1순위 추천 최적 직무</span><h3>{topJob.jobName}</h3><p>{parsedResume.summary}</p><div className={styles.tagCloud}>{parsedResume.strengths.map((tag) => <span key={tag}>{tag}</span>)}</div></div></article><article className={styles.panelSoft}><h3>추천 Top 3 로드맵</h3>{jobs.slice(0, 3).map((job, index) => <div className={styles.roadmapItem} key={job.jobName}><b>{index + 1}</b><span><strong>{job.jobName}</strong><small>{job.score}점 · 포트폴리오 액션 준비</small></span></div>)}</article></section>
+      <ActionPlanSection phases={actionPlan} />
       <ActionChecklist items={actionItems} completed={completedActions} progress={actionProgress} onToggle={toggleAction} />
       <ApplicationBoard leads={applicationLeads} statuses={applicationStatuses} onStatus={setApplicationStatus} />
       <section className={styles.panel}>{feedback ? <div className={styles.feedbackGrid}><InfoCard title="강점" items={feedbackItems.strengths} /><InfoCard title="보완" items={feedbackItems.improvements} /></div> : <button className={styles.feedbackButton} onClick={onFeedback} type="button">✨ 맞춤 이력서 피드백 받기</button>}</section>
       <section className={styles.reportActionPanel}>
         <div><h3>리포트 공유</h3><p>상담, 포트폴리오 정리, 멘토 피드백 요청에 바로 붙여넣을 수 있는 요약 텍스트를 생성했습니다.</p></div>
         <button onClick={copyReport} type="button">{copyStatus}</button>
+        {showShareText && <textarea aria-label="공유 리포트 텍스트" readOnly value={reportText} />}
       </section>
       <SavedReportsPanel reports={savedReports} onLoad={onLoadSaved} onClear={onClearSaved} />
     </div>
@@ -733,6 +809,29 @@ function ActionChecklist({ items, completed, progress, onToggle }: { items: stri
             </label>
           );
         })}
+      </div>
+    </section>
+  );
+}
+
+function ActionPlanSection({ phases }: { phases: ActionPlanPhase[] }) {
+  return (
+    <section className={styles.actionPlanPanel}>
+      <header>
+        <div><span>30/90 Day Plan</span><h3>직무 전환 실행 계획</h3><p>추천 직무를 실제 지원 준비로 연결하는 단기/중기 액션 로드맵입니다.</p></div>
+      </header>
+      <div className={styles.actionPlanGrid}>
+        {phases.map((phase) => (
+          <article key={phase.phase}>
+            <strong>{phase.phase}</strong>
+            <h4>{phase.title}</h4>
+            <p>{phase.focus}</p>
+            <ol>
+              {phase.actions.map((action) => <li key={action}>{action}</li>)}
+            </ol>
+            <em>완료 산출물: {phase.outcome}</em>
+          </article>
+        ))}
       </div>
     </section>
   );
