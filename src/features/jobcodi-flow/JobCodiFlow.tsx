@@ -977,13 +977,42 @@ function SavedReportsPanel({ reports, onLoad, onClear }: { reports: SavedReport[
             <article key={report.id}>
               <div><strong>{report.topJob}</strong><span>{formatSavedDate(report.createdAt)} · {report.score}점</span></div>
               <p>{report.parsedResume.skills.slice(0, 4).join(", ")} · {report.parsedResume.strengths.slice(0, 2).join(" ")}</p>
-              {report.serverReportId && <small className={styles.savedServerRef}>서버 리포트 {report.serverReportId}</small>}
+              <SavedReportShareActions report={report} />
               <button onClick={() => onLoad(report)} type="button">불러오기</button>
             </article>
           ))}
         </div>
       )}
     </section>
+  );
+}
+
+function SavedReportShareActions({ report }: { report: SavedReport }) {
+  const [copyLabel, setCopyLabel] = useState("공유 URL 복사");
+  const [showUrl, setShowUrl] = useState(false);
+  if (!report.serverReportId) {
+    return <small className={styles.savedLocalRef}>로컬 저장 리포트 · 공유 링크 없음</small>;
+  }
+
+  const path = `/reports/${report.serverReportId}`;
+  const sharedUrl = typeof window === "undefined" ? path : new URL(path, window.location.origin).toString();
+  const copySharedUrl = async () => {
+    setShowUrl(true);
+    try {
+      await copyTextToClipboard(sharedUrl);
+      setCopyLabel("URL 복사 완료");
+    } catch {
+      setCopyLabel("URL 표시됨");
+    }
+  };
+
+  return (
+    <div className={styles.savedShareActions}>
+      <small className={styles.savedServerRef}>서버 리포트 {report.serverReportId}</small>
+      <a href={path} target="_blank" rel="noreferrer">공유 페이지 열기</a>
+      <button onClick={copySharedUrl} type="button">{copyLabel}</button>
+      {showUrl && <input aria-label="공유 리포트 URL" readOnly value={sharedUrl} />}
+    </div>
   );
 }
 
