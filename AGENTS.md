@@ -17,6 +17,15 @@ This repository is the Next.js frontend for JobCodi.
 - Pull requests must link the issue with `Closes #<number>` or `Refs #<number>`.
 - Do not mix unrelated issues in one PR.
 
+## Notion Kanban Workflow
+
+- Before starting work, create or update a card in the JobCodi Notion `개발 작업 DB` Kanban board.
+- Each Notion work card should include the task title, scope, status, priority, sprint, related GitHub Issue/PR link, repository link, owner/agent, and completion criteria when available.
+- Move the Notion card through the workflow as the task progresses: `Backlog` or `Ready` → `In Progress` → `Review` when a PR is open → `Done` after merge and verification.
+- Add concise progress notes to the Notion card for key transitions, implementation summary, blockers, PR links, and verification results.
+- If GitHub Issue or PR links are created after the Notion card, write those links back to the Notion card.
+- Do not expose Notion tokens or credentials in issues, PRs, commits, logs, or documentation.
+
 ## Commit Messages
 
 - Commit messages must be written in Korean.
