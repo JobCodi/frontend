@@ -59,6 +59,18 @@ interface SavedReport {
   jobs: JobMatch[];
 }
 
+type ApplicationStatus = "saved" | "planned" | "applied";
+
+interface ApplicationLead {
+  id: string;
+  title: string;
+  company: string;
+  fit: number;
+  due: string;
+  matchPoint: string;
+  prepAction: string;
+}
+
 const stepOrder: StepId[] = ["landing", "basic", "interview", "resume", "analysis", "weights", "compare", "report"];
 const wizardSteps: Array<{ id: StepId; label: string; eyebrow: string }> = [
   { id: "basic", label: "기본 정보", eyebrow: "Profile" },
@@ -286,7 +298,7 @@ export function JobCodiFlow() {
           {step === "analysis" && <ResumeAnalysisStep parsedResume={parsedResume} onChange={setParsedResume} onPrev={() => setStep("resume")} onNext={() => setStep("weights")} />}
           {step === "weights" && <WeightsStep weights={weights} jobs={jobs} onWeights={setWeights} onJobs={setJobs} onPrev={() => setStep("analysis")} onNext={() => setStep("compare")} />}
           {step === "compare" && <CompareStep jobs={jobs} expandedJob={expandedJob} onExpand={setExpandedJob} onPrev={() => setStep("weights")} onNext={() => setStep("report")} />}
-          {step === "report" && <ReportStep basicInfo={basicInfo} parsedResume={parsedResume} jobs={jobs} feedback={resumeFeedback} savedReports={savedReports} onFeedback={() => setResumeFeedback(true)} onRestart={reset} onSave={rememberSavedReport} onLoadSaved={loadSavedReport} onClearSaved={clearSavedReports} />}
+          {step === "report" && <ReportStep key={jobs[0]?.jobName ?? "report"} basicInfo={basicInfo} parsedResume={parsedResume} jobs={jobs} feedback={resumeFeedback} savedReports={savedReports} onFeedback={() => setResumeFeedback(true)} onRestart={reset} onSave={rememberSavedReport} onLoadSaved={loadSavedReport} onClearSaved={clearSavedReports} />}
         </section>
       </div>
       <footer className={styles.footer}>© 2026 JobCodi AI Career Diagnostics. 모든 이력 데이터는 안전한 진단 환경에서 처리됩니다.</footer>
@@ -578,13 +590,59 @@ function readChecklistState(jobName: string) {
   }
 }
 
+function createApplicationLeads(job: JobMatch, parsedResume: ParsedResume): ApplicationLead[] {
+  const detail = jobDetails[job.jobName] ?? jobDetails["서비스기획"];
+  const skill = parsedResume.skills[0] ?? "직무 역량";
+  return [
+    {
+      id: `${job.jobName}-seed`,
+      title: `${job.jobName} 주니어 / Associate`,
+      company: "SeedTech Labs",
+      fit: Math.min(98, job.score + 2),
+      due: "D-5",
+      matchPoint: `${skill} 경험과 ${detail.tools.slice(0, 2).join("/")} 활용 역량이 잘 맞습니다.`,
+      prepAction: `${detail.gapSkills[0]} 근거를 이력서 상단 bullet에 추가`,
+    },
+    {
+      id: `${job.jobName}-growth`,
+      title: `${job.jobName} 인턴십 전환형`,
+      company: "GrowthBridge",
+      fit: Math.max(70, job.score - 4),
+      due: "D-9",
+      matchPoint: `${parsedResume.strengths.slice(0, 2).join(" · ")} 성향이 실무 과제형 전형과 연결됩니다.`,
+      prepAction: `${detail.project} 산출물을 1페이지 포트폴리오로 정리`,
+    },
+    {
+      id: `${job.jobName}-remote`,
+      title: `원격 가능 ${job.jobName} 포지션`,
+      company: "RemoteCraft",
+      fit: Math.max(68, job.score - 7),
+      due: "상시",
+      matchPoint: `${parsedResume.experiences[0] ?? "대표 경험"} 경험을 문제 해결 사례로 제시할 수 있습니다.`,
+      prepAction: `공고 키워드 10개와 내 경험 키워드 매핑표 작성`,
+    },
+  ];
+}
+
+function readApplicationStatuses(jobName: string) {
+  if (typeof window === "undefined") return {} as Record<string, ApplicationStatus>;
+  try {
+    const saved = JSON.parse(window.localStorage.getItem(`jobcodi.applications.${jobName}`) ?? "{}") as Record<string, ApplicationStatus>;
+    return saved && typeof saved === "object" ? saved : {};
+  } catch {
+    return {} as Record<string, ApplicationStatus>;
+  }
+}
+
 function ReportStep({ basicInfo, parsedResume, jobs, feedback, savedReports, onFeedback, onRestart, onSave, onLoadSaved, onClearSaved }: { basicInfo: BasicInfo; parsedResume: ParsedResume; jobs: JobMatch[]; feedback: boolean; savedReports: SavedReport[]; onFeedback: () => void; onRestart: () => void; onSave: (report: SavedReport) => void; onLoadSaved: (report: SavedReport) => void; onClearSaved: () => void }) {
   const topJob = jobs[0];
   const [saveStatus, setSaveStatus] = useState("리포트 저장");
   const [copyStatus, setCopyStatus] = useState("공유 텍스트 복사");
   const [completedActions, setCompletedActions] = useState<string[]>(() => readChecklistState(topJob.jobName));
+  const [applicationStatuses, setApplicationStatuses] = useState<Record<string, ApplicationStatus>>(() => readApplicationStatuses(topJob.jobName));
   const feedbackItems = createFeedback(parsedResume, jobs);
   const actionItems = createActionItems(topJob, parsedResume);
+  const applicationLeads = createApplicationLeads(topJob, parsedResume);
   const completedCount = actionItems.filter((item) => completedActions.includes(item)).length;
   const actionProgress = Math.round((completedCount / actionItems.length) * 100);
   const reportText = buildReportText(basicInfo, parsedResume, jobs);
@@ -593,6 +651,14 @@ function ReportStep({ basicInfo, parsedResume, jobs, feedback, savedReports, onF
     setCompletedActions((current) => {
       const next = current.includes(item) ? current.filter((value) => value !== item) : [...current, item];
       localStorage.setItem(`jobcodi.actions.${topJob.jobName}`, JSON.stringify(next));
+      return next;
+    });
+  };
+
+  const setApplicationStatus = (leadId: string, status: ApplicationStatus) => {
+    setApplicationStatuses((current) => {
+      const next = { ...current, [leadId]: status };
+      localStorage.setItem(`jobcodi.applications.${topJob.jobName}`, JSON.stringify(next));
       return next;
     });
   };
@@ -631,6 +697,7 @@ function ReportStep({ basicInfo, parsedResume, jobs, feedback, savedReports, onF
       </section>
       <section className={styles.reportGrid}><article className={styles.scorePanel}><Donut score={topJob.score} /><div><span>1순위 추천 최적 직무</span><h3>{topJob.jobName}</h3><p>{parsedResume.summary}</p><div className={styles.tagCloud}>{parsedResume.strengths.map((tag) => <span key={tag}>{tag}</span>)}</div></div></article><article className={styles.panelSoft}><h3>추천 Top 3 로드맵</h3>{jobs.slice(0, 3).map((job, index) => <div className={styles.roadmapItem} key={job.jobName}><b>{index + 1}</b><span><strong>{job.jobName}</strong><small>{job.score}점 · 포트폴리오 액션 준비</small></span></div>)}</article></section>
       <ActionChecklist items={actionItems} completed={completedActions} progress={actionProgress} onToggle={toggleAction} />
+      <ApplicationBoard leads={applicationLeads} statuses={applicationStatuses} onStatus={setApplicationStatus} />
       <section className={styles.panel}>{feedback ? <div className={styles.feedbackGrid}><InfoCard title="강점" items={feedbackItems.strengths} /><InfoCard title="보완" items={feedbackItems.improvements} /></div> : <button className={styles.feedbackButton} onClick={onFeedback} type="button">✨ 맞춤 이력서 피드백 받기</button>}</section>
       <section className={styles.reportActionPanel}>
         <div><h3>리포트 공유</h3><p>상담, 포트폴리오 정리, 멘토 피드백 요청에 바로 붙여넣을 수 있는 요약 텍스트를 생성했습니다.</p></div>
@@ -664,6 +731,40 @@ function ActionChecklist({ items, completed, progress, onToggle }: { items: stri
               <b>{index + 1}</b>
               <span>{item}</span>
             </label>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
+const applicationStatusLabels: Record<ApplicationStatus, string> = {
+  saved: "저장",
+  planned: "지원예정",
+  applied: "지원완료",
+};
+
+function ApplicationBoard({ leads, statuses, onStatus }: { leads: ApplicationLead[]; statuses: Record<string, ApplicationStatus>; onStatus: (leadId: string, status: ApplicationStatus) => void }) {
+  return (
+    <section className={styles.applicationBoard}>
+      <header>
+        <div><span>Application Board</span><h3>추천 지원 후보</h3><p>가상의 후보 공고를 기준으로 지원 우선순위와 준비 액션을 관리합니다.</p></div>
+      </header>
+      <div className={styles.applicationGrid}>
+        {leads.map((lead) => {
+          const status = statuses[lead.id] ?? "saved";
+          return (
+            <article key={lead.id}>
+              <div className={styles.applicationTop}><strong>{lead.title}</strong><em>{lead.due}</em></div>
+              <p className={styles.companyLine}>{lead.company} · 매칭 {lead.fit}%</p>
+              <p>{lead.matchPoint}</p>
+              <small>준비 액션: {lead.prepAction}</small>
+              <div className={styles.statusButtons}>
+                {(["saved", "planned", "applied"] as ApplicationStatus[]).map((item) => (
+                  <button key={item} className={status === item ? styles.statusActive : styles.statusButton} onClick={() => onStatus(lead.id, item)} type="button">{applicationStatusLabels[item]}</button>
+                ))}
+              </div>
+            </article>
           );
         })}
       </div>
