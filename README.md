@@ -38,6 +38,7 @@ My Page
 ## Product IA Docs
 
 - [Onboarding IA](docs/onboarding-ia.md) — onboarding questions, choice sets, frontend state fields, and browser storage keys.
+- [Onboarding Save API Draft](docs/onboarding-api.md) — draft request/response DTOs, validation rules, error shape, and frontend mapping.
 
 ## Suggested Initial Setup
 
