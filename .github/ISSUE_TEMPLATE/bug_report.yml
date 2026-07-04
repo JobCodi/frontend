@@ -1,0 +1,139 @@
+name: Bug report
+description: Report a reproducible JobCodi frontend bug
+title: "fix: "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a JobCodi bug. Please include enough detail for another person to reproduce, fix, and verify the issue.
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What is broken?
+      placeholder: The final report save button does not update to 저장 완료 after clicking.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Reproduction steps
+      description: List the exact steps needed to reproduce the bug.
+      placeholder: |
+        1. Open the landing page
+        2. Click 이력서로 추천받기
+        3. Click 이력 분석 보기
+        4. ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      description: What happened instead?
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: What should have happened?
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Affected area
+      options:
+        - Landing
+        - Basic profile onboarding
+        - AI interview
+        - Resume upload
+        - Resume analysis
+        - Recommendation weighting
+        - Job comparison
+        - Final report
+        - Saved reports
+        - Application board
+        - Styling / responsive layout
+        - Build / tooling
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Where did you see the bug?
+      value: |
+        - Browser:
+        - Device / viewport:
+        - URL or route:
+        - Branch / commit:
+    validations:
+      required: true
+
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence
+      description: Attach screenshots, screen recordings, console errors, or logs if available.
+      placeholder: Paste browser console errors, screenshots, or relevant terminal output.
+    validations:
+      required: false
+
+  - type: textarea
+    id: suspected_cause
+    attributes:
+      label: Suspected cause / investigation notes
+      description: Optional notes about where the issue may come from.
+      placeholder: This started after the report action checklist change.
+    validations:
+      required: false
+
+  - type: textarea
+    id: fix_scope
+    attributes:
+      label: Proposed fix scope
+      description: If known, describe the smallest fix that should address this bug class.
+      placeholder: Update ReportStep state reset behavior and add a browser QA note.
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: verification
+    attributes:
+      label: Verification checklist
+      description: Fill this out when submitting or reviewing a fix.
+      options:
+        - label: I reproduced the bug on the current main branch or documented why reproduction is blocked.
+          required: false
+        - label: I identified the exact user flow and affected component or document.
+          required: false
+        - label: The fix includes or references verification output.
+          required: false
+        - label: Relevant checks were run (`npm run lint`, `npm run typecheck`, `npm run build`).
+          required: false
+        - label: Browser QA was performed for visible UI changes.
+          required: false
+
+  - type: textarea
+    id: verification_results
+    attributes:
+      label: Verification results
+      description: After fixing, paste the commands run and the observed browser QA result.
+      placeholder: |
+        - npm run lint: pass
+        - npm run typecheck: pass
+        - npm run build: pass
+        - Browser QA: ...
+    validations:
+      required: false
