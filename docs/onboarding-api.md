@@ -266,6 +266,7 @@ The report save button uses `NEXT_PUBLIC_API_BASE_URL` when configured.
 2. `POST /api/onboarding-drafts/{draftId}/complete` marks the draft complete and returns a `reportId`.
 3. The report is still saved to `localStorage` so the MVP works offline and when the backend is not configured.
 4. If the backend call fails, the UI displays a local fallback state and preserves the local saved report.
+5. Saved reports store the backend `reportId` and can open the shared report route at `/reports/{reportId}`.
 
 Local development example:
 
