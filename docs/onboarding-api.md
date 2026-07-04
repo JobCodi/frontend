@@ -255,8 +255,29 @@ Example:
 | `parsedResume` | `resume` | Add resume source metadata when upload flow exists. |
 | `weights` | `weights` | Direct mapping. |
 | `jobs` | `recommendations` | Direct mapping. |
-| `completedActions` | `reportState.completedActions` | Currently browser localStorage. |
+| `completedActions` | `reportState.completedActions` | Browser localStorage remains the fallback cache. |
 | `applicationStatuses` | `reportState.applicationStatuses` | Convert object map to array for stable API shape. |
+
+## Current frontend integration
+
+The report save button uses `NEXT_PUBLIC_API_BASE_URL` when configured.
+
+1. `POST /api/onboarding-drafts` creates a draft from the current report state.
+2. `POST /api/onboarding-drafts/{draftId}/complete` marks the draft complete and returns a `reportId`.
+3. The report is still saved to `localStorage` so the MVP works offline and when the backend is not configured.
+4. If the backend call fails, the UI displays a local fallback state and preserves the local saved report.
+
+Local development example:
+
+```bash
+# backend
+cd backend
+PORT=4000 npm run start:dev
+
+# frontend
+cd frontend
+NEXT_PUBLIC_API_BASE_URL=http://localhost:4000 npm run dev
+```
 
 ## Security / privacy notes
 
