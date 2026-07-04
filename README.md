@@ -35,6 +35,10 @@ JobCodi Report
 My Page
 ```
 
+## Product IA Docs
+
+- [Onboarding IA](docs/onboarding-ia.md) — onboarding questions, choice sets, frontend state fields, and browser storage keys.
+
 ## Suggested Initial Setup
 
 ```bash
