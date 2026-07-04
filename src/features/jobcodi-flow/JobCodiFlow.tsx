@@ -57,8 +57,17 @@ interface SavedReport {
   basicInfo: BasicInfo;
   parsedResume: ParsedResume;
   jobs: JobMatch[];
+  serverDraftId?: string;
+  serverReportId?: string;
 }
 
+interface ServerReportSaveResult {
+  draftId: string;
+  reportId: string;
+  reportUrl: string;
+}
+
+type ServerSaveState = "idle" | "saving" | "saved" | "fallback" | "unconfigured";
 type ApplicationStatus = "saved" | "planned" | "applied";
 
 interface ApplicationLead {
@@ -306,7 +315,7 @@ export function JobCodiFlow() {
           {step === "analysis" && <ResumeAnalysisStep parsedResume={parsedResume} onChange={setParsedResume} onPrev={() => setStep("resume")} onNext={() => setStep("weights")} />}
           {step === "weights" && <WeightsStep weights={weights} jobs={jobs} onWeights={setWeights} onJobs={setJobs} onPrev={() => setStep("analysis")} onNext={() => setStep("compare")} />}
           {step === "compare" && <CompareStep jobs={jobs} expandedJob={expandedJob} onExpand={setExpandedJob} onPrev={() => setStep("weights")} onNext={() => setStep("report")} />}
-          {step === "report" && <ReportStep key={jobs[0]?.jobName ?? "report"} basicInfo={basicInfo} parsedResume={parsedResume} jobs={jobs} feedback={resumeFeedback} savedReports={savedReports} onFeedback={() => setResumeFeedback(true)} onRestart={reset} onSave={rememberSavedReport} onLoadSaved={loadSavedReport} onClearSaved={clearSavedReports} />}
+          {step === "report" && <ReportStep key={jobs[0]?.jobName ?? "report"} basicInfo={basicInfo} chatHistory={chatHistory} personalityTags={personalityTags} parsedResume={parsedResume} weights={weights} jobs={jobs} feedback={resumeFeedback} savedReports={savedReports} onFeedback={() => setResumeFeedback(true)} onRestart={reset} onSave={rememberSavedReport} onLoadSaved={loadSavedReport} onClearSaved={clearSavedReports} />}
         </section>
       </div>
       <footer className={styles.footer}>© 2026 JobCodi AI Career Diagnostics. 모든 이력 데이터는 안전한 진단 환경에서 처리됩니다.</footer>
@@ -573,7 +582,7 @@ async function copyTextToClipboard(text: string) {
       await navigator.clipboard.writeText(text);
       return;
     } catch {
-      // Fall through to the textarea fallback for browser/permission edge cases.
+      // Fall through to the textarea-based fallback for restricted browser contexts.
     }
   }
   return new Promise<void>((resolve, reject) => {
@@ -581,14 +590,65 @@ async function copyTextToClipboard(text: string) {
     textarea.value = text;
     textarea.setAttribute("readonly", "true");
     textarea.style.position = "fixed";
-    textarea.style.top = "-9999px";
+    textarea.style.left = "-9999px";
     document.body.appendChild(textarea);
     textarea.select();
-    const copied = document.execCommand("copy");
-    document.body.removeChild(textarea);
-    if (copied) resolve();
-    else reject(new Error("copy command failed"));
+    try {
+      const ok = document.execCommand("copy");
+      document.body.removeChild(textarea);
+      if (ok) {
+        resolve();
+      } else {
+        reject(new Error("Copy command failed"));
+      }
+    } catch (error) {
+      document.body.removeChild(textarea);
+      reject(error instanceof Error ? error : new Error("Copy failed"));
+    }
   });
+}
+
+function apiBaseUrl() {
+  return (process.env.NEXT_PUBLIC_API_BASE_URL ?? "").replace(/\/$/, "");
+}
+
+function buildOnboardingDraftPayload({ basicInfo, chatHistory, personalityTags, parsedResume, weights, jobs, completedActions, applicationStatuses }: { basicInfo: BasicInfo; chatHistory: ChatMessage[]; personalityTags: string[]; parsedResume: ParsedResume; weights: Weights; jobs: JobMatch[]; completedActions: string[]; applicationStatuses: Record<string, ApplicationStatus> }) {
+  return {
+    currentStep: "report" as StepId,
+    profile: basicInfo,
+    interview: {
+      messages: chatHistory.map((message) => ({ ...message, createdAt: new Date().toISOString() })),
+      personalityTags,
+    },
+    resume: parsedResume,
+    weights,
+    recommendations: jobs.slice(0, 3),
+    reportState: {
+      completedActions,
+      applicationStatuses: Object.entries(applicationStatuses).map(([leadId, status]) => ({ leadId, status, updatedAt: new Date().toISOString() })),
+    },
+    clientMeta: {
+      appVersion: "0.1.0-alpha",
+      locale: "ko-KR" as const,
+      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+    },
+  };
+}
+
+async function saveReportToBackend(payload: ReturnType<typeof buildOnboardingDraftPayload>): Promise<ServerReportSaveResult | null> {
+  const baseUrl = apiBaseUrl();
+  if (!baseUrl) return null;
+  const createResponse = await fetch(`${baseUrl}/api/onboarding-drafts`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  if (!createResponse.ok) throw new Error(`Failed to create onboarding draft: ${createResponse.status}`);
+  const created = (await createResponse.json()) as { draftId: string };
+  const completeResponse = await fetch(`${baseUrl}/api/onboarding-drafts/${created.draftId}/complete`, { method: "POST" });
+  if (!completeResponse.ok) throw new Error(`Failed to complete onboarding draft: ${completeResponse.status}`);
+  const completed = (await completeResponse.json()) as ServerReportSaveResult;
+  return completed;
 }
 
 function createFeedback(parsedResume: ParsedResume, jobs: JobMatch[]) {
@@ -705,9 +765,11 @@ function readApplicationStatuses(jobName: string) {
   }
 }
 
-function ReportStep({ basicInfo, parsedResume, jobs, feedback, savedReports, onFeedback, onRestart, onSave, onLoadSaved, onClearSaved }: { basicInfo: BasicInfo; parsedResume: ParsedResume; jobs: JobMatch[]; feedback: boolean; savedReports: SavedReport[]; onFeedback: () => void; onRestart: () => void; onSave: (report: SavedReport) => void; onLoadSaved: (report: SavedReport) => void; onClearSaved: () => void }) {
+function ReportStep({ basicInfo, chatHistory, personalityTags, parsedResume, weights, jobs, feedback, savedReports, onFeedback, onRestart, onSave, onLoadSaved, onClearSaved }: { basicInfo: BasicInfo; chatHistory: ChatMessage[]; personalityTags: string[]; parsedResume: ParsedResume; weights: Weights; jobs: JobMatch[]; feedback: boolean; savedReports: SavedReport[]; onFeedback: () => void; onRestart: () => void; onSave: (report: SavedReport) => void; onLoadSaved: (report: SavedReport) => void; onClearSaved: () => void }) {
   const topJob = jobs[0];
   const [saveStatus, setSaveStatus] = useState("리포트 저장");
+  const [serverSaveState, setServerSaveState] = useState<ServerSaveState>(apiBaseUrl() ? "idle" : "unconfigured");
+  const [serverSaveMessage, setServerSaveMessage] = useState(apiBaseUrl() ? "백엔드 저장 대기 중" : "백엔드 API 미설정 · 로컬 저장만 사용");
   const [copyStatus, setCopyStatus] = useState("공유 텍스트 복사");
   const [showShareText, setShowShareText] = useState(false);
   const [completedActions, setCompletedActions] = useState<string[]>(() => readChecklistState(topJob.jobName));
@@ -736,21 +798,39 @@ function ReportStep({ basicInfo, parsedResume, jobs, feedback, savedReports, onF
     });
   };
 
-  const saveReport = () => {
+  const saveReport = async () => {
+    setSaveStatus("저장 중...");
+    setServerSaveState(apiBaseUrl() ? "saving" : "unconfigured");
+    setServerSaveMessage(apiBaseUrl() ? "백엔드에 진단 결과를 저장하는 중입니다." : "백엔드 API 미설정 · 로컬 저장만 사용합니다.");
+    const payload = buildOnboardingDraftPayload({ basicInfo, chatHistory, personalityTags, parsedResume, weights, jobs, completedActions, applicationStatuses });
+    let backendResult: ServerReportSaveResult | null = null;
+    try {
+      backendResult = await saveReportToBackend(payload);
+      if (backendResult) {
+        setServerSaveState("saved");
+        setServerSaveMessage(`백엔드 저장 완료 · ${backendResult.reportId}`);
+      } else {
+        setServerSaveState("unconfigured");
+      }
+    } catch {
+      setServerSaveState("fallback");
+      setServerSaveMessage("백엔드 저장 실패 · 로컬 저장으로 보관했습니다.");
+    }
     const report: SavedReport = {
-      id: `jobcodi-${Date.now()}`,
+      id: backendResult?.reportId ?? `jobcodi-${Date.now()}`,
       createdAt: new Date().toISOString(),
       topJob: topJob.jobName,
       score: topJob.score,
       basicInfo,
       parsedResume,
       jobs: jobs.slice(0, 3),
+      ...(backendResult ? { serverDraftId: backendResult.draftId, serverReportId: backendResult.reportId } : {}),
     };
     const prev = JSON.parse(localStorage.getItem("jobcodi.reports") ?? "[]") as SavedReport[];
     const next = [report, ...prev.filter((item) => item.id !== report.id)].slice(0, 5);
     localStorage.setItem("jobcodi.reports", JSON.stringify(next));
     onSave(report);
-    setSaveStatus("저장 완료");
+    setSaveStatus(backendResult ? "서버 저장 완료" : "로컬 저장 완료");
   };
 
   const copyReport = async () => {
@@ -766,8 +846,8 @@ function ReportStep({ basicInfo, parsedResume, jobs, feedback, savedReports, onF
   return (
     <div className={styles.reportStack}>
       <section className={styles.reportHero}>
-        <div><span>종합 커리어 매칭 리포트 완성</span><h2>김코디 님의 종합 커리어 진단서</h2><p>{basicInfo.status} 상태와 {parsedResume.skills.slice(0, 3).join(", ")} 스킬을 바탕으로 도출된 최종 추천입니다.</p></div>
-        <div className={styles.reportHeroActions}><button onClick={saveReport} type="button">{saveStatus}</button><button onClick={onRestart} type="button">새 진단 시작</button></div>
+        <div><span>종합 커리어 매칭 리포트 완성</span><h2>김코디 님의 종합 커리어 진단서</h2><p>{basicInfo.status} 상태와 {parsedResume.skills.slice(0, 3).join(", ")} 스킬을 바탕으로 도출된 최종 추천입니다.</p><ServerSaveBadge state={serverSaveState} message={serverSaveMessage} /></div>
+        <div className={styles.reportHeroActions}><button onClick={saveReport} disabled={serverSaveState === "saving"} type="button">{saveStatus}</button><button onClick={onRestart} type="button">새 진단 시작</button></div>
       </section>
       <section className={styles.reportGrid}><article className={styles.scorePanel}><Donut score={topJob.score} /><div><span>1순위 추천 최적 직무</span><h3>{topJob.jobName}</h3><p>{parsedResume.summary}</p><div className={styles.tagCloud}>{parsedResume.strengths.map((tag) => <span key={tag}>{tag}</span>)}</div></div></article><article className={styles.panelSoft}><h3>추천 Top 3 로드맵</h3>{jobs.slice(0, 3).map((job, index) => <div className={styles.roadmapItem} key={job.jobName}><b>{index + 1}</b><span><strong>{job.jobName}</strong><small>{job.score}점 · 포트폴리오 액션 준비</small></span></div>)}</article></section>
       <ActionPlanSection phases={actionPlan} />
@@ -788,6 +868,17 @@ function formatSavedDate(value: string) {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return "저장일 알 수 없음";
   return new Intl.DateTimeFormat("ko-KR", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }).format(date);
+}
+
+function ServerSaveBadge({ state, message }: { state: ServerSaveState; message: string }) {
+  const label = {
+    idle: "서버 저장 대기",
+    saving: "서버 저장 중",
+    saved: "서버 저장 완료",
+    fallback: "로컬 fallback",
+    unconfigured: "로컬 저장 모드",
+  }[state];
+  return <div className={styles.serverSaveBadge} data-state={state}><strong>{label}</strong><span>{message}</span></div>;
 }
 
 function ActionChecklist({ items, completed, progress, onToggle }: { items: string[]; completed: string[]; progress: number; onToggle: (item: string) => void }) {
@@ -886,6 +977,7 @@ function SavedReportsPanel({ reports, onLoad, onClear }: { reports: SavedReport[
             <article key={report.id}>
               <div><strong>{report.topJob}</strong><span>{formatSavedDate(report.createdAt)} · {report.score}점</span></div>
               <p>{report.parsedResume.skills.slice(0, 4).join(", ")} · {report.parsedResume.strengths.slice(0, 2).join(" ")}</p>
+              {report.serverReportId && <small className={styles.savedServerRef}>서버 리포트 {report.serverReportId}</small>}
               <button onClick={() => onLoad(report)} type="button">불러오기</button>
             </article>
           ))}
