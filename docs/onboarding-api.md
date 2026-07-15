@@ -269,6 +269,7 @@ The report save button uses `NEXT_PUBLIC_API_BASE_URL` when configured.
 5. Saved reports store the backend `reportId`, show a shared-report open action, and can copy the absolute `/reports/{reportId}` URL.
 6. The shared report page displays saved execution context from `reportState`, including completed checklist items and application status counts.
 7. The `/reports` index page calls `GET /api/reports` and opens each saved server report at `/reports/{reportId}`.
+8. The final report Saved Reports panel links to `/reports` so users can discover server-saved reports even when local saved reports are empty.
 
 Local development example:
 
