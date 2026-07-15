@@ -267,6 +267,7 @@ The report save button uses `NEXT_PUBLIC_API_BASE_URL` when configured.
 3. The report is still saved to `localStorage` so the MVP works offline and when the backend is not configured.
 4. If the backend call fails, the UI displays a local fallback state and preserves the local saved report.
 5. Saved reports store the backend `reportId`, show a shared-report open action, and can copy the absolute `/reports/{reportId}` URL.
+6. The shared report page displays saved execution context from `reportState`, including completed checklist items and application status counts.
 
 Local development example:
 

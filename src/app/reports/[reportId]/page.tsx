@@ -60,8 +60,21 @@ async function fetchReport(reportId: string): Promise<{ report?: SharedReport; e
   }
 }
 
+const applicationStatusLabels: Record<string, string> = {
+  saved: "저장",
+  planned: "지원예정",
+  applied: "지원완료",
+};
+
 function formatCompletedAt(value: string) {
   return new Intl.DateTimeFormat("ko-KR", { dateStyle: "medium", timeStyle: "short" }).format(new Date(value));
+}
+
+function summarizeApplicationStatuses(statuses: ReportState["applicationStatuses"] = []) {
+  return statuses.reduce<Record<string, number>>((summary, item) => {
+    summary[item.status] = (summary[item.status] ?? 0) + 1;
+    return summary;
+  }, {});
 }
 
 export default async function SharedReportPage({ params }: { params: Promise<{ reportId: string }> }) {
@@ -85,8 +98,11 @@ export default async function SharedReportPage({ params }: { params: Promise<{ r
     );
   }
 
-  const completedCount = report.reportState?.completedActions?.length ?? 0;
-  const applicationCount = report.reportState?.applicationStatuses?.length ?? 0;
+  const completedActions = report.reportState?.completedActions ?? [];
+  const applicationStatuses = report.reportState?.applicationStatuses ?? [];
+  const completedCount = completedActions.length;
+  const applicationCount = applicationStatuses.length;
+  const applicationSummary = summarizeApplicationStatuses(applicationStatuses);
 
   return (
     <main className={styles.pageShell}>
@@ -149,6 +165,40 @@ export default async function SharedReportPage({ params }: { params: Promise<{ r
             {report.resume.experiences.slice(0, 3).map((experience) => <li key={experience}>{experience}</li>)}
           </ul>
         </article>
+      </section>
+
+      <section className={styles.statusPanel}>
+        <div>
+          <span>Execution Status</span>
+          <h2>저장 당시 실행 현황</h2>
+          <p>공유받은 사람이 현재 리포트가 단순 추천인지, 실제 지원 준비까지 이어진 상태인지 바로 이해할 수 있도록 정리했습니다.</p>
+        </div>
+        <div className={styles.statusGrid}>
+          <article>
+            <strong>{completedCount}</strong>
+            <span>완료 액션</span>
+            {completedActions.length > 0 ? (
+              <ul>
+                {completedActions.slice(0, 4).map((action) => <li key={action}>{action}</li>)}
+              </ul>
+            ) : (
+              <p>아직 완료한 체크리스트가 없습니다.</p>
+            )}
+          </article>
+          <article>
+            <strong>{applicationCount}</strong>
+            <span>지원 후보 기록</span>
+            {applicationStatuses.length > 0 ? (
+              <div className={styles.statusPills}>
+                {Object.entries(applicationSummary).map(([status, count]) => (
+                  <em key={status}>{applicationStatusLabels[status] ?? status} {count}</em>
+                ))}
+              </div>
+            ) : (
+              <p>아직 저장/지원예정/지원완료 상태가 기록되지 않았습니다.</p>
+            )}
+          </article>
+        </div>
       </section>
 
       <section className={styles.ctaPanel}>

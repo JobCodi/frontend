@@ -10,6 +10,7 @@
 .hero,
 .emptyState,
 .ctaPanel,
+.statusPanel,
 .panel,
 .metaGrid article {
   border: 1px solid rgba(148, 163, 184, 0.28);
@@ -32,6 +33,7 @@
 .hero span,
 .panel span,
 .ctaPanel span,
+.statusPanel span,
 .emptyState span,
 .metaGrid span {
   display: inline-flex;
@@ -94,6 +96,7 @@
 .metaGrid article,
 .panel,
 .ctaPanel,
+.statusPanel,
 .emptyState {
   border-radius: 28px;
   padding: 24px;
@@ -110,6 +113,7 @@
 }
 
 .panel h2,
+.statusPanel h2,
 .ctaPanel h2 {
   margin: 0 0 16px;
   font-size: 24px;
@@ -172,6 +176,76 @@
   line-height: 1.65;
 }
 
+.statusPanel {
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+  gap: 18px;
+  max-width: 1120px;
+  margin: 0 auto 20px;
+}
+
+.statusPanel p {
+  margin: 0;
+  color: #475569;
+  line-height: 1.7;
+}
+
+.statusGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.statusGrid article {
+  border: 1px solid #e2e8f0;
+  border-radius: 22px;
+  padding: 18px;
+  background: #f8fafc;
+}
+
+.statusGrid strong {
+  display: block;
+  margin-bottom: 4px;
+  color: #0f172a;
+  font-size: 34px;
+  letter-spacing: -0.04em;
+}
+
+.statusGrid ul {
+  margin: 12px 0 0;
+  padding-left: 18px;
+}
+
+.statusGrid li {
+  margin-bottom: 8px;
+  color: #475569;
+  line-height: 1.55;
+}
+
+.statusGrid p {
+  margin-top: 12px;
+  color: #64748b;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.statusPills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.statusPills em {
+  border-radius: 999px;
+  padding: 8px 10px;
+  background: #ecfdf5;
+  color: #166534;
+  font-size: 13px;
+  font-style: normal;
+  font-weight: 900;
+}
+
 .ctaPanel {
   display: flex;
   justify-content: space-between;
@@ -221,6 +295,7 @@
 
   .hero,
   .contentGrid,
+  .statusPanel,
   .ctaPanel {
     grid-template-columns: 1fr;
   }
@@ -229,13 +304,15 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .ctaPanel {
+  .ctaPanel,
+  .statusGrid {
     display: grid;
   }
 }
 
 @media (max-width: 560px) {
-  .metaGrid {
+  .metaGrid,
+  .statusGrid {
     grid-template-columns: 1fr;
   }
 
