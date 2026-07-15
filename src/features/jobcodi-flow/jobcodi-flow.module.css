@@ -1579,7 +1579,15 @@
   font-size: 20px;
 }
 
+.savedReportHeaderActions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
 .savedReportsPanel header button,
+.savedReportHeaderActions a,
 .savedReportList article button,
 .savedShareActions a {
   border: 0;
@@ -1589,6 +1597,11 @@
   color: #334155;
   font-weight: 900;
   text-decoration: none;
+}
+
+.savedReportHeaderActions a {
+  background: #eef2ff;
+  color: #4338ca;
 }
 
 .savedEmpty {

@@ -2,6 +2,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useRef, useState } from "react";
 import styles from "./jobcodi-flow.module.css";
 
@@ -967,7 +968,10 @@ function SavedReportsPanel({ reports, onLoad, onClear }: { reports: SavedReport[
     <section className={styles.savedReportsPanel}>
       <header>
         <div><span>Saved Reports</span><h3>최근 저장 리포트</h3></div>
-        {reports.length > 0 && <button onClick={onClear} type="button">전체 삭제</button>}
+        <div className={styles.savedReportHeaderActions}>
+          <Link href="/reports">서버 리포트 전체 보기</Link>
+          {reports.length > 0 && <button onClick={onClear} type="button">전체 삭제</button>}
+        </div>
       </header>
       {reports.length === 0 ? (
         <div className={styles.savedEmpty}><strong>아직 저장된 리포트가 없습니다.</strong><p>상단의 ‘리포트 저장’을 누르면 최근 5개 진단 결과를 이곳에서 다시 확인할 수 있습니다.</p></div>
