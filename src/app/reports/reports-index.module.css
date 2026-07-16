@@ -57,7 +57,8 @@
 
 .hero a,
 .emptyState a,
-.reportCard a {
+.reportCard a,
+.shareActions button {
   flex: 0 0 auto;
   border-radius: 999px;
   padding: 13px 18px;
@@ -104,6 +105,39 @@
   margin: 0;
   font-size: 28px;
   letter-spacing: -0.05em;
+}
+
+.cardActions,
+.shareActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.cardActions {
+  margin-top: 2px;
+}
+
+.shareActions {
+  min-width: 0;
+}
+
+.shareActions button {
+  cursor: pointer;
+  background: #f0fdfa;
+  color: #0f766e;
+}
+
+.shareActions input {
+  flex: 1 1 100%;
+  min-width: 0;
+  border: 1px solid #cbd5e1;
+  border-radius: 14px;
+  padding: 9px 11px;
+  background: #fff;
+  color: #334155;
+  font-size: 12px;
 }
 
 .reportCard dl {
