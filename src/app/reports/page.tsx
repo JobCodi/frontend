@@ -1,4 +1,5 @@
 import Link from "next/link";
+import ReportShareActions from "./ReportShareActions";
 import styles from "./reports-index.module.css";
 
 interface JobMatch {
@@ -98,7 +99,10 @@ export default async function ReportsIndexPage() {
                   <dd>{report.topRecommendation.expectedPostCount}</dd>
                 </div>
               </dl>
-              <Link href={`/reports/${report.reportId}`}>공유 리포트 열기</Link>
+              <div className={styles.cardActions}>
+                <Link href={`/reports/${report.reportId}`}>공유 리포트 열기</Link>
+                <ReportShareActions reportId={report.reportId} />
+              </div>
             </article>
           ))}
         </section>
