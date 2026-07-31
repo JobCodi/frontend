@@ -24,21 +24,26 @@ features/jobcodi-flow/    삭제
 
 브랜드 자산과 디자인 토큰은 승계한다.
 
-## 작업 추적
+## 작업 순서
 
-- 작업은 GitHub Issue에서 시작하며 브랜치명에 이슈 번호를 포함한다.
-- PR은 `Closes #<number>` 또는 `Refs #<number>`로 이슈를 연결하며 관련 없는 이슈를 섞지 않는다.
-- 작업 전 JobCodi Notion `개발 작업 DB` Kanban 카드를 생성 또는 갱신한다. 범위, 상태, 우선순위, Sprint, 관련 GitHub Issue/PR, 저장소 링크, 담당자, 완료 기준을 기록한다.
-- 상태를 `Backlog`/`Ready` → `In Progress` → `Review` → `Done`으로 갱신하고, PR·검증·blocker를 카드에 간결히 남긴다.
+- 작업은 GitHub Issue에서 시작하고 브랜치명에 이슈 번호를 포함한다. PR은 `Closes #<number>` 또는 `Refs #<number>`로 연결하며 관련 없는 변경을 섞지 않는다.
+- 작업 전 JobCodi Notion `개발 작업 DB` Kanban 카드를 생성·갱신한다. 범위, 상태, 우선순위, Sprint, 관련 GitHub Issue/PR, 저장소 링크, 담당자, 완료 기준을 기록하고 `Ready` → `In Progress` → `Review` → `Done`으로 이동한다.
+- 커밋 제목은 conventional type prefix를 유지하되 한국어로 작성한다. 코드 주석은 WHY만 남긴다.
 - Notion 자격 증명을 코드·문서·커밋·Issue·PR·로그에 남기지 않는다.
 
-## 커밋과 검증
+## 검증
 
-- 커밋 제목은 conventional type prefix를 유지하되 한국어로 작성한다.
-- 완료 주장 전 아래 검증을 실행한다.
+완료 주장 전 실행한다.
 
 ```bash
 pnpm lint && pnpm typecheck && pnpm build
 ```
 
 UI가 바뀌면 스크린샷 또는 짧은 수동 QA 노트를 PR에 남긴다.
+
+## 에이전트 하네스
+
+- [`CLAUDE.md`](./CLAUDE.md)는 Claude Code용 진입점이다.
+- [`.claude/agents/code-reviewer.md`](./.claude/agents/code-reviewer.md)는 읽기 전용 리뷰용 서브에이전트다.
+- [`.claude/commands/fix-issue.md`](./.claude/commands/fix-issue.md)는 Issue → Branch → PR 흐름을 자동화한다.
+- `.claude/settings.json`과 hooks는 파괴적 삭제와 `.env`·키 파일 유출을 막는다.
