@@ -7,6 +7,12 @@ import type { FeedQueryParams } from "@/lib/schemas/feed";
 export const queryKeys = {
   taxonomy: () => ["taxonomy"] as const,
   session: (id: string) => ["session", id] as const,
+  /**
+   * The unanswered question. Cache-only: `GET /sessions/:id` returns
+   * answered turns exclusively, so this is written by the create-session and
+   * submit-turn responses and never re-fetched.
+   */
+  pendingTurn: (id: string) => ["pending-turn", id] as const,
   criteria: (id: string) => ["criteria", id] as const,
   feed: (id: string, params: FeedQueryParams) => ["feed", id, params] as const,
   job: (id: string) => ["job", id] as const,
