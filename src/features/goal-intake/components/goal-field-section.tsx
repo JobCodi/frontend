@@ -5,7 +5,7 @@ interface GoalFieldSectionProps {
   label: string;
   required?: boolean;
   hint?: string;
-  options: TaxonomyOption[];
+  options: readonly TaxonomyOption[];
   mode: "single" | "multiple";
   selected: string[];
   onToggle: (value: string) => void;
@@ -39,10 +39,10 @@ export function GoalFieldSection({
         <ChipGroup label={label} multiple={mode === "multiple"}>
           {options.map((option) => (
             <ChoiceChip
-              key={option.value}
+              key={option.code}
               role={mode === "multiple" ? "checkbox" : "radio"}
-              selected={selected.includes(option.value)}
-              onClick={() => onToggle(option.value)}
+              selected={selected.includes(option.code)}
+              onClick={() => onToggle(option.code)}
             >
               {option.label}
             </ChoiceChip>

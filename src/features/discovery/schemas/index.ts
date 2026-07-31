@@ -1,6 +1,6 @@
 export {
   SessionSchema,
   TurnQuestionSchema,
-  TurnHistoryEntrySchema,
+  AnsweredTurnSchema,
   SubmitTurnResponseSchema,
 } from "@/lib/schemas/session";
