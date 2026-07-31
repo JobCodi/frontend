@@ -1,5 +1,6 @@
 export {
-  CriteriaFieldsSchema,
+  CriteriaPayloadSchema,
+  CriteriaVersionSchema,
   CriteriaEnvelopeSchema,
   CriteriaSourcesSchema,
   ConfirmCriteriaResponseSchema,

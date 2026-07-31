@@ -1,13 +1,14 @@
-import type { CriteriaFieldKey, CriteriaFields } from "@/lib/schemas/criteria";
+import type { CriteriaFieldKey, CriteriaPayload } from "@/lib/schemas/criteria";
 import type { TaxonomyOption } from "@/lib/schemas/taxonomy";
+import { formatSalaryManwon } from "../lib/salary";
 
-function labelFor(value: string, options: TaxonomyOption[]): string {
-  return options.find((o) => o.value === value)?.label ?? value;
+function labelFor(code: string, options: TaxonomyOption[]): string {
+  return options.find((option) => option.code === code)?.label ?? code;
 }
 
 interface CriteriaValueDisplayProps {
   field: CriteriaFieldKey;
-  criteria: CriteriaFields;
+  criteria: CriteriaPayload;
   options: TaxonomyOption[];
 }
 
@@ -37,14 +38,14 @@ export function CriteriaValueDisplay({ field, criteria, options }: CriteriaValue
     case "salaryMin": {
       const value = criteria.salaryMin;
       if (value === null) return <Empty />;
-      return <span>{value.toLocaleString("ko-KR")}만원 이상</span>;
+      return <span>{formatSalaryManwon(value)}만원 이상</span>;
     }
     case "weights": {
       const { weights } = criteria;
       return (
         <span>
-          기술 {weights.techStack}% · 직무 {weights.role}% · 지역 {weights.region}% · 최신성{" "}
-          {weights.recency}%
+          기술 {weights.techMatch}% · 직무 {weights.roleMatch}% · 지역 {weights.regionMatch}% ·
+          최신성 {weights.freshness}%
         </span>
       );
     }

@@ -1,7 +1,13 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import type { CriteriaFieldKey, CriteriaFields, CriteriaSource } from "@/lib/schemas/criteria";
+import {
+  isPatchableCriteriaField,
+  type CriteriaFieldKey,
+  type CriteriaPayload,
+  type CriteriaSource,
+  type PatchCriteriaRequest,
+} from "@/lib/schemas/criteria";
 import type { Taxonomy } from "@/lib/schemas/taxonomy";
 import { CRITERIA_FIELD_EDITOR, CRITERIA_FIELD_LABEL, TAG_FIELD_LIMITS } from "../types";
 import { useCriteriaEditStore } from "../stores/criteria-edit-store";
@@ -16,10 +22,10 @@ import { WeightsEditor } from "./editors/weights-editor";
 
 interface CriteriaRowProps {
   field: CriteriaFieldKey;
-  criteria: CriteriaFields;
+  criteria: CriteriaPayload;
   source: CriteriaSource | undefined;
   taxonomy: Taxonomy;
-  onSave: (patch: Partial<CriteriaFields>) => void;
+  onSave: (patch: PatchCriteriaRequest) => void;
   isSaving: boolean;
 }
 
@@ -28,13 +34,17 @@ export function CriteriaRow({ field, criteria, source, taxonomy, onSave, isSavin
   const isEditing = editingField === field;
   const label = CRITERIA_FIELD_LABEL[field];
   const options = optionsForField(field, taxonomy, criteria);
+  // PATCH only accepts a subset of fields; the rest come from /start and
+  // can't be changed without a new session.
+  const editable = isPatchableCriteriaField(field);
 
   function handleEditClick() {
     startEdit(field, criteria[field]);
   }
 
   function handleSave() {
-    onSave({ [field]: draft } as Partial<CriteriaFields>);
+    if (!isPatchableCriteriaField(field)) return;
+    onSave({ [field]: draft } as PatchCriteriaRequest);
   }
 
   return (
@@ -44,7 +54,7 @@ export function CriteriaRow({ field, criteria, source, taxonomy, onSave, isSavin
           <span className="text-[13px] font-medium text-[var(--text)]">{label}</span>
           <SourceLabel source={source} />
         </div>
-        {!isEditing ? (
+        {editable && !isEditing ? (
           <button
             type="button"
             onClick={handleEditClick}
@@ -112,7 +122,7 @@ function CriteriaFieldEditor({ field, options, draft, setDraft }: CriteriaFieldE
         />
       );
     case "tag-input": {
-      const limits = TAG_FIELD_LIMITS[field] ?? { maxItems: 10, maxLength: 30 };
+      const limits = TAG_FIELD_LIMITS[field] ?? { maxItems: 10, maxLength: 32 };
       return (
         <TagInputEditor
           label={label}
@@ -128,7 +138,7 @@ function CriteriaFieldEditor({ field, options, draft, setDraft }: CriteriaFieldE
     case "weights":
       return (
         <WeightsEditor
-          value={draft as CriteriaFields["weights"]}
+          value={draft as CriteriaPayload["weights"]}
           onChange={setDraft}
         />
       );

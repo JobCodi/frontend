@@ -1,16 +1,16 @@
 import { Slider } from "@/components/ui/slider";
 import { Label } from "@/components/ui/label";
-import type { CriteriaFields } from "@/lib/schemas/criteria";
+import type { CriteriaPayload } from "@/lib/schemas/criteria";
 
-type Weights = CriteriaFields["weights"];
+type Weights = CriteriaPayload["weights"];
 type WeightKey = keyof Weights;
 
-const WEIGHT_KEYS: WeightKey[] = ["techStack", "role", "region", "recency"];
+const WEIGHT_KEYS: WeightKey[] = ["techMatch", "roleMatch", "regionMatch", "freshness"];
 const WEIGHT_LABEL: Record<WeightKey, string> = {
-  techStack: "기술 스택",
-  role: "직무 적합도",
-  region: "지역",
-  recency: "최신성",
+  techMatch: "기술 스택",
+  roleMatch: "직무 적합도",
+  regionMatch: "지역",
+  freshness: "최신성",
 };
 
 /** Redistributes the other three weights so the total always stays exactly 100. */

@@ -1,16 +1,19 @@
 "use client";
 
 import { Info } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { ErrorState } from "@/components/feedback/error-state";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ApiError } from "@/lib/api/client";
-import { useSession } from "@/lib/session/use-session";
-import type { CriteriaEnvelope, CriteriaFieldKey } from "@/lib/schemas/criteria";
+import {
+  CRITERIA_FIELD_KEYS,
+  DISCOVERY_SLOT_LABEL,
+  type CriteriaEnvelope,
+  type CriteriaFieldKey,
+  type PatchCriteriaRequest,
+} from "@/lib/schemas/criteria";
 import type { Taxonomy } from "@/lib/schemas/taxonomy";
-import { useRouter } from "next/navigation";
-import { CRITERIA_FIELD_KEYS } from "@/lib/schemas/criteria";
-import { CRITERIA_FIELD_LABEL } from "../types";
 import { useCriteria } from "../queries/use-criteria";
 import { usePatchCriteria } from "../queries/use-patch-criteria";
 import { useConfirmCriteria } from "../queries/use-confirm-criteria";
@@ -26,7 +29,6 @@ interface CriteriaScreenProps {
 
 export function CriteriaScreen({ sessionId, taxonomy, initialCriteria }: CriteriaScreenProps) {
   const router = useRouter();
-  const { data: session } = useSession(sessionId);
   const { data, isLoading, isError, error, refetch } = useCriteria(sessionId, initialCriteria);
   const patchCriteria = usePatchCriteria(sessionId);
   const confirmCriteria = useConfirmCriteria(sessionId);
@@ -54,7 +56,7 @@ export function CriteriaScreen({ sessionId, taxonomy, initialCriteria }: Criteri
     );
   }
 
-  function handleSave(patch: Partial<CriteriaEnvelope["criteria"]>) {
+  function handleSave(patch: PatchCriteriaRequest) {
     patchCriteria.mutate(patch, { onSuccess: () => cancelEdit() });
   }
 
@@ -69,9 +71,9 @@ export function CriteriaScreen({ sessionId, taxonomy, initialCriteria }: Criteri
         </p>
       </div>
 
-      {session?.degraded ? (
-        <p className="rounded-[var(--radius)] bg-[var(--caution-soft)] p-3 text-sm text-[var(--caution)]">
-          AI 응답이 불안정해 입력하신 정보만으로 조건을 만들었습니다.
+      {data.rationale ? (
+        <p className="rounded-[var(--radius)] bg-[var(--brand-soft)] p-3 text-sm text-[var(--text)]">
+          {data.rationale}
         </p>
       ) : null}
 
@@ -80,7 +82,7 @@ export function CriteriaScreen({ sessionId, taxonomy, initialCriteria }: Criteri
           <CriteriaRow
             key={field}
             field={field}
-            criteria={data.criteria}
+            criteria={data.payload}
             source={data.sources[field]}
             taxonomy={taxonomy}
             onSave={handleSave}
@@ -93,11 +95,15 @@ export function CriteriaScreen({ sessionId, taxonomy, initialCriteria }: Criteri
         <p className="flex items-start gap-2 text-sm text-[var(--text-muted)]">
           <Info className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
           <span>
-            {data.unfilledSlots
-              .map((field) => `'${CRITERIA_FIELD_LABEL[field as CriteriaFieldKey] ?? field}'`)
-              .join(", ")}
+            {data.unfilledSlots.map((slot) => `'${DISCOVERY_SLOT_LABEL[slot] ?? slot}'`).join(", ")}
             는 대화에서 정해지지 않아 기본값을 사용했어요.
           </span>
+        </p>
+      ) : null}
+
+      {patchCriteria.isError ? (
+        <p role="alert" className="rounded-[var(--radius)] bg-[var(--danger-soft)] p-3 text-sm text-[var(--danger)]">
+          조건을 저장하지 못했어요. 다시 시도해 주세요.
         </p>
       ) : null}
 
