@@ -1,37 +1,39 @@
 import { Info } from "lucide-react";
 import { formatDateLong, formatDday } from "@/lib/utils/date";
-import type { FeedItem } from "@/lib/schemas/feed";
+import type { JobView } from "../lib/to-job-view";
 import { ReasonList } from "./reason-list";
 import { OutboundLinkList } from "./outbound-link-list";
 
 interface JobDetailProps {
-  item: FeedItem;
+  job: JobView;
 }
 
 /**
  * Metadata + match reasons + outbound links only. NEVER renders posting
  * body text — the backend doesn't store or return it (AGENTS.md #3).
  */
-export function JobDetail({ item }: JobDetailProps) {
-  const dday = formatDday(item.closesAt, item.isRolling);
+export function JobDetail({ job }: JobDetailProps) {
+  const dday = formatDday(job.closesAt, job.isRolling);
 
   return (
     <div className="flex flex-col gap-6">
       <div>
         <p className="text-xs text-[var(--text-muted)]">
-          {[item.employmentType, item.companySize, item.region].filter(Boolean).join(" · ")}
+          {[job.employmentTypeLabel, job.companySizeLabel, job.regionLabel]
+            .filter((value) => value !== null)
+            .join(" · ")}
         </p>
         <h2 className="mt-1 text-[22px] font-semibold leading-[30px] text-[var(--text)]">
-          {item.title}
+          {job.title}
         </h2>
-        <p className="text-sm text-[var(--text-muted)]">{item.company}</p>
+        <p className="text-sm text-[var(--text-muted)]">{job.companyName}</p>
       </div>
 
       <section aria-labelledby="job-detail-reasons">
         <h3 id="job-detail-reasons" className="mb-2 text-[13px] font-medium text-[var(--text-muted)]">
           왜 추천했나요
         </h3>
-        <ReasonList reasons={item.reasons} />
+        <ReasonList reasons={job.reasons} />
       </section>
 
       <section aria-labelledby="job-detail-meta">
@@ -40,21 +42,21 @@ export function JobDetail({ item }: JobDetailProps) {
         </h3>
         <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5 text-sm">
           <dt className="text-[var(--text-muted)]">경력</dt>
-          <dd className="text-[var(--text)]">{item.experienceLevel ?? "정보 없음"}</dd>
+          <dd className="text-[var(--text)]">{job.experienceLabel ?? "정보 없음"}</dd>
           <dt className="text-[var(--text-muted)]">급여</dt>
-          <dd className="text-[var(--text)]">{item.salaryText ?? "회사 내규에 따름"}</dd>
+          <dd className="text-[var(--text)]">{job.salaryText ?? "회사 내규에 따름"}</dd>
           <dt className="text-[var(--text-muted)]">마감</dt>
           <dd className="text-[var(--text)]">
-            {item.isRolling
+            {job.isRolling
               ? "상시채용"
-              : item.closesAt
-                ? `${formatDateLong(item.closesAt)}${dday ? ` (${dday.label})` : ""}`
+              : job.closesAt
+                ? `${formatDateLong(job.closesAt)}${dday ? ` (${dday.label})` : ""}`
                 : "정보 없음"}
           </dd>
-          {item.techStack.length > 0 ? (
+          {job.techStack.length > 0 ? (
             <>
               <dt className="text-[var(--text-muted)]">기술</dt>
-              <dd className="text-[var(--text)]">{item.techStack.join(" · ")}</dd>
+              <dd className="text-[var(--text)]">{job.techStack.join(" · ")}</dd>
             </>
           ) : null}
         </dl>
@@ -64,7 +66,7 @@ export function JobDetail({ item }: JobDetailProps) {
         <h3 id="job-detail-links" className="mb-2 text-[13px] font-medium text-[var(--text-muted)]">
           이 공고를 볼 수 있는 곳
         </h3>
-        <OutboundLinkList item={item} />
+        <OutboundLinkList job={job} />
       </section>
 
       <p className="flex items-start gap-2 text-xs text-[var(--text-subtle)]">

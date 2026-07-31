@@ -7,9 +7,10 @@ export const metadata = {
 
 async function loadSources(): Promise<IngestionSource[]> {
   try {
-    return await apiGet("/ingestion/sources", IngestionSourcesResponseSchema, {
+    const response = await apiGet("/ingestion/sources", IngestionSourcesResponseSchema, {
       next: { revalidate: 3600 },
     });
+    return response.sources;
   } catch (err) {
     if (err instanceof ApiError || err instanceof Error) {
       return [];
@@ -43,10 +44,10 @@ export default async function AboutPage() {
                 key={source.id}
                 className="rounded-[var(--radius)] border border-[var(--line)] bg-[var(--surface)] p-3"
               >
-                <p className="text-sm font-medium text-[var(--text)]">{source.label}</p>
-                {source.description ? (
-                  <p className="mt-0.5 text-sm text-[var(--text-muted)]">{source.description}</p>
-                ) : null}
+                <p className="text-sm font-medium text-[var(--text)]">{source.displayName}</p>
+                <p className="mt-0.5 text-sm text-[var(--text-muted)]">
+                  {source.enabled ? "수집 중" : "현재 사용 안 함"}
+                </p>
               </li>
             ))}
           </ul>

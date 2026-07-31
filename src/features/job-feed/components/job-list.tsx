@@ -3,17 +3,26 @@
 import { Skeleton } from "@/components/ui/skeleton";
 import type { FeedItem } from "@/lib/schemas/feed";
 import { useInfiniteScrollSentinel } from "../hooks/use-infinite-scroll-sentinel";
+import { toJobView, type JobViewContext } from "../lib/to-job-view";
 import { JobCard } from "./job-card";
 
 interface JobListProps {
   items: FeedItem[];
+  context: JobViewContext;
   sessionId: string;
   hasNextPage: boolean;
   isFetchingNextPage: boolean;
   onLoadMore: () => void;
 }
 
-export function JobList({ items, sessionId, hasNextPage, isFetchingNextPage, onLoadMore }: JobListProps) {
+export function JobList({
+  items,
+  context,
+  sessionId,
+  hasNextPage,
+  isFetchingNextPage,
+  onLoadMore,
+}: JobListProps) {
   const sentinelRef = useInfiniteScrollSentinel(onLoadMore, hasNextPage && !isFetchingNextPage);
 
   // Contract violation, not a valid empty state — never render a card
@@ -32,7 +41,7 @@ export function JobList({ items, sessionId, hasNextPage, isFetchingNextPage, onL
     <div>
       <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
         {renderable.map((item) => (
-          <JobCard key={item.id} item={item} sessionId={sessionId} />
+          <JobCard key={item.id} job={toJobView(item, context)} sessionId={sessionId} />
         ))}
       </div>
 

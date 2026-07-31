@@ -20,6 +20,9 @@ function buildFeedPath(sessionId: string, params: FeedQueryParams, cursor: strin
  * (function form) for the collecting-phase 2s poll. Never a useEffect
  * timer (Rules.md #5). Polling auto-stops once page 1's status leaves
  * "collecting", and is force-stopped after 60s regardless.
+ *
+ * Only the "ready" variant paginates; "collecting" and "failed" bodies
+ * carry no cursor, so `getNextPageParam` stops there.
  */
 export function useFeed(sessionId: string, params: FeedQueryParams) {
   const pollStartedAt = useRef<number | null>(null);
@@ -28,7 +31,8 @@ export function useFeed(sessionId: string, params: FeedQueryParams) {
     queryKey: queryKeys.feed(sessionId, params),
     queryFn: ({ pageParam }) => apiGet(buildFeedPath(sessionId, params, pageParam), FeedPageSchema),
     initialPageParam: null as string | null,
-    getNextPageParam: (lastPage) => (lastPage.hasMore ? lastPage.nextCursor : undefined),
+    getNextPageParam: (lastPage) =>
+      lastPage.status === "ready" && lastPage.hasMore ? lastPage.nextCursor : undefined,
     refetchInterval: (query) => {
       const status = query.state.data?.pages[0]?.status;
       if (status !== "collecting") {

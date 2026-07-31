@@ -1,12 +1,17 @@
 export type {
   FeedItem,
   FeedPage,
+  FeedReadyPage,
+  FeedCollectingPage,
+  FeedFailedPage,
   FeedSort,
   MinScore,
   FeedQueryParams,
-  SourceProgress,
+  SourceSummaryEntry,
   FeedCollectionStatus,
+  JobPosting,
 } from "@/lib/schemas/feed";
+export type { JobView, JobViewContext } from "./lib/to-job-view";
 
 export const DEFAULT_SORT = "score" as const;
 export const DEFAULT_MIN_SCORE = 0 as const;

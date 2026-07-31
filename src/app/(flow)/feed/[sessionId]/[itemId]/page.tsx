@@ -3,7 +3,9 @@ import Link from "next/link";
 import { apiGet, ApiError } from "@/lib/api/client";
 import { FeedItemSchema, type FeedItem } from "@/lib/schemas/feed";
 import { ErrorState } from "@/components/feedback/error-state";
-import { JobDetail } from "@/features/job-feed";
+import { JobDetail, toJobView } from "@/features/job-feed";
+import { loadFeedViewContext } from "@/features/job-feed/lib/load-view-context";
+import { buildSourceNameIndex } from "@/features/job-feed/lib/source-names";
 
 interface JobDetailPageProps {
   params: Promise<{ sessionId: string; itemId: string }>;
@@ -14,9 +16,11 @@ type LoadResult =
   | { kind: "session-not-found" }
   | { kind: "error"; message?: string };
 
-// See src/features/job-feed/queries/use-job-detail.ts for the same
-// assumption: no dedicated single-item endpoint is documented, so a
-// direct/refreshed load fetches this REST-shaped path directly.
+/**
+ * Direct navigation / refresh path: the modal's client cache is empty here,
+ * so the single-item endpoint is fetched server-side. Same shape as one
+ * `feed.items[]` element (score + reasons + posting).
+ */
 async function loadItem(sessionId: string, itemId: string): Promise<LoadResult> {
   try {
     const item = await apiGet(`/sessions/${sessionId}/feed/${itemId}`, FeedItemSchema, {
@@ -31,9 +35,21 @@ async function loadItem(sessionId: string, itemId: string): Promise<LoadResult> 
   }
 }
 
-export default async function JobDetailPage({ params }: JobDetailPageProps) {
+export async function generateMetadata({ params }: JobDetailPageProps) {
   const { sessionId, itemId } = await params;
   const result = await loadItem(sessionId, itemId);
+  if (result.kind !== "ok") {
+    return { title: "공고 상세 | JobCodi" };
+  }
+  return { title: `${result.item.posting.title} · ${result.item.posting.companyName} | JobCodi` };
+}
+
+export default async function JobDetailPage({ params }: JobDetailPageProps) {
+  const { sessionId, itemId } = await params;
+  const [result, { labels, ingestionSources }] = await Promise.all([
+    loadItem(sessionId, itemId),
+    loadFeedViewContext(),
+  ]);
 
   if (result.kind === "session-not-found") {
     redirect("/session-expired");
@@ -47,6 +63,11 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
     );
   }
 
+  const job = toJobView(result.item, {
+    labels,
+    sources: buildSourceNameIndex(ingestionSources),
+  });
+
   return (
     <div className="mx-auto w-full max-w-2xl px-4 py-8">
       <Link
@@ -55,7 +76,7 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
       >
         ← 목록으로
       </Link>
-      <JobDetail item={result.item} />
+      <JobDetail job={job} />
     </div>
   );
 }
