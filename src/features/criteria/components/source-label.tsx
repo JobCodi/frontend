@@ -5,7 +5,7 @@ export function SourceLabel({ source }: { source: CriteriaSource | undefined }) 
 
   const text =
     source.origin === "turn"
-      ? `${source.turnIndex ?? "?"}번째 답변`
+      ? `${source.turnIndex}번째 답변`
       : source.origin === "form"
         ? "폼에서 입력"
         : source.origin === "manual"

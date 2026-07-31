@@ -1,11 +1,11 @@
-import type { CriteriaFieldKey, CriteriaFields } from "@/lib/schemas/criteria";
+import type { CriteriaFieldKey, CriteriaPayload } from "@/lib/schemas/criteria";
 import type { Taxonomy, TaxonomyOption } from "@/lib/schemas/taxonomy";
 
-/** Resolves the taxonomy option list a given editable field should offer. */
+/** Resolves the taxonomy option list a given field should offer / label against. */
 export function optionsForField(
   field: CriteriaFieldKey,
   taxonomy: Taxonomy,
-  criteria: CriteriaFields,
+  criteria: CriteriaPayload,
 ): TaxonomyOption[] {
   switch (field) {
     case "companySizes":
@@ -17,9 +17,9 @@ export function optionsForField(
     case "experienceLevel":
       return taxonomy.experienceLevels;
     case "jobFamily":
-      return taxonomy.jobFamilies.map((f) => ({ value: f.value, label: f.label }));
+      return taxonomy.jobFamilies.map((f) => ({ code: f.code, label: f.label }));
     case "roles": {
-      const family = taxonomy.jobFamilies.find((f) => f.value === criteria.jobFamily);
+      const family = taxonomy.jobFamilies.find((f) => f.code === criteria.jobFamily);
       return family?.roles ?? [];
     }
     default:

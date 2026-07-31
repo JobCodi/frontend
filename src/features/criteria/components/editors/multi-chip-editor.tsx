@@ -3,7 +3,7 @@ import type { TaxonomyOption } from "@/lib/schemas/taxonomy";
 
 interface MultiChipEditorProps {
   label: string;
-  options: TaxonomyOption[];
+  options: readonly TaxonomyOption[];
   value: string[];
   onChange: (value: string[]) => void;
 }
@@ -21,10 +21,10 @@ export function MultiChipEditor({ label, options, value, onChange }: MultiChipEd
     <ChipGroup label={label} multiple>
       {options.map((option) => (
         <ChoiceChip
-          key={option.value}
+          key={option.code}
           role="checkbox"
-          selected={value.includes(option.value)}
-          onClick={() => toggle(option.value)}
+          selected={value.includes(option.code)}
+          onClick={() => toggle(option.code)}
         >
           {option.label}
         </ChoiceChip>

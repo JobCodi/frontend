@@ -3,7 +3,7 @@ import type { TaxonomyOption } from "@/lib/schemas/taxonomy";
 
 interface SingleChipEditorProps {
   label: string;
-  options: TaxonomyOption[];
+  options: readonly TaxonomyOption[];
   value: string | null;
   onChange: (value: string) => void;
 }
@@ -17,10 +17,10 @@ export function SingleChipEditor({ label, options, value, onChange }: SingleChip
     <ChipGroup label={label} multiple={false}>
       {options.map((option) => (
         <ChoiceChip
-          key={option.value}
+          key={option.code}
           role="radio"
-          selected={value === option.value}
-          onClick={() => onChange(option.value)}
+          selected={value === option.code}
+          onClick={() => onChange(option.code)}
         >
           {option.label}
         </ChoiceChip>

@@ -1,6 +1,12 @@
 import type { CriteriaFieldKey, CriteriaSourceOrigin } from "@/lib/schemas/criteria";
 
-export type { CriteriaFieldKey, CriteriaFields, CriteriaEnvelope, CriteriaSources } from "@/lib/schemas/criteria";
+export type {
+  CriteriaFieldKey,
+  CriteriaPayload,
+  CriteriaEnvelope,
+  CriteriaVersion,
+  CriteriaSources,
+} from "@/lib/schemas/criteria";
 
 export type CriteriaEditorType = "multi-chip" | "single-chip" | "tag-input" | "number" | "weights";
 
@@ -39,8 +45,9 @@ export const SOURCE_ORIGIN_LABEL: Record<CriteriaSourceOrigin, string> = {
   manual: "직접 수정함",
 };
 
+/** Mirrors the backend's MAX_TECH_STACK / MAX_KEYWORDS / MAX_FREE_TEXT_LENGTH. */
 export const TAG_FIELD_LIMITS: Partial<Record<CriteriaFieldKey, { maxItems: number; maxLength: number }>> = {
-  techStack: { maxItems: 10, maxLength: 30 },
-  keywords: { maxItems: 10, maxLength: 30 },
-  excludeKeywords: { maxItems: 10, maxLength: 30 },
+  techStack: { maxItems: 15, maxLength: 32 },
+  keywords: { maxItems: 10, maxLength: 32 },
+  excludeKeywords: { maxItems: 10, maxLength: 32 },
 };
