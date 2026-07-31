@@ -25,14 +25,14 @@ export function QuestionPanel({
   return (
     <div aria-live="polite" className="flex flex-col gap-4">
       {turn ? (
-        <div key={turn.turnIndex} className="message-in flex flex-col gap-4">
+        <div key={turn.index} className="message-in flex flex-col gap-4">
           <p className="flex items-start gap-2 text-[22px] font-semibold leading-[30px] text-[var(--text)]">
             <span aria-hidden="true">🤖</span>
-            <span>{turn.prompt}</span>
+            <span>{turn.question}</span>
           </p>
 
           {turn.choices.length > 0 ? (
-            <ChipGroup label={turn.prompt} multiple={false}>
+            <ChipGroup label={turn.question} multiple={false}>
               {turn.choices.map((choice) => (
                 <ChoiceChip
                   key={choice.value}
@@ -46,7 +46,7 @@ export function QuestionPanel({
             </ChipGroup>
           ) : null}
 
-          {turn.allowFreeText ? (
+          {turn.allowsFreeText ? (
             <FreeTextInput disabled={isSubmitting} onSubmit={onSubmitFreeText} />
           ) : null}
         </div>

@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import type { Taxonomy } from "@/lib/schemas/taxonomy";
+import { TARGET_START_AT_OPTIONS, type Taxonomy } from "@/lib/schemas/taxonomy";
 import { useGoalIntakeStore } from "../stores/goal-intake-store";
 import { useCreateSession } from "../queries/use-create-session";
 import { isGoalInputSubmittable } from "../types";
@@ -19,7 +19,7 @@ export function GoalIntakeForm({ taxonomy, taxonomyFailed = false }: GoalIntakeF
   const { goal, setField, toggleInArray } = useGoalIntakeStore();
   const createSession = useCreateSession();
 
-  const selectedFamily = taxonomy.jobFamilies.find((f) => f.value === goal.jobFamily);
+  const selectedFamily = taxonomy.jobFamilies.find((f) => f.code === goal.jobFamily);
   const canSubmit = isGoalInputSubmittable(goal) && !createSession.isPending;
 
   function handleFamilyChange(value: string) {
@@ -69,7 +69,7 @@ export function GoalIntakeForm({ taxonomy, taxonomyFailed = false }: GoalIntakeF
       <GoalFieldSection
         label="직군"
         required
-        options={taxonomy.jobFamilies.map((f) => ({ value: f.value, label: f.label }))}
+        options={taxonomy.jobFamilies.map((f) => ({ code: f.code, label: f.label }))}
         mode="single"
         selected={goal.jobFamily ? [goal.jobFamily] : []}
         onToggle={handleFamilyChange}
@@ -115,17 +115,15 @@ export function GoalIntakeForm({ taxonomy, taxonomyFailed = false }: GoalIntakeF
         onToggle={(value) => toggleInArray("employmentTypes", value)}
       />
 
-      {taxonomy.startTimings && taxonomy.startTimings.length > 0 ? (
-        <GoalFieldSection
-          label="언제부터 일하고 싶으세요?"
-          options={taxonomy.startTimings}
-          mode="single"
-          selected={goal.startTiming ? [goal.startTiming] : []}
-          onToggle={(value) =>
-            setField("startTiming", value === goal.startTiming ? null : value)
-          }
-        />
-      ) : null}
+      <GoalFieldSection
+        label="언제부터 일하고 싶으세요?"
+        options={TARGET_START_AT_OPTIONS}
+        mode="single"
+        selected={goal.targetStartAt ? [goal.targetStartAt] : []}
+        onToggle={(value) =>
+          setField("targetStartAt", value === goal.targetStartAt ? null : value)
+        }
+      />
 
       {createSession.isError ? (
         <p role="alert" className="rounded-[var(--radius)] bg-[var(--danger-soft)] p-3 text-sm text-[var(--danger)]">

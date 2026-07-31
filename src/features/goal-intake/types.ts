@@ -1,3 +1,8 @@
+/**
+ * The `goalInput` body of `POST /sessions`. Field names and codes must
+ * match the backend's goalInputSchema exactly — unknown keys are stripped
+ * server-side, so a rename here silently drops the value.
+ */
 export interface GoalInput {
   companySizes: string[];
   jobFamily: string;
@@ -5,7 +10,7 @@ export interface GoalInput {
   experienceLevel: string;
   regions: string[];
   employmentTypes: string[];
-  startTiming: string | null;
+  targetStartAt: string | null;
 }
 
 export const EMPTY_GOAL_INPUT: GoalInput = {
@@ -15,7 +20,7 @@ export const EMPTY_GOAL_INPUT: GoalInput = {
   experienceLevel: "",
   regions: [],
   employmentTypes: [],
-  startTiming: null,
+  targetStartAt: null,
 };
 
 /** companySizes, jobFamily, experienceLevel are the only required fields (product.md §5). */
