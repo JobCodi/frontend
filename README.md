@@ -4,80 +4,87 @@
   <img src="public/brand/01_primary_horizontal_logo.png" alt="JobCodi" width="520" />
 </p>
 
-Next.js frontend for **JobCodi**, an AI-based job discovery and recommendation platform.
+**JobCodi** 프론트엔드. 취준생이 목표를 입력하면 AI가 대화로 검색 조건을 정교화하고, 서버가 모아온 채용 공고를 보여준다.
 
-## Role
+> 2026-07-31 전면 개편. 이전 플로우(이력서 업로드 · 이력 분석 · 중요도 슬라이더 · 종합 리포트)는 제거되었다. 배경은 backend 레포의 [PRD §8](https://github.com/JobCodi/backend/blob/main/docs/product/prd.md#8-개편-배경).
 
-The frontend owns the user journey from landing to onboarding, AI interview, resume upload, recommendation comparison, and report presentation.
+## 역할
 
-## Planned Stack
-
-- Framework: Next.js App Router
-- UI: React + TypeScript
-- Styling / UI: Tailwind CSS + shadcn/ui
-- Server state: TanStack Query where client-side caching/mutations are needed
-- Client state: Zustand for small, explicit app/flow state
-- Data fetching: Server Components first; Client Components only for interaction
-- Forms: React Hook Form + schema validation, or equivalent
-- Testing: Vitest / Testing Library / Playwright as needed
-
-## MVP Screens
+랜딩부터 목표 입력, 5턴 AI 대화, 조건 확인, 공고 피드까지의 사용자 여정을 소유한다.
 
 ```text
-Landing
-Login / Signup
-Onboarding
-AI Job Interview
-Resume Upload
-Resume Analysis Result
-Job Candidate Comparison
-JobCodi Report
-My Page
+①  /start                        목표 입력 (기업 규모 · 직군 · 경력 · 지역)
+②  /discovery/:sessionId         AI 대화 5턴
+③  /discovery/:sessionId/criteria 조건 확인·수정
+④  /feed/:sessionId              공고 피드
 ```
 
-## Product IA Docs
+## 문서
 
-- [Onboarding IA](docs/onboarding-ia.md) — onboarding questions, choice sets, frontend state fields, and browser storage keys.
-- [Onboarding Save API Draft](docs/onboarding-api.md) — draft request/response DTOs, validation rules, error shape, and frontend mapping.
+| 문서 | 내용 |
+| --- | --- |
+| [제품 개요](docs/product.md) | 프론트가 책임지는 범위, UX 원칙, 접근성 |
+| [사이트맵](docs/sitemap.md) | 라우트 구조, 플로우, 복귀 처리 |
+| [화면 명세](docs/screens.md) | 화면별 구성·상태·API·엣지 케이스 |
+| [데이터 흐름](docs/data-flow.md) | 상태 소유권, 쿼리 키, 폴링, 에러 경계 |
+| [디자인 시스템](docs/design-system.md) | 토큰, 컴포넌트 계층 |
 
-## Suggested Initial Setup
+## 스택
+
+- Next.js App Router (Server Components 우선)
+- React + TypeScript strict
+- Tailwind CSS + shadcn/ui
+- TanStack Query (서버 상태), Zustand (클라이언트 전용 상태)
+- zod (API 응답 경계 검증)
+- Vitest / Testing Library
+
+## 시작하기
 
 ```bash
-npx create-next-app@latest frontend   --ts   --eslint   --app   --src-dir   --import-alias "@/*"
-
-cd frontend
-npm run dev
-npm run lint
-npm run build
+npm install
 ```
 
-## Frontend Library Rules
+```bash
+cp .env.example .env.local
+```
 
-- Use shadcn/ui as the default UI primitive layer.
-- Use Zustand for client-only flow state such as interview progress, temporary selections, and UI preferences.
-- Use TanStack Query for client-side server state, cache invalidation, and mutations when Server Components are not enough.
-- Do not duplicate server state into Zustand.
+백엔드가 `http://localhost:4000`에 떠 있어야 한다.
 
-## Next.js Rules
+```bash
+npm run dev
+```
 
-- Prefer Server Components by default.
-- Push `'use client'` down to interactive leaf components.
-- In Next.js 15+, `params` and `searchParams` are Promise types; always await them.
-- Do not expose backend secrets or AI provider keys to the browser.
-- Recommendation UI must show reasons, missing skills, and next actions.
+## 명령어
 
-## Environment
+| 명령 | 설명 |
+| --- | --- |
+| `npm run dev` | 개발 서버 |
+| `npm run build` | 프로덕션 빌드 |
+| `npm run lint` | ESLint |
+| `npm run typecheck` | `tsc --noEmit` |
+| `npm test` | Vitest |
 
-Create `.env.local` locally. Do not commit secrets.
+## 환경 변수
 
 ```bash
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 NEXT_PUBLIC_API_BASE_URL=http://localhost:4000
 ```
 
-## Repository Workflow
+AI 프로바이더 키는 프론트엔드에 두지 않는다. 대화는 전부 백엔드 API를 경유한다.
 
-1. Start from a GitHub Issue.
-2. Keep PRs small and tied to one user flow or component area.
-3. Include screenshots or local verification output in PRs.
-4. Use the organization PR template.
+## 핵심 규칙
+
+- **점수 옆에는 항상 매칭 근거가 있다.** 백엔드가 `reasons`를 필수로 내려준다. `reasons`가 빈 카드는 렌더하지 않는다.
+- **점수를 클라이언트에서 재계산하지 않는다.** 서버가 준 `score`를 그대로 쓴다.
+- **공고 본문을 표시하지 않는다.** 서버가 주지 않는다. 상세는 원문 링크로 보낸다.
+- **서버 상태를 Zustand에 복제하지 않는다.** TanStack Query 캐시가 정본이다.
+- Server Components 우선. `'use client'`는 상호작용하는 잎 컴포넌트까지 내린다.
+- Next.js 15+에서 `params`와 `searchParams`는 Promise다. 항상 await한다.
+
+## 워크플로
+
+1. GitHub Issue에서 시작
+2. PR은 하나의 사용자 플로우 또는 컴포넌트 영역으로 작게 유지
+3. UI가 바뀌면 스크린샷이나 수동 QA 노트를 PR에 포함
+4. 조직 PR 템플릿 사용
