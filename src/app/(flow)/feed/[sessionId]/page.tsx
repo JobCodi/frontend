@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import { FeedScreen } from "@/features/job-feed";
 import { FeedCardSkeleton } from "@/features/job-feed/components/job-list";
+import { loadFeedViewContext } from "@/features/job-feed/lib/load-view-context";
 
 export const metadata = {
   title: "공고 피드 | JobCodi",
@@ -12,6 +13,7 @@ interface FeedPageProps {
 
 export default async function FeedPage({ params }: FeedPageProps) {
   const { sessionId } = await params;
+  const { labels, ingestionSources } = await loadFeedViewContext();
 
   return (
     <Suspense
@@ -22,7 +24,7 @@ export default async function FeedPage({ params }: FeedPageProps) {
         </div>
       }
     >
-      <FeedScreen sessionId={sessionId} />
+      <FeedScreen sessionId={sessionId} labels={labels} ingestionSources={ingestionSources} />
     </Suspense>
   );
 }

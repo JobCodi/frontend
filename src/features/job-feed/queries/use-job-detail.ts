@@ -21,18 +21,19 @@ function findCachedFeedItem(
     queryKey: ["feed", sessionId],
   });
   for (const [, data] of feedQueries) {
-    const found = data?.pages.flatMap((page) => page.items).find((item) => item.id === itemId);
+    const found = data?.pages
+      .flatMap((page) => (page.status === "ready" ? page.items : []))
+      .find((item) => item.id === itemId);
     if (found) return found;
   }
   return undefined;
 }
 
 /**
- * NOTE: the documented backend contract has no dedicated single-item
- * endpoint. This falls back to `GET /sessions/:id/feed/:itemId`, a
- * reasonable REST extension assumed for direct navigation / page refresh
- * (when the modal's cache lookup can't help). Flagged in the delivery
- * report as an assumption to confirm with the backend.
+ * Falls back to `GET /sessions/:id/feed/:itemId` for direct navigation and
+ * page refresh, when the cache lookup above can't help. That endpoint —
+ * not `GET /jobs/:id` — is the one to use here: `/jobs/:id` returns posting
+ * metadata with no score or reasons, and this screen must show reasons.
  */
 export function useJobDetail(sessionId: string, itemId: string) {
   const queryClient = useQueryClient();

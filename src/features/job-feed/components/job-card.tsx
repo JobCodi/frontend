@@ -2,38 +2,38 @@ import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils/cn";
 import { formatDday, formatRelativeTime } from "@/lib/utils/date";
-import type { FeedItem } from "@/lib/schemas/feed";
+import type { JobView } from "../lib/to-job-view";
 import { ReasonList } from "./reason-list";
 
 interface JobCardProps {
-  item: FeedItem;
+  job: JobView;
   sessionId: string;
 }
 
 const MAX_VISIBLE_REASONS = 4;
 
-export function JobCard({ item, sessionId }: JobCardProps) {
-  const dday = formatDday(item.closesAt, item.isRolling);
-  const postedLabel = formatRelativeTime(item.postedAt);
+export function JobCard({ job, sessionId }: JobCardProps) {
+  const dday = formatDday(job.closesAt, job.isRolling);
+  const postedLabel = formatRelativeTime(job.postedAt);
 
   return (
     <Link
-      href={`/feed/${sessionId}/${item.id}`}
+      href={`/feed/${sessionId}/${job.id}`}
       className="flex flex-col gap-3 rounded-[var(--radius)] border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[var(--shadow-card)] transition-shadow hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]"
     >
       <div className="flex flex-wrap items-center gap-1.5 text-xs text-[var(--text-muted)]">
-        {item.employmentType ? <span>{item.employmentType}</span> : null}
-        {item.companySize ? (
+        {job.employmentTypeLabel ? <span>{job.employmentTypeLabel}</span> : null}
+        {job.companySizeLabel ? (
           <span className="flex items-center gap-1">
-            · {item.companySize}
-            {item.companySizeInferred ? (
+            · {job.companySizeLabel}
+            {job.companySizeInferred ? (
               <Badge variant="neutral" className="px-1.5 py-0 text-[10px]">
                 추정
               </Badge>
             ) : null}
           </span>
         ) : null}
-        {item.region ? <span>· {item.region}</span> : null}
+        {job.regionLabel ? <span>· {job.regionLabel}</span> : null}
         {dday ? (
           <Badge
             variant={dday.urgent ? "danger" : "neutral"}
@@ -45,20 +45,20 @@ export function JobCard({ item, sessionId }: JobCardProps) {
       </div>
 
       <div>
-        <p className="text-[15px] font-semibold leading-6 text-[var(--text)]">{item.title}</p>
-        <p className="text-sm text-[var(--text-muted)]">{item.company}</p>
+        <p className="text-[15px] font-semibold leading-6 text-[var(--text)]">{job.title}</p>
+        <p className="text-sm text-[var(--text-muted)]">{job.companyName}</p>
       </div>
 
       <div className="flex flex-col gap-2">
-        <p className="text-lg font-bold text-[var(--brand-strong)]">{item.score}점</p>
-        <ReasonList reasons={item.reasons} maxVisible={MAX_VISIBLE_REASONS} />
+        <p className="text-lg font-bold text-[var(--brand-strong)]">{job.score}점</p>
+        <ReasonList reasons={job.reasons} maxVisible={MAX_VISIBLE_REASONS} />
       </div>
 
       <p className="text-xs text-[var(--text-subtle)]">
-        {item.sourceLabel}
+        {job.sourceLabel}
         {postedLabel ? ` · ${postedLabel}` : ""}
-        {item.alsoFoundOn.length > 0
-          ? ` · ${item.alsoFoundOn.map((a) => a.label).join(", ")}에도 게시`
+        {job.alsoFoundOnLabels.length > 0
+          ? ` · ${job.alsoFoundOnLabels.join(", ")}에도 게시`
           : ""}
       </p>
     </Link>
