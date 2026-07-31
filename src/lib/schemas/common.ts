@@ -1,14 +1,27 @@
 import { z } from "zod";
 
 /**
- * A generic taxonomy option: { value, label }. Used for every flat choice
- * list the backend exposes (company sizes, regions, employment types, ...).
+ * A taxonomy entry as `GET /taxonomy` returns it: `{ code, label }`.
+ * The backend speaks in codes everywhere else (`SEOUL`, `FULL_TIME`, ...),
+ * so this response is the only source of a Korean label for a code —
+ * see src/lib/taxonomy/labels.ts for the lookup built on top of it.
  */
 export const TaxonomyOptionSchema = z.object({
-  value: z.string(),
+  code: z.string(),
   label: z.string(),
 });
 export type TaxonomyOption = z.infer<typeof TaxonomyOptionSchema>;
+
+/**
+ * A conversation choice chip. Deliberately not the same shape as
+ * TaxonomyOption: a turn choice carries `value`, which may be a free-form
+ * token (`__unsure__`, `Java/Spring`) rather than a taxonomy code.
+ */
+export const ChoiceOptionSchema = z.object({
+  value: z.string(),
+  label: z.string(),
+});
+export type ChoiceOption = z.infer<typeof ChoiceOptionSchema>;
 
 /**
  * Matching evidence attached to a scored job. `kind` drives icon + color;
@@ -20,12 +33,15 @@ export type MatchReasonKind = z.infer<typeof MatchReasonKindSchema>;
 export const MatchReasonSchema = z.object({
   kind: MatchReasonKindSchema,
   text: z.string(),
+  /** Criteria field this reason came from, e.g. "techStack". */
+  field: z.string().optional(),
 });
 export type MatchReason = z.infer<typeof MatchReasonSchema>;
 
 /**
  * Session lifecycle status. Single source of truth for the state machine —
  * see src/lib/session/route-for-status.ts for the status -> route mapping.
+ * Mirrors the backend's SESSION_STATUSES.
  */
 export const SessionStatusSchema = z.enum([
   "interviewing",
