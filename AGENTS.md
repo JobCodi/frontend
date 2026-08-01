@@ -5,6 +5,8 @@
 ## 필수 규칙
 
 - 변경 전에 [`Rules.md`](./Rules.md)를 읽고 따른다.
+- 역할별 확인 항목은 [`.agents/README.md`](./.agents/README.md)에서 선택한다. 이 문서와 `Rules.md`를 대체하지 않는다.
+- **모든 작업 소통은 한국어로 한다.** 사용자 보고, 계획, 이슈, PR, 커밋, 문서, 코드 리뷰는 한국어로 작성한다. 코드 식별자, 명령어, API·라이브러리의 고유 명칭만 필요한 범위에서 영문을 쓴다.
 - 여기와 `Rules.md`가 충돌하면 `Rules.md`를 따른다. 사용자가 명시적으로 달리 말한 경우는 예외.
 - App Router 패턴을 쓰고 TypeScript strict를 유지한다.
 - 기본은 Server Component. `'use client'`는 상호작용하는 잎 컴포넌트까지 내린다.
@@ -96,3 +98,9 @@ UI가 바뀌었으면 스크린샷이나 짧은 수동 QA 노트를 PR에 포함
 - [`.claude/agents/code-reviewer.md`](./.claude/agents/code-reviewer.md) — 코드를 수정하지 않고 이 문서와 `Rules.md` 기준으로 리뷰만 하는 전용 서브에이전트.
 - [`.claude/commands/fix-issue.md`](./.claude/commands/fix-issue.md) — `/fix-issue <이슈번호>`. 위 "작업 순서"를 그대로 실행한다.
 - `.claude/settings.json` / `.claude/hooks/block-secrets.sh` — 파괴적 삭제(`rm -rf /`)와 `.env`·키 파일 노출·유출을 훅으로 차단한다.
+
+## 역할 프로필 (`.agents/`)
+
+- [`.agents/flow-and-ui.md`](./.agents/flow-and-ui.md) — 화면, 라우트, 상호작용, 접근성 변경
+- [`.agents/data-and-api.md`](./.agents/data-and-api.md) — TanStack Query, API 스키마, 세션·피드 흐름 변경
+- [`.agents/review.md`](./.agents/review.md) — 사용자 여정과 회귀·접근성 리뷰
