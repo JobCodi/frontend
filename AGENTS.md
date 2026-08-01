@@ -6,6 +6,7 @@
 
 - 변경 전에 [`Rules.md`](./Rules.md)를 읽고 따른다.
 - 역할별 확인 항목은 [`.agents/README.md`](./.agents/README.md)에서 선택한다. 이 문서와 `Rules.md`를 대체하지 않는다.
+- **모든 작업 소통은 한국어로 한다.** 사용자 보고, 계획, 이슈, PR, 커밋, 문서, 코드 리뷰는 한국어로 작성한다. 코드 식별자, 명령어, API·라이브러리의 고유 명칭만 필요한 범위에서 영문을 쓴다.
 - 여기와 `Rules.md`가 충돌하면 `Rules.md`를 따른다. 사용자가 명시적으로 달리 말한 경우는 예외.
 - App Router 패턴을 쓰고 TypeScript strict를 유지한다.
 - 기본은 Server Component. `'use client'`는 상호작용하는 잎 컴포넌트까지 내린다.
