@@ -15,6 +15,6 @@ export const queryKeys = {
   pendingTurn: (id: string) => ["pending-turn", id] as const,
   criteria: (id: string) => ["criteria", id] as const,
   feed: (id: string, params: FeedQueryParams) => ["feed", id, params] as const,
-  job: (id: string) => ["job", id] as const,
+  job: (sessionId: string, itemId: string) => ["job", sessionId, itemId] as const,
   ingestionSources: () => ["ingestion-sources"] as const,
 } as const;

@@ -39,7 +39,7 @@ export function useJobDetail(sessionId: string, itemId: string) {
   const queryClient = useQueryClient();
 
   return useQuery({
-    queryKey: queryKeys.job(itemId),
+    queryKey: queryKeys.job(sessionId, itemId),
     queryFn: async () => {
       const cached = findCachedFeedItem(queryClient, sessionId, itemId);
       if (cached) return cached;

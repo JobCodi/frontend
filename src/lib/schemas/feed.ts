@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { isSafeOutboundUrl } from "../utils/outbound-url";
 import { MatchReasonSchema } from "./common";
 
 export const FeedSortSchema = z.enum(["score", "recent", "deadline"]);
@@ -37,7 +38,9 @@ export const JobPostingSchema = z.object({
   salaryMax: z.number().nullable(),
   salaryText: z.string().nullable(),
   techStack: z.array(z.string()),
-  url: z.string(),
+  url: z.string().refine(isSafeOutboundUrl, {
+    message: "공고 URL은 절대 HTTP(S) URL이어야 합니다.",
+  }),
   postedAt: z.string().nullable(),
   closesAt: z.string().nullable(),
   isRolling: z.boolean(),
