@@ -7,47 +7,28 @@
 App Router + 라우트 그룹 + 기능 단위 UI 모듈.
 
 ```text
-src/
-├── app/
-│   ├── layout.tsx
-│   ├── page.tsx                      /
-│   ├── globals.css
-│   ├── (marketing)/
-│   │   ├── about/page.tsx
-│   │   └── _components/
-│   ├── (flow)/
-│   │   ├── layout.tsx                진행 표시가 있는 공통 셸
-│   │   ├── start/page.tsx
-│   │   ├── discovery/[sessionId]/
-│   │   │   ├── page.tsx
-│   │   │   ├── loading.tsx
-│   │   │   ├── error.tsx
-│   │   │   └── criteria/page.tsx
-│   │   └── feed/[sessionId]/
-│   │       ├── page.tsx
-│   │       ├── loading.tsx
-│   │       ├── error.tsx
-│   │       ├── [itemId]/page.tsx
-│   │       └── @modal/(.)[itemId]/page.tsx
-│   └── session-expired/page.tsx
-├── components/
-│   ├── ui/                           shadcn/ui 프리미티브
-│   ├── layout/
-│   └── feedback/
-├── features/
-│   ├── goal-intake/                  ① 목표 입력
-│   ├── discovery/                    ② AI 대화
-│   ├── criteria/                     ③ 조건 확인·수정
-│   └── job-feed/                     ④ 공고 피드
-├── lib/
-│   ├── api/                          클라이언트, ApiError
-│   ├── config/
-│   ├── query/                        QueryClient, 쿼리 키
-│   ├── schemas/                      API 응답 zod 스키마
-│   ├── session/                      세션 복원, status → route
-│   └── utils/
-├── store/                            전역 Zustand (최소한으로)
-└── types/
+apps/web/
+├── src/
+│   ├── app/
+│   │   ├── layout.tsx
+│   │   ├── page.tsx                  /
+│   │   ├── globals.css
+│   │   ├── (marketing)/about/page.tsx
+│   │   ├── (flow)/                   사용자 플로우 라우트
+│   │   └── session-expired/page.tsx
+│   ├── components/
+│   │   ├── ui/                       shadcn/ui 프리미티브
+│   │   ├── layout/
+│   │   └── feedback/
+│   ├── features/
+│   │   ├── goal-intake/              ① 목표 입력
+│   │   ├── discovery/                ② AI 대화
+│   │   ├── criteria/                 ③ 조건 확인·수정
+│   │   └── job-feed/                 ④ 공고 피드
+│   └── lib/                          API·query·schema·session·utils
+├── public/brand/
+├── next.config.ts
+└── tsconfig.json
 ```
 
 ### 기능 폴더 형태
@@ -176,7 +157,7 @@ interface ChoiceChipProps extends React.ComponentProps<'button'> {
   - `reasons` 렌더링 (kind별 아이콘·텍스트)
   - 폴링 종료 조건
 - 핵심 사용자 플로우는 Playwright 도입 후 e2e를 붙인다.
-- PR에는 검증 증거를 포함한다: `npm run lint`, `npm run typecheck`, `npm run build`, 테스트, 스크린샷.
+- PR에는 검증 증거를 포함한다: `pnpm lint`, `pnpm typecheck`, `pnpm build`, 테스트, 스크린샷.
 
 ## 9. Issue 기반 워크플로
 
