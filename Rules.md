@@ -7,28 +7,27 @@
 App Router + 라우트 그룹 + 기능 단위 UI 모듈.
 
 ```text
-apps/web/
-├── src/
-│   ├── app/
-│   │   ├── layout.tsx
-│   │   ├── page.tsx                  /
-│   │   ├── globals.css
-│   │   ├── (marketing)/about/page.tsx
-│   │   ├── (flow)/                   사용자 플로우 라우트
-│   │   └── session-expired/page.tsx
-│   ├── components/
-│   │   ├── ui/                       shadcn/ui 프리미티브
-│   │   ├── layout/
-│   │   └── feedback/
-│   ├── features/
-│   │   ├── goal-intake/              ① 목표 입력
-│   │   ├── discovery/                ② AI 대화
-│   │   ├── criteria/                 ③ 조건 확인·수정
-│   │   └── job-feed/                 ④ 공고 피드
-│   └── lib/                          API·query·schema·session·utils
-├── public/brand/
-├── next.config.ts
-└── tsconfig.json
+src/
+├── app/
+│   ├── layout.tsx
+│   ├── page.tsx                      /
+│   ├── globals.css
+│   ├── (marketing)/about/page.tsx
+│   ├── (flow)/                       사용자 플로우 라우트
+│   └── session-expired/page.tsx
+├── components/
+│   ├── ui/                           shadcn/ui 프리미티브
+│   ├── layout/
+│   └── feedback/
+├── features/
+│   ├── goal-intake/                  ① 목표 입력
+│   ├── discovery/                    ② AI 대화
+│   ├── criteria/                     ③ 조건 확인·수정
+│   └── job-feed/                     ④ 공고 피드
+└── lib/                              API·query·schema·session·utils
+public/brand/
+next.config.ts
+tsconfig.json
 ```
 
 ### 기능 폴더 형태
