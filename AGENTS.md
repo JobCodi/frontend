@@ -1,12 +1,12 @@
 # AGENTS.md
 
-이 레포는 JobCodi의 pnpm 기반 Next.js 모노레포다. 배포 가능한 웹 앱은 `apps/web`에 있다.
+이 레포는 JobCodi의 pnpm 기반 단일 Next.js 애플리케이션이다. 앱 소스와 설정은 저장소 root에 있다.
 
 ## 필수 규칙
 
 - 변경 전 [`Rules.md`](./Rules.md)를 읽고 따른다. 역할별 확인 항목은 [`.agents/README.md`](./.agents/README.md)에서 선택하며 이 문서와 `Rules.md`를 대체하지 않는다. 여기와 `Rules.md`가 충돌하면 `Rules.md`를 따른다.
 - 사용자 보고·계획·이슈·PR·커밋·문서·코드 리뷰는 한국어로 작성한다. 코드 식별자·명령어·API와 라이브러리 고유 명칭은 필요한 범위에서 영문을 사용한다.
-- App Router·TypeScript strict를 유지한다. Next.js 실행 앱의 코드는 `apps/web` 아래에 둔다. 기본은 Server Component이며 `'use client'`는 상호작용하는 잎까지 내린다.
+- App Router·TypeScript strict를 유지한다. Next.js 앱 코드는 root `src` 아래에 둔다. 기본은 Server Component이며 `'use client'`는 상호작용하는 잎까지 내린다.
 - 매칭의 `score`, `rank`, `reasons`는 백엔드 정본이다. 클라이언트에서 재계산·재정렬하지 않는다. `reasons`가 비어 있으면 렌더하지 말고 오류로 처리한다.
 - 공고 본문을 저장·재노출하지 않는다. 상세는 메타데이터·매칭 근거·원문 링크만 제공한다.
 - 서버 상태는 TanStack Query, 제출 전 폼 값 등 클라이언트 전용 상태만 Zustand에 둔다.
