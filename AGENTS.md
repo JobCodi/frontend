@@ -1,6 +1,6 @@
 # AGENTS.md
 
-이 레포는 JobCodi의 Next.js 프론트엔드다.
+이 레포는 JobCodi의 pnpm 기반 Next.js 모노레포다. 배포 가능한 웹 앱은 `apps/web`에 있다.
 
 ## 필수 규칙
 
@@ -8,7 +8,7 @@
 - 역할별 확인 항목은 [`.agents/README.md`](./.agents/README.md)에서 선택한다. 이 문서와 `Rules.md`를 대체하지 않는다.
 - **모든 작업 소통은 한국어로 한다.** 사용자 보고, 계획, 이슈, PR, 커밋, 문서, 코드 리뷰는 한국어로 작성한다. 코드 식별자, 명령어, API·라이브러리의 고유 명칭만 필요한 범위에서 영문을 쓴다.
 - 여기와 `Rules.md`가 충돌하면 `Rules.md`를 따른다. 사용자가 명시적으로 달리 말한 경우는 예외.
-- App Router 패턴을 쓰고 TypeScript strict를 유지한다.
+- App Router 패턴을 쓰고 TypeScript strict를 유지한다. Next.js 실행 앱의 코드는 `apps/web` 아래에 둔다.
 - 기본은 Server Component. `'use client'`는 상호작용하는 잎 컴포넌트까지 내린다.
 
 ## 이 레포에서 가장 자주 틀리는 것
@@ -87,7 +87,7 @@ features/jobcodi-flow/        전체 삭제 (단일 파일 상태 머신)
 완료를 주장하기 전에 실행한다:
 
 ```bash
-npm run lint && npm run typecheck && npm run build
+pnpm lint && pnpm typecheck && pnpm build
 ```
 
 UI가 바뀌었으면 스크린샷이나 짧은 수동 QA 노트를 PR에 포함한다.
