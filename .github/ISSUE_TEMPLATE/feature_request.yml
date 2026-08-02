@@ -1,0 +1,49 @@
+name: 기능·개선 요청
+description: JobCodi 프런트엔드의 화면, 사용자 플로우, 데이터 흐름 개선을 제안합니다.
+title: "feat: "
+labels:
+  - enhancement
+body:
+  - type: markdown
+    attributes:
+      value: |
+        구현 전에 사용자 문제와 완료 기준을 합의합니다. API 키와 개인 정보는 작성하지 마세요.
+  - type: textarea
+    id: background
+    attributes:
+      label: 배경·문제
+      description: 영향을 받는 사용자 여정과 해결하려는 문제를 설명하세요.
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: 작업 범위
+      description: 변경할 화면, 컴포넌트, API 스키마, 상태 흐름, 문서를 목록으로 적으세요.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance_criteria
+    attributes:
+      label: 완료 기준
+      description: 확인 가능한 UX·데이터 결과를 목록으로 적으세요.
+    validations:
+      required: true
+  - type: textarea
+    id: impact
+    attributes:
+      label: 영향·위험
+      description: 라우트, 세션 복원, API 계약, 접근성, 반응형 UI 영향이 있으면 적으세요.
+    validations:
+      required: true
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: 사전 확인
+      options:
+        - label: `AGENTS.md`와 `Rules.md`를 확인했습니다.
+          required: true
+        - label: 관련 화면 명세와 데이터 흐름 문서를 확인했습니다.
+          required: true
+        - label: 서버 상태를 Zustand에 복제하거나 API 키를 브라우저로 보내지 않습니다.
+          required: true

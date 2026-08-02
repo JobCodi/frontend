@@ -1,9 +1,15 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import { QueryProvider } from "@/components/providers/query-provider";
+import { AppHeader } from "@/components/layout/app-header";
 
 export const metadata: Metadata = {
-  title: "JobCodi | AI 직무 추천",
-  description: "이력과 성향을 분석해 가장 잘 맞는 직무를 추천하는 JobCodi 모바일 MVP",
+  title: "JobCodi | 목표만 알려주세요, 공고는 저희가 모아옵니다",
+  description:
+    "기업 규모와 직군을 고르면 AI가 대화로 조건을 정리하고, 여러 채용 사이트에서 공고를 모아드리는 JobCodi.",
+  icons: {
+    icon: "/brand/06_app_icon_navy_512.png",
+  },
 };
 
 export const viewport: Viewport = {
@@ -12,10 +18,19 @@ export const viewport: Viewport = {
   themeColor: "#5445f4",
 };
 
-export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+export default function RootLayout({
+  children,
+}: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="ko">
-      <body>{children}</body>
+      <body>
+        <QueryProvider>
+          <div className="flex min-h-screen flex-col">
+            <AppHeader />
+            <div className="flex-1">{children}</div>
+          </div>
+        </QueryProvider>
+      </body>
     </html>
   );
 }
