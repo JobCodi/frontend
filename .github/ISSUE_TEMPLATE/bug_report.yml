@@ -14,7 +14,7 @@ body:
     attributes:
       label: Summary
       description: What is broken?
-      placeholder: The final report save button does not update to 저장 완료 after clicking.
+      placeholder: 조건 확인에서 저장한 희망 지역이 공고 피드에 반영되지 않습니다.
     validations:
       required: true
 
@@ -24,9 +24,9 @@ body:
       label: Reproduction steps
       description: List the exact steps needed to reproduce the bug.
       placeholder: |
-        1. Open the landing page
-        2. Click 이력서로 추천받기
-        3. Click 이력 분석 보기
+        1. 시작 화면에서 목표 조건을 입력합니다.
+        2. AI 대화에서 질문에 답해 조건을 구체화합니다.
+        3. 조건을 확인하고 공고 피드로 이동합니다.
         4. ...
     validations:
       required: true
@@ -52,16 +52,13 @@ body:
     attributes:
       label: Affected area
       options:
-        - Landing
-        - Basic profile onboarding
-        - AI interview
-        - Resume upload
-        - Resume analysis
-        - Recommendation weighting
-        - Job comparison
-        - Final report
-        - Saved reports
-        - Application board
+        - 시작·목표 입력
+        - AI 조건 대화
+        - 조건 확인·편집
+        - 공고 수집 상태
+        - 공고 피드·정렬·필터
+        - 공고 상세·매칭 근거·원문 링크
+        - 세션 복원·만료
         - Styling / responsive layout
         - Build / tooling
         - Other
@@ -95,7 +92,7 @@ body:
     attributes:
       label: Suspected cause / investigation notes
       description: Optional notes about where the issue may come from.
-      placeholder: This started after the report action checklist change.
+      placeholder: 이 현상은 세션 복원 후 피드 캐시 키 변경부터 발생했습니다.
     validations:
       required: false
 
@@ -104,7 +101,7 @@ body:
     attributes:
       label: Proposed fix scope
       description: If known, describe the smallest fix that should address this bug class.
-      placeholder: Update ReportStep state reset behavior and add a browser QA note.
+      placeholder: 세션 ID를 포함한 상세 공고 캐시 키를 사용하고 회귀 검증을 추가합니다.
     validations:
       required: false
 

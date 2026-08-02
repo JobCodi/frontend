@@ -43,9 +43,11 @@ export const queryKeys = {
   session: (id: string) => ["session", id] as const,
   criteria: (id: string) => ["criteria", id] as const,
   feed: (id: string, params: FeedParams) => ["feed", id, params] as const,
-  job: (id: string) => ["job", id] as const,
+  job: (sessionId: string, itemId: string) => ["job", sessionId, itemId] as const,
 } as const;
 ```
+
+상세 공고는 세션별 매칭 점수와 근거를 포함하므로 `sessionId`와 `itemId`를 함께 키에 넣는다. 같은 공고 ID라도 다른 세션의 캐시를 재사용하지 않는다.
 
 ## 4. 화면별 흐름
 
