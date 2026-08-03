@@ -142,6 +142,9 @@ export default function HomePage() {
                 </div>
                 <span className="rounded-full bg-[var(--surface-soft)] px-2.5 py-1 text-xs font-medium text-[var(--text-muted)]">1 / 5</span>
               </div>
+              <p className="mt-3 inline-flex rounded-full bg-[var(--brand-soft)] px-2.5 py-1 text-xs font-semibold text-[var(--brand-strong)]">
+                탐색 화면 예시
+              </p>
               <div className="mt-5 rounded-[10px] border border-[var(--line)] bg-[var(--surface-soft)] p-4">
                 <p className="text-xs font-medium text-[var(--brand-strong)]">첫 번째 질문</p>
                 <p className="mt-2 text-[17px] font-semibold leading-6 text-[var(--text)]">어떤 일을 가장 해보고 싶으세요?</p>
@@ -179,7 +182,7 @@ export default function HomePage() {
         <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 sm:px-6 md:flex-row md:items-center md:justify-between">
           <div>
             <h2 id="explore-heading" className="text-[15px] font-semibold text-[var(--text)]">어떤 커리어를 찾고 있나요?</h2>
-            <p className="mt-1 text-sm text-[var(--text-muted)]">관심 직무를 고르면 AI 대화를 바로 시작할 수 있어요.</p>
+            <p className="mt-1 text-sm text-[var(--text-muted)]">관심 직무를 살펴보고 AI 대화를 시작하세요.</p>
           </div>
           <ul className="flex flex-wrap gap-2" aria-label="관심 직무 빠른 탐색">
             {EXPLORE_JOBS.map((job) => (
@@ -207,7 +210,7 @@ export default function HomePage() {
         <div className="mt-8 grid gap-4 md:grid-cols-3">
           {JOB_PREVIEWS.map((job) => <JobPreviewCard key={`${job.company}-${job.title}`} job={job} />)}
         </div>
-        <p className="mt-4 text-xs text-[var(--text-subtle)]">위 공고는 화면 안내를 위한 예시입니다. 실제 공고는 대화 후 수집 결과에서 확인할 수 있어요.</p>
+        <p className="mt-4 text-sm font-medium text-[var(--text-muted)]">위 공고는 화면 안내를 위한 예시입니다. 실제 공고는 대화 후 수집 결과에서 확인할 수 있어요.</p>
       </section>
 
       <section id="how-it-works" aria-labelledby="flow-heading" className="border-y border-[var(--line)] bg-[var(--surface)]">
