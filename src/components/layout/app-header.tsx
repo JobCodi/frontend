@@ -4,7 +4,7 @@ import Link from "next/link";
 export function AppHeader() {
   return (
     <header className="border-b border-[var(--line)] bg-[var(--surface)]">
-      <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4">
+      <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4 sm:px-6">
         <Link
           href="/"
           className="flex items-center gap-2 rounded-[var(--radius)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]"
