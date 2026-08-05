@@ -23,6 +23,8 @@ export interface ApiFetchOptions<T> {
   method?: HttpMethod;
   body?: unknown;
   schema: z.ZodType<T>;
+  /** Additional request headers, such as an authenticated bearer session. */
+  headers?: HeadersInit;
   /** Forwarded to fetch() for Server Component data caching (revalidate, tags). */
   next?: NextFetchRequestConfig;
   cache?: RequestCache;
@@ -75,7 +77,10 @@ export async function apiFetch<T>(
     try {
       const res = await fetch(url, {
         method,
-        headers: hasBody ? { "Content-Type": "application/json" } : undefined,
+        headers: {
+          ...(hasBody ? { "Content-Type": "application/json" } : {}),
+          ...options.headers,
+        },
         body: hasBody ? JSON.stringify(options.body) : undefined,
         cache: options.cache,
         next: options.next,
