@@ -40,7 +40,8 @@ async function parseErrorBody(res: Response): Promise<{ code: string; message: s
     const json: unknown = await res.json();
     const parsed = ApiErrorBodySchema.safeParse(json);
     if (parsed.success) {
-      return parsed.data.error;
+      const { code, message, details } = parsed.data.error;
+      return { code, message: details?.[0]?.message ?? message };
     }
   } catch {
     // response wasn't JSON (proxy error page, empty body, ...)
