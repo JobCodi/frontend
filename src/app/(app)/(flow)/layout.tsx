@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { StepProgress } from "./step-progress";
+import { StepProgress } from "@/components/layout/step-progress";
 
 function stepForPathname(pathname: string): number {
   if (pathname.startsWith("/start")) return 1;
@@ -11,7 +11,11 @@ function stepForPathname(pathname: string): number {
   return 1;
 }
 
-export function FlowShell({ children }: { children: React.ReactNode }) {
+export default function FlowLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const pathname = usePathname();
   const currentStep = stepForPathname(pathname ?? "/start");
 
