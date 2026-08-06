@@ -16,7 +16,7 @@ export function FlowShell({ children }: { children: React.ReactNode }) {
   const currentStep = stepForPathname(pathname ?? "/start");
 
   return (
-    <div className="flex min-h-[calc(100vh-56px)] flex-col">
+    <div className="flex min-h-[calc(100vh-56px)] flex-col bg-gradient-to-b from-gray-50/50 to-white">
       <StepProgress currentStep={currentStep} />
       <main className="flex-1">{children}</main>
     </div>

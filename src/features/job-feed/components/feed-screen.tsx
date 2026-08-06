@@ -22,6 +22,7 @@ import { FailureState } from "./failure-state";
 import { ZeroResultState } from "./zero-result-state";
 import { SortFilterBar } from "./sort-filter-bar";
 import { JobList, FeedCardSkeleton } from "./job-list";
+import { Edit, RefreshCw } from "lucide-react";
 
 interface FeedScreenProps {
   sessionId: string;
@@ -51,11 +52,6 @@ export function FeedScreen({ sessionId, labels, ingestionSources }: FeedScreenPr
     [labels, ingestionSources, sourceSummary],
   );
 
-  // Session moved past collection entirely (e.g. abandoned) — re-route via
-  // the single status -> route mapping rather than special-casing here.
-  // Never act on a status that is still being refetched: right after
-  // confirming criteria the cache can briefly hold "criteria_ready" and
-  // would bounce the user straight back to /criteria.
   useEffect(() => {
     if (isFetchingSession || !session) return;
     if (session.status !== "collecting" && session.status !== "ready" && session.status !== "collection_failed") {
@@ -74,7 +70,9 @@ export function FeedScreen({ sessionId, labels, ingestionSources }: FeedScreenPr
   if (feed.isLoading) {
     return (
       <div className="mx-auto flex w-full max-w-4xl flex-col gap-4 px-4 py-8">
-        <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <FeedCardSkeleton />
+          <FeedCardSkeleton />
           <FeedCardSkeleton />
           <FeedCardSkeleton />
         </div>
@@ -83,8 +81,6 @@ export function FeedScreen({ sessionId, labels, ingestionSources }: FeedScreenPr
   }
 
   if (feed.isError || !firstPage) {
-    // An expired/unknown session can never recover by retrying — route to the
-    // dedicated explainer instead of offering a button that always fails.
     if (sessionNotFound) {
       return null;
     }
@@ -102,23 +98,28 @@ export function FeedScreen({ sessionId, labels, ingestionSources }: FeedScreenPr
 
   return (
     <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 px-4 py-8">
-      <div className="flex items-center justify-between">
-        <p className="text-sm text-[var(--text-muted)]">공고 모아보기</p>
-        <Link
-          href={`/discovery/${sessionId}/criteria`}
-          className="text-sm text-[var(--brand)] hover:underline"
-        >
-          조건 수정
-        </Link>
+      {/* Header with actions */}
+      <div className="flex items-center justify-between rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
+        <div>
+          <h1 className="text-xl font-semibold text-gray-900">맞춤 공고 피드</h1>
+          <p className="mt-1 text-sm text-gray-500">AI가 선별한 공고들을 확인해 보세요</p>
+        </div>
+        <Button asChild variant="secondary" className="gap-2 rounded-lg">
+          <Link href={`/discovery/${sessionId}/criteria`}>
+            <Edit className="h-4 w-4" />
+            조건 수정
+          </Link>
+        </Button>
       </div>
 
       {firstPage.status === "collecting" ? (
         <>
           <CollectingChecklist progress={firstPage.progress} />
           {pollingTimedOut ? (
-            <div className="flex flex-col items-center gap-2 rounded-[var(--radius)] border border-[var(--line)] bg-[var(--surface)] p-4 text-center">
-              <p className="text-sm text-[var(--text-muted)]">예상보다 오래 걸리네요.</p>
-              <Button variant="secondary" onClick={() => feed.refetch()}>
+            <div className="flex flex-col items-center gap-3 rounded-xl border border-amber-200 bg-amber-50 p-5 text-center">
+              <p className="text-sm text-amber-800">예상보다 오래 걸리네요.</p>
+              <Button variant="secondary" onClick={() => feed.refetch()} className="gap-2 rounded-lg">
+                <RefreshCw className="h-4 w-4" />
                 새로고침
               </Button>
             </div>
@@ -147,9 +148,11 @@ export function FeedScreen({ sessionId, labels, ingestionSources }: FeedScreenPr
       )}
 
       {refreshFeed.isError && refreshFeed.error instanceof ApiError && refreshFeed.error.status === 429 ? (
-        <p role="alert" className="text-center text-sm text-[var(--text-muted)]">
-          새로고침은 5분에 한 번만 할 수 있어요.
-        </p>
+        <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-center">
+          <p role="alert" className="text-sm text-amber-800">
+            새로고침은 5분에 한 번만 할 수 있어요.
+          </p>
+        </div>
       ) : null}
     </div>
   );

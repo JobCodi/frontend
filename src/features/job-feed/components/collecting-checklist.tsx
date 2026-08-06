@@ -20,11 +20,11 @@ export function CollectingChecklist({ progress }: CollectingChecklistProps) {
   return (
     <div className="flex flex-col gap-6">
       <div role="status" className="flex flex-col gap-2">
-        <p className="flex items-center gap-2 text-[15px] font-medium text-[var(--text)]">
-          <Loader2 aria-hidden="true" className="h-4 w-4 shrink-0 animate-spin text-[var(--brand)]" />
+        <p className="flex items-center gap-2 text-[15px] font-medium text-gray-900">
+          <Loader2 aria-hidden="true" className="h-4 w-4 shrink-0 animate-spin text-indigo-600" />
           여러 채용 사이트에서 공고를 모으고 있어요.
         </p>
-        <p className="text-sm text-[var(--text-muted)]">
+        <p className="text-sm text-gray-500">
           {progress.totalSources > 0
             ? `채용 소스 ${progress.totalSources}곳 중 ${progress.completedSources}곳 완료 (${percent}%)`
             : "채용 소스를 확인하고 있어요."}

@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils/cn";
+import { Check } from "lucide-react";
 
 export interface FlowStep {
   index: number;
@@ -20,8 +21,8 @@ export function StepProgress({ currentStep }: StepProgressProps) {
   const active = FLOW_STEPS.find((step) => step.index === currentStep);
 
   return (
-    <nav aria-label="진행 단계" className="border-b border-[var(--line)] bg-[var(--surface)]">
-      <ol className="mx-auto flex max-w-5xl items-center gap-2 overflow-x-auto px-4 py-3">
+    <nav aria-label="진행 단계" className="border-b border-gray-100 bg-white">
+      <ol className="mx-auto flex max-w-5xl items-center gap-2 overflow-x-auto px-4 py-4">
         {FLOW_STEPS.map((step) => {
           const state =
             step.index === currentStep
@@ -38,21 +39,27 @@ export function StepProgress({ currentStep }: StepProgressProps) {
               <span
                 aria-hidden="true"
                 className={cn(
-                  "flex h-5 w-5 items-center justify-center rounded-full border text-[11px] font-semibold",
+                  "flex h-6 w-6 items-center justify-center rounded-full text-xs font-semibold transition-all",
                   state === "current" &&
-                    "border-[var(--brand)] bg-[var(--brand)] text-white",
+                    "bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-md shadow-indigo-200",
                   state === "done" &&
-                    "border-[var(--brand)] bg-[var(--brand-soft)] text-[var(--brand-strong)]",
+                    "bg-emerald-500 text-white",
                   state === "upcoming" &&
-                    "border-[var(--line)] bg-[var(--surface)] text-[var(--text-subtle)]",
+                    "border-2 border-gray-200 bg-white text-gray-400",
                 )}
               >
-                {step.index}
+                {state === "done" ? (
+                  <Check className="h-3.5 w-3.5" strokeWidth={3} />
+                ) : (
+                  step.index
+                )}
               </span>
               <span
                 className={cn(
-                  "text-xs font-medium",
-                  state === "upcoming" ? "text-[var(--text-subtle)]" : "text-[var(--text)]",
+                  "text-sm font-medium transition-colors",
+                  state === "current" && "text-indigo-600",
+                  state === "done" && "text-emerald-600",
+                  state === "upcoming" && "text-gray-400",
                 )}
               >
                 {step.label}
@@ -60,7 +67,10 @@ export function StepProgress({ currentStep }: StepProgressProps) {
               {step.index < FLOW_STEPS.length ? (
                 <span
                   aria-hidden="true"
-                  className="mx-1 h-px w-4 shrink-0 bg-[var(--line)] sm:w-6"
+                  className={cn(
+                    "mx-2 h-0.5 w-8 shrink-0 rounded-full transition-colors",
+                    state === "done" ? "bg-emerald-200" : "bg-gray-100"
+                  )}
                 />
               ) : null}
             </li>

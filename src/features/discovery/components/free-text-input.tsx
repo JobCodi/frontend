@@ -32,6 +32,7 @@ export function FreeTextInput({ disabled = false, onSubmit }: FreeTextInputProps
         onChange={(event) => setValue(event.target.value)}
         placeholder="직접 입력하기..."
         disabled={disabled}
+        className="flex-1 rounded-lg border-gray-200 focus-visible:ring-indigo-500"
       />
       <Button
         type="submit"
@@ -39,6 +40,7 @@ export function FreeTextInput({ disabled = false, onSubmit }: FreeTextInputProps
         variant="secondary"
         disabled={disabled || value.trim() === ""}
         aria-label="답변 보내기"
+        className="rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 text-white hover:from-indigo-600 hover:to-purple-700 disabled:from-gray-300 disabled:to-gray-400"
       >
         <ArrowRight className="h-4 w-4" aria-hidden="true" />
       </Button>
