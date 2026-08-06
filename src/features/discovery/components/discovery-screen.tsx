@@ -79,7 +79,9 @@ export function DiscoveryScreen({ sessionId }: DiscoveryScreenProps) {
 
       {submitTurn.isError && !(submitTurn.error instanceof ApiError && submitTurn.error.status === 422) ? (
         <p role="alert" className="mb-4 rounded-[var(--radius)] bg-[var(--danger-soft)] p-3 text-sm text-[var(--danger)]">
-          답변을 보내지 못했어요. 다시 시도해 주세요.
+          {submitTurn.error instanceof ApiError && submitTurn.error.code === "VALIDATION_FAILED"
+            ? submitTurn.error.message
+            : "답변을 보내지 못했어요. 다시 시도해 주세요."}
         </p>
       ) : null}
 
