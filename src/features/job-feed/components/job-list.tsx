@@ -45,7 +45,12 @@ export function JobList({
 
       {hasNextPage ? (
         <div ref={sentinelRef} className="grid grid-cols-1 gap-4 pt-4 md:grid-cols-2" aria-hidden="true">
-          {isFetchingNextPage ? <FeedCardSkeleton /> : null}
+          {isFetchingNextPage ? (
+            <>
+              <FeedCardSkeleton />
+              <FeedCardSkeleton />
+            </>
+          ) : null}
         </div>
       ) : null}
     </div>
@@ -54,11 +59,20 @@ export function JobList({
 
 export function FeedCardSkeleton() {
   return (
-    <div className="flex flex-col gap-3 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
-      <Skeleton className="h-4 w-1/3" />
-      <Skeleton className="h-6 w-2/3" />
-      <Skeleton className="h-4 w-1/2" />
-      <Skeleton className="h-20 w-full" />
+    <div className="flex flex-col gap-3 rounded-3xl border border-[var(--line)] bg-white p-6 shadow-[var(--shadow-card)]">
+      <div className="flex items-center gap-3">
+        <Skeleton className="h-11 w-11 rounded-2xl" />
+        <div className="flex-1 space-y-2">
+          <Skeleton className="h-4 w-1/3" />
+          <Skeleton className="h-3 w-1/4" />
+        </div>
+      </div>
+      <Skeleton className="mt-2 h-6 w-2/3" />
+      <div className="flex gap-2">
+        <Skeleton className="h-6 w-16 rounded-lg" />
+        <Skeleton className="h-6 w-14 rounded-lg" />
+      </div>
+      <Skeleton className="h-20 w-full rounded-xl" />
       <Skeleton className="h-4 w-1/4" />
     </div>
   );

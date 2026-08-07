@@ -16,7 +16,7 @@ function DialogOverlay({
 }: React.ComponentProps<typeof DialogPrimitive.Overlay>) {
   return (
     <DialogPrimitive.Overlay
-      className={cn("fixed inset-0 z-50 bg-slate-900/40 dialog-overlay", className)}
+      className={cn("fixed inset-0 z-50 bg-slate-900/45 backdrop-blur-[2px] dialog-overlay", className)}
       {...props}
     />
   );
@@ -35,7 +35,7 @@ function DialogContent({
       <DialogOverlay />
       <DialogPrimitive.Content
         className={cn(
-          "fixed left-1/2 top-1/2 z-50 grid w-full max-w-lg -translate-x-1/2 -translate-y-1/2 gap-4 rounded-[var(--radius)] border border-[var(--line)] bg-[var(--surface)] p-6 shadow-[var(--shadow-card)] focus-visible:outline-none max-h-[85vh] overflow-y-auto dialog-content",
+          "fixed left-1/2 top-1/2 z-50 grid w-full max-w-lg -translate-x-1/2 -translate-y-1/2 gap-4 rounded-3xl border border-[var(--line)] bg-white p-6 shadow-[var(--shadow-elevated)] focus-visible:outline-none max-h-[85vh] overflow-y-auto dialog-content sm:p-7",
           className,
         )}
         {...props}
@@ -44,9 +44,9 @@ function DialogContent({
         {showClose ? (
           <DialogPrimitive.Close
             aria-label="닫기"
-            className="absolute right-4 top-4 rounded-full p-1 text-[var(--text-muted)] transition-colors hover:bg-[var(--surface-soft)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]"
+            className="absolute right-4 top-4 rounded-full border border-[var(--line)] bg-white p-1.5 text-[var(--text-muted)] shadow-sm transition-colors hover:bg-[var(--surface-soft)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]"
           >
-            <X className="h-5 w-5" aria-hidden="true" />
+            <X className="h-4 w-4" aria-hidden="true" />
           </DialogPrimitive.Close>
         ) : null}
       </DialogPrimitive.Content>
