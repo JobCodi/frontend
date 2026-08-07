@@ -18,6 +18,7 @@ import { useCreateSession } from "../queries/use-create-session";
 import { isGoalInputSubmittable } from "../types";
 import { GoalFieldSection } from "./goal-field-section";
 import { ExistingSessionNotice } from "./existing-session-notice";
+import { CrawlSiteSelector } from "./crawl-site-selector";
 
 interface GoalIntakeFormProps {
   taxonomy: Taxonomy;
@@ -51,6 +52,7 @@ export function GoalIntakeForm({ taxonomy, taxonomyFailed = false }: GoalIntakeF
     goal.companySizes.length > 0,
     Boolean(goal.jobFamily),
     Boolean(goal.experienceLevel),
+    goal.selectedCrawlSites.length > 0,
   ].filter(Boolean).length;
 
   function handleFamilyChange(value: string) {
@@ -203,6 +205,14 @@ export function GoalIntakeForm({ taxonomy, taxonomyFailed = false }: GoalIntakeF
                     setField("targetStartAt", value === goal.targetStartAt ? null : value)
                   }
                 />
+
+                <div className="rounded-2xl border border-[var(--line)] bg-[var(--surface-soft)] p-5">
+                  <CrawlSiteSelector
+                    selectedIds={goal.selectedCrawlSites}
+                    onChange={(ids) => setField("selectedCrawlSites", ids)}
+                    disabled={createSession.isPending}
+                  />
+                </div>
               </div>
 
               {createSession.isError ? (
@@ -220,7 +230,7 @@ export function GoalIntakeForm({ taxonomy, taxonomyFailed = false }: GoalIntakeF
                 <p className="text-sm text-[var(--text-muted)]" aria-live="polite">
                   {canSubmit || createSession.isPending
                     ? "준비가 됐어요. AI가 조건을 더 정교하게 물어볼게요."
-                    : "기업 규모, 직군, 경력 구분을 선택하면 시작할 수 있어요."}
+                    : "기업 규모, 직군, 경력 구분, 수집 사이트를 선택하면 시작할 수 있어요."}
                 </p>
                 <Button
                   type="submit"
