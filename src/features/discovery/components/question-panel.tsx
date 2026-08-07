@@ -1,6 +1,6 @@
+import { MessageCircle } from "lucide-react";
 import { ChipGroup, ChoiceChip } from "@/components/ui/choice-chip";
 import { TypingIndicator } from "@/components/feedback/typing-indicator";
-import { MessageCircle } from "lucide-react";
 import type { TurnQuestion } from "@/lib/schemas/session";
 import { FreeTextInput } from "./free-text-input";
 
@@ -24,26 +24,28 @@ export function QuestionPanel({
   onSubmitFreeText,
 }: QuestionPanelProps) {
   return (
-    <div aria-live="polite" className="flex flex-col gap-6">
+    <div aria-live="polite" className="flex flex-col gap-4">
       {turn ? (
-        <div key={turn.index} className="flex flex-col gap-5">
-          {/* Question card */}
-          <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+        <div key={turn.index} className="flex flex-col gap-4">
+          <div className="rounded-2xl border border-[var(--line)] bg-gradient-to-br from-white to-[var(--surface-soft)] p-5 shadow-sm sm:p-6">
             <div className="flex items-start gap-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-md shadow-indigo-200">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-[var(--brand)] to-[#7c3aed] text-white shadow-md shadow-[rgba(84,69,244,0.25)]">
                 <MessageCircle className="h-5 w-5" />
               </div>
-              <div className="flex-1">
-                <p className="text-[22px] font-semibold leading-relaxed text-gray-900">
+              <div className="min-w-0 flex-1">
+                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--brand)]">
+                  Question {turn.index}
+                </p>
+                <p className="mt-1 text-xl font-semibold leading-relaxed text-[var(--text)] sm:text-[22px]">
                   {turn.question}
                 </p>
               </div>
             </div>
           </div>
 
-          {/* Choices */}
           {turn.choices.length > 0 ? (
-            <div className="rounded-xl border border-gray-50 bg-gray-50/50 p-4">
+            <div className="rounded-2xl border border-[var(--line)] bg-white p-4 shadow-sm sm:p-5">
+              <p className="mb-3 text-xs font-medium text-[var(--text-subtle)]">선택지</p>
               <ChipGroup label={turn.question} multiple={false}>
                 {turn.choices.map((choice) => (
                   <ChoiceChip
@@ -59,14 +61,16 @@ export function QuestionPanel({
             </div>
           ) : null}
 
-          {/* Free text input */}
           {turn.allowsFreeText ? (
-            <FreeTextInput disabled={isSubmitting} onSubmit={onSubmitFreeText} />
+            <div className="rounded-2xl border border-[var(--line)] bg-white p-4 shadow-sm">
+              <p className="mb-3 text-xs font-medium text-[var(--text-subtle)]">직접 입력</p>
+              <FreeTextInput disabled={isSubmitting} onSubmit={onSubmitFreeText} />
+            </div>
           ) : null}
         </div>
       ) : isSubmitting ? (
-        <div className="flex items-center gap-3 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-md shadow-indigo-200">
+        <div className="flex items-center gap-3 rounded-2xl border border-[var(--line)] bg-white p-5 shadow-sm">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-[var(--brand)] to-[#7c3aed] text-white shadow-md shadow-[rgba(84,69,244,0.25)]">
             <MessageCircle className="h-5 w-5" />
           </div>
           <TypingIndicator showSlowHint={showSlowHint} />

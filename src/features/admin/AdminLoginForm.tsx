@@ -2,6 +2,7 @@
 
 import { useEffect, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
+import { Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { loginAdmin } from "@/features/admin/admin-api";
@@ -43,15 +44,29 @@ export function AdminLoginForm() {
   }
 
   return (
-    <main className="mx-auto flex w-full max-w-md px-4 py-12 sm:py-20">
-      <section className="w-full rounded-[var(--radius)] border border-[var(--line)] bg-[var(--surface)] p-6 shadow-[var(--shadow-card)] sm:p-8">
-        <p className="text-sm font-medium text-[var(--brand)]">JobCodi 관리자</p>
-        <h1 className="mt-2 text-2xl font-semibold text-[var(--text)]">관리자 로그인</h1>
-        <p className="mt-2 text-sm leading-6 text-[var(--text-muted)]">
-          수집 소스와 크롤링 사이트를 관리하려면 로그인해 주세요.
-        </p>
+    <main className="relative mx-auto flex min-h-[70vh] w-full max-w-md items-center px-4 py-12 sm:py-20">
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="app-grid absolute inset-0 opacity-40" />
+        <div className="absolute left-1/2 top-16 h-56 w-56 -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(84,69,244,0.14),transparent_70%)] blur-2xl" />
+      </div>
 
-        <form className="mt-7 space-y-5" onSubmit={handleSubmit}>
+      <section className="relative w-full overflow-hidden rounded-3xl border border-[var(--line)] bg-white shadow-[var(--shadow-elevated)]">
+        <div className="border-b border-[var(--line)] bg-gradient-to-br from-white via-[var(--brand-soft)]/40 to-[#f3e8ff]/40 px-6 py-7 sm:px-8">
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-[var(--brand)] to-[#7c3aed] text-white shadow-lg shadow-[rgba(84,69,244,0.25)]">
+            <Shield className="h-5 w-5" />
+          </div>
+          <p className="mt-4 text-xs font-semibold uppercase tracking-[0.16em] text-[var(--brand)]">
+            JobCodi Admin
+          </p>
+          <h1 className="mt-1 text-2xl font-semibold tracking-tight text-[var(--text)]">
+            관리자 로그인
+          </h1>
+          <p className="mt-2 text-sm leading-6 text-[var(--text-muted)]">
+            수집 소스와 크롤링 사이트를 관리하려면 로그인해 주세요.
+          </p>
+        </div>
+
+        <form className="space-y-5 px-6 py-7 sm:px-8" onSubmit={handleSubmit}>
           <div>
             <label className="mb-2 block text-sm font-medium text-[var(--text)]" htmlFor="admin-email">
               이메일
@@ -64,10 +79,14 @@ export function AdminLoginForm() {
               required
               type="email"
               value={email}
+              className="h-11 rounded-xl"
             />
           </div>
           <div>
-            <label className="mb-2 block text-sm font-medium text-[var(--text)]" htmlFor="admin-password">
+            <label
+              className="mb-2 block text-sm font-medium text-[var(--text)]"
+              htmlFor="admin-password"
+            >
               비밀번호
             </label>
             <Input
@@ -78,14 +97,23 @@ export function AdminLoginForm() {
               required
               type="password"
               value={password}
+              className="h-11 rounded-xl"
             />
           </div>
           {errorMessage ? (
-            <p aria-live="assertive" className="rounded-[var(--radius)] bg-[var(--danger-soft)] p-3 text-sm text-[var(--danger)]" role="alert">
+            <p
+              aria-live="assertive"
+              className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-700"
+              role="alert"
+            >
               {errorMessage}
             </p>
           ) : null}
-          <Button className="w-full" disabled={isSubmitting} type="submit">
+          <Button
+            className="w-full rounded-xl bg-gradient-to-br from-[var(--brand)] to-[#7c3aed] text-white shadow-lg shadow-[rgba(84,69,244,0.25)]"
+            disabled={isSubmitting}
+            type="submit"
+          >
             {isSubmitting ? "로그인 중…" : "로그인"}
           </Button>
         </form>

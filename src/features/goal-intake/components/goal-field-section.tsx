@@ -1,5 +1,6 @@
 import { ChipGroup, ChoiceChip } from "@/components/ui/choice-chip";
 import type { TaxonomyOption } from "@/lib/schemas/taxonomy";
+import { cn } from "@/lib/utils/cn";
 
 interface GoalFieldSectionProps {
   label: string;
@@ -10,6 +11,7 @@ interface GoalFieldSectionProps {
   selected: string[];
   onToggle: (value: string) => void;
   emptyMessage?: string;
+  icon?: React.ReactNode;
 }
 
 export function GoalFieldSection({
@@ -21,24 +23,49 @@ export function GoalFieldSection({
   selected,
   onToggle,
   emptyMessage = "선택지를 불러오지 못했어요.",
+  icon,
 }: GoalFieldSectionProps) {
+  const filled = selected.length > 0;
+
   return (
-    <fieldset className="flex flex-col gap-3">
-      <legend className="flex items-baseline gap-2 text-sm font-medium text-gray-900">
-        {label}
-        {required ? (
-          <span aria-hidden="true" className="text-red-500">
-            *
+    <fieldset
+      className={cn(
+        "rounded-2xl border bg-white p-4 shadow-sm transition-colors sm:p-5",
+        filled ? "border-[var(--brand)]/20 ring-1 ring-[var(--brand-soft)]" : "border-[var(--line)]",
+      )}
+    >
+      <legend className="mb-3 flex w-full items-center justify-between gap-3 px-1">
+        <span className="flex items-center gap-2 text-sm font-semibold text-[var(--text)]">
+          {icon ? (
+            <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[var(--surface-soft)] text-[var(--brand)]">
+              {icon}
+            </span>
+          ) : null}
+          {label}
+          {required ? (
+            <span aria-hidden="true" className="text-red-500">
+              *
+            </span>
+          ) : (
+            <span className="rounded-full bg-[var(--surface-soft)] px-2 py-0.5 text-[10px] font-medium text-[var(--text-subtle)]">
+              선택
+            </span>
+          )}
+          {hint ? <span className="text-xs font-normal text-[var(--text-subtle)]">({hint})</span> : null}
+        </span>
+        {filled ? (
+          <span className="rounded-full bg-[var(--brand-soft)] px-2 py-0.5 text-[11px] font-semibold text-[var(--brand-strong)]">
+            {mode === "multiple" ? `${selected.length}개 선택` : "선택됨"}
           </span>
         ) : null}
-        {hint ? (
-          <span className="text-xs font-normal text-gray-500">({hint})</span>
-        ) : null}
       </legend>
+
       {options.length === 0 ? (
-        <p className="text-sm text-gray-400">{emptyMessage}</p>
+        <div className="rounded-xl border border-dashed border-[var(--line)] bg-[var(--surface-soft)] px-4 py-6 text-center text-sm text-[var(--text-subtle)]">
+          {emptyMessage}
+        </div>
       ) : (
-        <div className="rounded-xl border border-gray-50 bg-gray-50/50 p-3">
+        <div className="rounded-xl border border-[var(--line)]/70 bg-gradient-to-b from-[var(--surface-soft)] to-white p-3 sm:p-4">
           <ChipGroup label={label} multiple={mode === "multiple"}>
             {options.map((option) => (
               <ChoiceChip

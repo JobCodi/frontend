@@ -1,4 +1,5 @@
 import * as React from "react";
+import { Check } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
 /**
@@ -16,6 +17,7 @@ function ChoiceChip({
   role = "checkbox",
   className,
   type = "button",
+  children,
   ...props
 }: ChoiceChipProps) {
   return (
@@ -25,14 +27,17 @@ function ChoiceChip({
       aria-checked={selected}
       data-state={selected ? "checked" : "unchecked"}
       className={cn(
-        "inline-flex items-center justify-center rounded-full border px-3.5 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-[var(--brand)] disabled:pointer-events-none disabled:opacity-50",
+        "inline-flex items-center justify-center gap-1.5 rounded-full border px-3.5 py-2 text-sm font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-[var(--brand)] disabled:pointer-events-none disabled:opacity-50",
         selected
-          ? "border-[var(--brand)] bg-[var(--brand)] text-white"
-          : "border-[var(--line)] bg-[var(--surface)] text-[var(--text)] hover:border-[var(--brand)] hover:bg-[var(--brand-soft)]",
+          ? "border-transparent bg-gradient-to-br from-[var(--brand)] to-[#7c3aed] text-white shadow-md shadow-[rgba(84,69,244,0.25)]"
+          : "border-[var(--line)] bg-white text-[var(--text)] shadow-sm hover:border-[var(--brand)]/40 hover:bg-[var(--brand-soft)]/60 hover:text-[var(--brand-strong)]",
         className,
       )}
       {...props}
-    />
+    >
+      {selected ? <Check className="h-3.5 w-3.5 shrink-0" strokeWidth={3} aria-hidden="true" /> : null}
+      {children}
+    </button>
   );
 }
 

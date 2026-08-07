@@ -6,33 +6,34 @@ interface CollectingChecklistProps {
   progress: FeedCollectingPage["progress"];
 }
 
-/**
- * While collecting, the backend only reports a source counter — no
- * per-source rows and no `sourceSummary` (that arrives with the finished
- * feed). role="status" so assistive tech announces progress (product.md §7).
- */
 export function CollectingChecklist({ progress }: CollectingChecklistProps) {
-  const percent =
+  const pct =
     progress.totalSources > 0
       ? Math.round((progress.completedSources / progress.totalSources) * 100)
       : 0;
 
   return (
-    <div className="flex flex-col gap-6">
-      <div role="status" className="flex flex-col gap-2">
-        <p className="flex items-center gap-2 text-[15px] font-medium text-gray-900">
-          <Loader2 aria-hidden="true" className="h-4 w-4 shrink-0 animate-spin text-indigo-600" />
-          여러 채용 사이트에서 공고를 모으고 있어요.
-        </p>
-        <p className="text-sm text-gray-500">
-          {progress.totalSources > 0
-            ? `채용 소스 ${progress.totalSources}곳 중 ${progress.completedSources}곳 완료 (${percent}%)`
-            : "채용 소스를 확인하고 있어요."}
-        </p>
+    <div className="overflow-hidden rounded-3xl border border-[var(--line)] bg-white shadow-[var(--shadow-card)]">
+      <div className="border-b border-[var(--line)] bg-gradient-to-r from-[var(--brand-soft)]/50 to-white px-5 py-5 sm:px-6">
+        <div className="flex items-center gap-3">
+          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-[var(--brand)] to-[#7c3aed] text-white shadow-md shadow-[rgba(84,69,244,0.25)]">
+            <Loader2 className="h-5 w-5 animate-spin" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="text-base font-semibold text-[var(--text)]">공고를 모으고 있어요</p>
+            <p className="mt-0.5 text-sm text-[var(--text-muted)]">
+              소스 {progress.completedSources}/{progress.totalSources} 완료 · {pct}%
+            </p>
+          </div>
+        </div>
+        <div className="mt-4 h-2 overflow-hidden rounded-full bg-[var(--line)]">
+          <div
+            className="h-full rounded-full bg-gradient-to-r from-[var(--brand)] to-[#7c3aed] transition-all duration-500"
+            style={{ width: `${pct}%` }}
+          />
+        </div>
       </div>
-
-      <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-        <FeedCardSkeleton />
+      <div className="grid grid-cols-1 gap-3 p-5 md:grid-cols-2">
         <FeedCardSkeleton />
         <FeedCardSkeleton />
       </div>

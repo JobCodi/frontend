@@ -48,17 +48,17 @@ export function CriteriaRow({ field, criteria, source, taxonomy, onSave, isSavin
   }
 
   return (
-    <div className="flex flex-col gap-2 border-b border-[var(--line)] py-4 last:border-b-0">
-      <div className="flex items-center justify-between gap-2">
-        <div className="flex items-baseline gap-2">
-          <span className="text-[13px] font-medium text-[var(--text)]">{label}</span>
+    <div className="border-b border-[var(--line)] bg-white px-4 py-4 transition-colors last:border-b-0 hover:bg-[var(--surface-soft)]/50 sm:px-5">
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex min-w-0 flex-wrap items-center gap-2">
+          <span className="text-sm font-semibold text-[var(--text)]">{label}</span>
           <SourceLabel source={source} />
         </div>
         {editable && !isEditing ? (
           <button
             type="button"
             onClick={handleEditClick}
-            className="rounded-[var(--radius)] px-2 py-1 text-xs font-medium text-[var(--brand)] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]"
+            className="rounded-lg border border-[var(--line)] bg-white px-2.5 py-1 text-xs font-medium text-[var(--brand)] shadow-sm transition-colors hover:border-[var(--brand)]/30 hover:bg-[var(--brand-soft)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]"
           >
             수정
           </button>
@@ -66,7 +66,7 @@ export function CriteriaRow({ field, criteria, source, taxonomy, onSave, isSavin
       </div>
 
       {isEditing ? (
-        <div className="flex flex-col gap-3">
+        <div className="mt-3 flex flex-col gap-3 rounded-xl border border-[var(--line)] bg-[var(--surface-soft)]/60 p-3">
           <CriteriaFieldEditor
             field={field}
             options={options}
@@ -74,16 +74,16 @@ export function CriteriaRow({ field, criteria, source, taxonomy, onSave, isSavin
             setDraft={setDraft}
           />
           <div className="flex justify-end gap-2">
-            <Button size="sm" variant="secondary" onClick={cancelEdit} disabled={isSaving}>
+            <Button size="sm" variant="secondary" onClick={cancelEdit} disabled={isSaving} className="rounded-lg">
               취소
             </Button>
-            <Button size="sm" onClick={handleSave} disabled={isSaving}>
+            <Button size="sm" onClick={handleSave} disabled={isSaving} className="rounded-lg">
               {isSaving ? "저장 중..." : "저장"}
             </Button>
           </div>
         </div>
       ) : (
-        <div className="text-[15px] text-[var(--text)]">
+        <div className="mt-2 text-[15px] leading-6 text-[var(--text)]">
           <CriteriaValueDisplay field={field} criteria={criteria} options={options} />
         </div>
       )}
