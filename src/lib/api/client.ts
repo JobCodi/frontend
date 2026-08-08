@@ -35,6 +35,14 @@ const UNKNOWN_ERROR_MESSAGE = "알 수 없는 오류가 발생했어요.";
 const NETWORK_ERROR_CODE = "NETWORK_ERROR";
 const INVALID_RESPONSE_CODE = "INVALID_RESPONSE_SHAPE";
 
+const BROWSER_TOKEN_KEY = "jobcodi_token";
+
+function browserAuthorizationHeader(): HeadersInit {
+  if (typeof window === "undefined") return {};
+  const token = window.sessionStorage.getItem(BROWSER_TOKEN_KEY);
+  return token === null ? {} : { Authorization: `Bearer ${token}` };
+}
+
 async function parseErrorBody(res: Response): Promise<{ code: string; message: string }> {
   try {
     const json: unknown = await res.json();
@@ -79,6 +87,7 @@ export async function apiFetch<T>(
         method,
         headers: {
           ...(hasBody ? { "Content-Type": "application/json" } : {}),
+          ...browserAuthorizationHeader(),
           ...options.headers,
         },
         body: hasBody ? JSON.stringify(options.body) : undefined,
