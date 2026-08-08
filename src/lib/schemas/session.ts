@@ -36,6 +36,7 @@ export const GoalInputSchema = z.object({
   regions: z.array(z.string()),
   employmentTypes: z.array(z.string()),
   targetStartAt: z.string().nullable(),
+  selectedCrawlSites: z.array(z.enum(["saramin", "jobkorea", "jasoseol"])).optional(),
 });
 export type GoalInputResponse = z.infer<typeof GoalInputSchema>;
 
@@ -88,6 +89,7 @@ export const SubmitTurnResponseSchema = z.discriminatedUnion("status", [
 export type SubmitTurnResponse = z.infer<typeof SubmitTurnResponseSchema>;
 
 export interface SubmitTurnRequest {
+  turnIndex: number;
   answer?: string;
   choiceValue?: string;
 }
