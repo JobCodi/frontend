@@ -36,7 +36,7 @@ export const GoalInputSchema = z.object({
   regions: z.array(z.string()),
   employmentTypes: z.array(z.string()),
   targetStartAt: z.string().nullable(),
-  selectedCrawlSites: z.array(z.enum(["saramin", "jobkorea", "jasoseol"])).optional(),
+  selectedCrawlSites: z.array(z.enum(["work24", "saramin", "jobkorea", "jasoseol"])).optional(),
 });
 export type GoalInputResponse = z.infer<typeof GoalInputSchema>;
 

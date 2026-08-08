@@ -12,6 +12,15 @@ export interface PrebuiltCrawlSite {
 /** 선택 가능한 운영 수집 소스. 활성화 상태는 서버의 API 키/운영 opt-in에 따라 달라진다. */
 export const PREBUILT_CRAWL_SITES: PrebuiltCrawlSite[] = [
   {
+    id: "work24",
+    displayName: "고용24",
+    description: "정부 공식 채용정보 Open API · API 키 연결 후 수집",
+    termsUrl: "https://www.work24.go.kr/cm/main.do",
+    entryUrls: ["https://www.work24.go.kr/"],
+    minIntervalMs: 2000,
+    enabled: true,
+  },
+  {
     id: "saramin",
     displayName: "사람인",
     description: "공식 채용 Open API · API 키 연결 후 수집",
