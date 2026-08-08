@@ -8,7 +8,7 @@ import { EMPTY_GOAL_INPUT, type GoalInput } from "../types";
 interface GoalIntakeStore {
   goal: GoalInput;
   setField: <K extends keyof GoalInput>(key: K, value: GoalInput[K]) => void;
-  toggleInArray: (key: "companySizes" | "roles" | "regions" | "employmentTypes", value: string) => void;
+  toggleInArray: (key: "companySizes" | "roles" | "regions" | "employmentTypes" | "selectedCrawlSites", value: string) => void;
   reset: () => void;
 }
 
@@ -22,7 +22,7 @@ export const useGoalIntakeStore = create<GoalIntakeStore>((set) => ({
       const next = current.includes(value)
         ? current.filter((item) => item !== value)
         : [...current, value];
-      return { goal: { ...state.goal, [key]: next } };
+      return { goal: { ...state.goal, [key]: next } } as Partial<GoalIntakeStore>;
     }),
   reset: () => set({ goal: EMPTY_GOAL_INPUT }),
 }));

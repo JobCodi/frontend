@@ -1,6 +1,7 @@
 import { apiGet, ApiError } from "@/lib/api/client";
 import { TaxonomySchema, EMPTY_TAXONOMY } from "@/lib/schemas/taxonomy";
 import { GoalIntakeForm } from "@/features/goal-intake";
+import { ActiveProfileGate } from "@/features/goal-intake/components/active-profile-gate";
 
 export const metadata = {
   title: "목표 입력 | JobCodi",
@@ -25,5 +26,9 @@ async function loadTaxonomy() {
 export default async function StartPage() {
   const { taxonomy, failed } = await loadTaxonomy();
 
-  return <GoalIntakeForm taxonomy={taxonomy} taxonomyFailed={failed} />;
+  return (
+    <ActiveProfileGate>
+      <GoalIntakeForm taxonomy={taxonomy} taxonomyFailed={failed} />
+    </ActiveProfileGate>
+  );
 }

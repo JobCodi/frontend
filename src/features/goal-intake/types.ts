@@ -11,6 +11,7 @@ export interface GoalInput {
   regions: string[];
   employmentTypes: string[];
   targetStartAt: string | null;
+  selectedCrawlSites: string[];
 }
 
 export const EMPTY_GOAL_INPUT: GoalInput = {
@@ -21,9 +22,15 @@ export const EMPTY_GOAL_INPUT: GoalInput = {
   regions: [],
   employmentTypes: [],
   targetStartAt: null,
+  selectedCrawlSites: [],
 };
 
-/** companySizes, jobFamily, experienceLevel are the only required fields (product.md §5). */
+/** companySizes, jobFamily, experienceLevel, and at least one crawl site are required. */
 export function isGoalInputSubmittable(goal: GoalInput): boolean {
-  return goal.companySizes.length > 0 && goal.jobFamily !== "" && goal.experienceLevel !== "";
+  return (
+    goal.companySizes.length > 0 &&
+    goal.jobFamily !== "" &&
+    goal.experienceLevel !== "" &&
+    goal.selectedCrawlSites.length > 0
+  );
 }

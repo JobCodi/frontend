@@ -1,7 +1,7 @@
 import Link from "next/link";
-import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils/cn";
 import { formatDday, formatRelativeTime } from "@/lib/utils/date";
+import { ExternalLink } from "lucide-react";
 import type { JobView } from "../lib/to-job-view";
 import { ReasonList } from "./reason-list";
 
@@ -10,57 +10,115 @@ interface JobCardProps {
   sessionId: string;
 }
 
-const MAX_VISIBLE_REASONS = 4;
+const MAX_VISIBLE_REASONS = 3;
 
 export function JobCard({ job, sessionId }: JobCardProps) {
   const dday = formatDday(job.closesAt, job.isRolling);
   const postedLabel = formatRelativeTime(job.postedAt);
+  const avatarLetter = job.companyName.charAt(0).toUpperCase();
+  const scoreTone =
+    job.score >= 85
+      ? "from-[var(--brand)] to-[#7c3aed]"
+      : job.score >= 70
+        ? "from-[#6366f1] to-[#8b5cf6]"
+        : "from-[var(--text-muted)] to-[var(--text-subtle)]";
 
   return (
     <Link
       href={`/feed/${sessionId}/${job.id}`}
-      className="flex flex-col gap-3 rounded-[var(--radius)] border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[var(--shadow-card)] transition-shadow hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]"
+      className="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-[var(--line)]/80 bg-white shadow-[var(--shadow-card)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[var(--brand)]/30 hover:shadow-[var(--shadow-elevated)]"
     >
-      <div className="flex flex-wrap items-center gap-1.5 text-xs text-[var(--text-muted)]">
-        {job.employmentTypeLabel ? <span>{job.employmentTypeLabel}</span> : null}
+      {/* Top accent line on hover */}
+      <div
+        aria-hidden="true"
+        className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-[var(--brand)] to-[#7c3aed] opacity-0 transition-opacity group-hover:opacity-100"
+      />
+
+      {/* Header: Company + Score */}
+      <div className="flex items-start justify-between gap-3 p-5 pb-0">
+        <div className="flex min-w-0 items-center gap-3">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[var(--surface-soft)] to-white text-sm font-bold text-[var(--text)] ring-1 ring-[var(--line)]">
+            {avatarLetter}
+          </div>
+          <div className="min-w-0">
+            <p className="ui-card-title">{job.companyName}</p>
+            <p className="truncate text-xs text-[var(--text-subtle)]">{job.sourceLabel}</p>
+          </div>
+        </div>
+        <div
+          className={cn(
+            "flex h-11 w-11 flex-col items-center justify-center rounded-xl bg-gradient-to-br text-white shadow-md",
+            scoreTone,
+          )}
+        >
+          <strong className="text-sm font-bold leading-none">{job.score}</strong>
+          <span className="mt-0.5 text-[8px] font-semibold uppercase tracking-wider opacity-80">
+            점
+          </span>
+        </div>
+      </div>
+
+      {/* Title */}
+      <div className="px-5 pt-4">
+        <h3 className="ui-card-title transition-colors group-hover:text-[var(--brand)]">
+          {job.title}
+        </h3>
+      </div>
+
+      {/* Tags */}
+      <div className="flex flex-wrap gap-1.5 px-5 pt-3">
+        {job.employmentTypeLabel ? (
+          <span className="rounded-md bg-[var(--surface-soft)] px-2 py-0.5 text-xs font-medium text-[var(--text-muted)] ring-1 ring-[var(--line)]">
+            {job.employmentTypeLabel}
+          </span>
+        ) : null}
+        {job.regionLabel ? (
+          <span className="rounded-md bg-[var(--surface-soft)] px-2 py-0.5 text-xs font-medium text-[var(--text-muted)] ring-1 ring-[var(--line)]">
+            {job.regionLabel}
+          </span>
+        ) : null}
         {job.companySizeLabel ? (
-          <span className="flex items-center gap-1">
-            · {job.companySizeLabel}
+          <span className="rounded-md bg-[var(--surface-soft)] px-2 py-0.5 text-xs font-medium text-[var(--text-muted)] ring-1 ring-[var(--line)]">
+            {job.companySizeLabel}
             {job.companySizeInferred ? (
-              <Badge variant="neutral" className="px-1.5 py-0 text-[10px]">
-                추정
-              </Badge>
+              <span className="ml-0.5 text-[10px] opacity-60">(추정)</span>
             ) : null}
           </span>
         ) : null}
-        {job.regionLabel ? <span>· {job.regionLabel}</span> : null}
-        {dday ? (
-          <Badge
-            variant={dday.urgent ? "danger" : "neutral"}
-            className={cn("ml-auto", dday.urgent && "font-semibold")}
-          >
-            {dday.label}
-          </Badge>
-        ) : null}
       </div>
 
-      <div>
-        <p className="text-[15px] font-semibold leading-6 text-[var(--text)]">{job.title}</p>
-        <p className="text-sm text-[var(--text-muted)]">{job.companyName}</p>
-      </div>
-
-      <div className="flex flex-col gap-2">
-        <p className="text-lg font-bold text-[var(--brand-strong)]">{job.score}점</p>
+      {/* Reasons */}
+      <div className="flex-1 px-5 pt-4">
         <ReasonList reasons={job.reasons} maxVisible={MAX_VISIBLE_REASONS} />
       </div>
 
-      <p className="text-xs text-[var(--text-subtle)]">
-        {job.sourceLabel}
-        {postedLabel ? ` · ${postedLabel}` : ""}
-        {job.alsoFoundOnLabels.length > 0
-          ? ` · ${job.alsoFoundOnLabels.join(", ")}에도 게시`
-          : ""}
-      </p>
+      {/* Footer */}
+      <div className="mx-5 mt-4 flex items-center justify-between border-t border-[var(--line)]/80 py-3">
+        <div className="flex items-center gap-2 text-xs text-[var(--text-subtle)]">
+          <span>{postedLabel}</span>
+          {job.alsoFoundOnLabels.length > 0 ? (
+            <>
+              <span className="text-[var(--line)]">|</span>
+              <span>{job.alsoFoundOnLabels.length}개 출처</span>
+            </>
+          ) : null}
+        </div>
+        <div className="flex items-center gap-2">
+          {dday ? (
+            <span
+              className={cn(
+                "rounded-full px-2 py-0.5 text-xs font-semibold",
+                dday.urgent
+                  ? "bg-red-50 text-red-600 ring-1 ring-red-200"
+                  : "bg-[var(--surface-soft)] text-[var(--text-muted)]",
+              )}
+            >
+              {dday.label}
+            </span>
+          ) : null}
+          <ExternalLink className="h-3.5 w-3.5 text-[var(--text-subtle)] opacity-0 transition-opacity group-hover:opacity-60" />
+        </div>
+      </div>
     </Link>
   );
 }

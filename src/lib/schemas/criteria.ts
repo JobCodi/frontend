@@ -23,9 +23,10 @@ export const CriteriaPayloadSchema = z.object({
     regionMatch: z.number(),
     freshness: z.number(),
   }),
+  selectedCrawlSites: z.array(z.enum(["work24", "saramin", "jobkorea", "jasoseol"])).optional(),
 });
 export type CriteriaPayload = z.infer<typeof CriteriaPayloadSchema>;
-export type CriteriaFieldKey = keyof CriteriaPayload;
+export type CriteriaFieldKey = Exclude<keyof CriteriaPayload, "selectedCrawlSites">;
 
 /** Row order on /criteria. */
 export const CRITERIA_FIELD_KEYS = [

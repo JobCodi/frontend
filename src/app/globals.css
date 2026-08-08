@@ -1,17 +1,18 @@
 @import "tailwindcss";
 
 /* ---------------------------------------------------------------------- */
-/* Design tokens — design-system.md §2. Single source of truth for color, */
-/* radius and shadow. Components reference these vars, never literals.   */
+/* JobCodi semantic design tokens. Layout and type hierarchy must use     */
+/* these variables or the ui-* utilities below, not page-local literals.  */
 /* ---------------------------------------------------------------------- */
 :root {
   /* brand */
   --brand: #5445f4;
   --brand-strong: #4637db;
   --brand-soft: #ede9fe;
+  --brand-glow: rgba(84, 69, 244, 0.18);
 
   /* surface */
-  --bg: #f6f7fb;
+  --bg: #f4f6fb;
   --surface: #ffffff;
   --surface-soft: #f8fafc;
   --line: #e2e8f0;
@@ -21,7 +22,7 @@
   --text-muted: #64748b;
   --text-subtle: #94a3b8;
 
-  /* matching reasons — kind: match | caution | gap (fixed semantics, do not repurpose) */
+  /* matching reasons — fixed semantics */
   --match: #16a34a;
   --match-soft: #dcfce7;
   --caution: #d97706;
@@ -33,164 +34,124 @@
   --danger: #dc2626;
   --danger-soft: #fee2e2;
 
-  /* misc */
-  --radius: 12px;
-  --shadow-card: 0 1px 2px rgba(15, 23, 42, 0.06), 0 8px 24px rgba(15, 23, 42, 0.06);
+  /* layout */
+  --content-auth: 26.25rem;
+  --content-narrow: 48rem;
+  --content-standard: 64rem;
+  --content-wide: 75rem;
+  --content-full: 85rem;
+  --page-space-x: 1rem;
+  --page-space-y: 1.5rem;
+  --card-space: 1.25rem;
+  --card-space-lg: 1.5rem;
+
+  /* type */
+  --type-eyebrow: 0.6875rem;
+  --type-meta: 0.75rem;
+  --type-body: 0.875rem;
+  --type-card-title: 1rem;
+  --type-section-title: 1.125rem;
+  --type-page-title: 1.5rem;
+
+  /* surface primitives */
+  --radius: 0.75rem;
+  --radius-card: 1rem;
+  --radius-panel: 1.25rem;
+  --shadow-card: 0 1px 2px rgba(15, 23, 42, 0.05), 0 10px 28px rgba(15, 23, 42, 0.06);
+  --shadow-elevated: 0 2px 4px rgba(15, 23, 42, 0.04), 0 18px 40px rgba(15, 23, 42, 0.08);
 }
 
-/* Map tokens into Tailwind's theme so utilities like bg-brand / text-muted work. */
+@media (min-width: 640px) {
+  :root {
+    --page-space-x: 1.5rem;
+    --page-space-y: 2rem;
+    --card-space: 1.5rem;
+    --type-page-title: 1.75rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --page-space-x: 2rem;
+  }
+}
+
 @theme inline {
   --color-brand: var(--brand);
   --color-brand-strong: var(--brand-strong);
   --color-brand-soft: var(--brand-soft);
-
   --color-bg: var(--bg);
   --color-surface: var(--surface);
   --color-surface-soft: var(--surface-soft);
   --color-line: var(--line);
-
   --color-text: var(--text);
   --color-text-muted: var(--text-muted);
   --color-text-subtle: var(--text-subtle);
-
   --color-match: var(--match);
   --color-match-soft: var(--match-soft);
   --color-caution: var(--caution);
   --color-caution-soft: var(--caution-soft);
   --color-gap: var(--gap);
   --color-gap-soft: var(--gap-soft);
-
   --color-danger: var(--danger);
   --color-danger-soft: var(--danger-soft);
-
   --radius-token: var(--radius);
 }
 
-* {
-  box-sizing: border-box;
-}
-
-html {
-  min-height: 100%;
-  background: var(--bg);
-}
-
+* { box-sizing: border-box; }
+html { min-height: 100%; background: var(--bg); }
 body {
   min-height: 100vh;
   margin: 0;
   color: var(--text);
   background: var(--bg);
-  font-family:
-    ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+button, input, textarea, select { font: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+
+/* Layout primitives */
+.ui-page { width: 100%; margin-inline: auto; padding: var(--page-space-y) var(--page-space-x); }
+.ui-page-auth { max-width: var(--content-auth); }
+.ui-page-narrow { max-width: var(--content-narrow); }
+.ui-page-standard { max-width: var(--content-standard); }
+.ui-page-wide { max-width: var(--content-wide); }
+.ui-page-full { max-width: var(--content-full); }
+
+/* Type primitives */
+.ui-eyebrow { font-size: var(--type-eyebrow); font-weight: 700; line-height: 1rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--brand); }
+.ui-page-title { font-size: var(--type-page-title); font-weight: 650; line-height: 1.22; letter-spacing: -0.025em; color: var(--text); }
+.ui-section-title { font-size: var(--type-section-title); font-weight: 650; line-height: 1.45; letter-spacing: -0.0125em; color: var(--text); }
+.ui-card-title { font-size: var(--type-card-title); font-weight: 600; line-height: 1.5; color: var(--text); }
+.ui-body { font-size: var(--type-body); line-height: 1.6; color: var(--text-muted); }
+.ui-meta { font-size: var(--type-meta); line-height: 1.5; color: var(--text-subtle); }
+
+/* Surface primitives */
+.ui-card { border: 1px solid color-mix(in srgb, var(--line) 90%, transparent); border-radius: var(--radius-card); background: color-mix(in srgb, var(--surface) 92%, white); box-shadow: var(--shadow-card); }
+.ui-card-elevated { border: 1px solid color-mix(in srgb, var(--line) 94%, transparent); border-radius: var(--radius-panel); background: rgba(255, 255, 255, 0.92); box-shadow: var(--shadow-elevated); backdrop-filter: blur(10px); }
+
+/* Compatibility aliases for pre-system components. */
+.app-card { border: 1px solid rgba(226, 232, 240, 0.9); border-radius: var(--radius-card); background: color-mix(in srgb, var(--surface) 92%, white); box-shadow: var(--shadow-card); }
+.app-card-elevated { border: 1px solid rgba(226, 232, 240, 0.95); border-radius: var(--radius-panel); background: rgba(255, 255, 255, 0.92); box-shadow: var(--shadow-elevated); backdrop-filter: blur(10px); }
+
+.app-grid {
+  background-image: linear-gradient(to right, rgba(148, 163, 184, 0.12) 1px, transparent 1px), linear-gradient(to bottom, rgba(148, 163, 184, 0.12) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(ellipse 75% 65% at 50% 0%, black 20%, transparent 80%);
 }
 
-button,
-input,
-textarea {
-  font: inherit;
-}
-
-button {
-  cursor: pointer;
-}
-
-/* Never remove the focus ring (design-system.md §7 / Rules.md §7). */
-:focus-visible {
-  outline: 2px solid var(--brand);
-  outline-offset: 2px;
-}
-
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
-}
-
-/* ---------------------------------------------------------------------- */
-/* Motion — design-system.md §6                                          */
-/* ---------------------------------------------------------------------- */
-
-@keyframes message-in {
-  from {
-    opacity: 0;
-    transform: translateY(4px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.message-in {
-  animation: message-in 150ms ease-out;
-}
-
-@keyframes typing-dot {
-  0%,
-  60%,
-  100% {
-    opacity: 0.25;
-    transform: translateY(0);
-  }
-  30% {
-    opacity: 1;
-    transform: translateY(-2px);
-  }
-}
-
-.typing-dot {
-  animation: typing-dot 1.2s ease-in-out infinite;
-}
-
-.typing-dot:nth-child(2) {
-  animation-delay: 0.15s;
-}
-
-.typing-dot:nth-child(3) {
-  animation-delay: 0.3s;
-}
-
-.dialog-overlay {
-  animation: fade-in 150ms ease-out;
-}
-
-.dialog-content {
-  animation:
-    fade-in 150ms ease-out,
-    scale-in 150ms ease-out;
-}
-
-@keyframes fade-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes scale-in {
-  from {
-    transform: translate(-50%, -50%) scale(0.97);
-  }
-  to {
-    transform: translate(-50%, -50%) scale(1);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.001ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.001ms !important;
-    scroll-behavior: auto !important;
-  }
-}
+@keyframes message-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+.message-in { animation: message-in 150ms ease-out; }
+@keyframes typing-dot { 0%, 60%, 100% { opacity: 0.25; transform: translateY(0); } 30% { opacity: 1; transform: translateY(-2px); } }
+.typing-dot { animation: typing-dot 1.2s ease-in-out infinite; }
+.typing-dot:nth-child(2) { animation-delay: 0.15s; }
+.typing-dot:nth-child(3) { animation-delay: 0.3s; }
+.dialog-overlay { animation: fade-in 150ms ease-out; }
+.dialog-content { animation: fade-in 150ms ease-out, scale-in 150ms ease-out; }
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes scale-in { from { transform: translate(-50%, -50%) scale(0.97); } to { transform: translate(-50%, -50%) scale(1); } }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; scroll-behavior: auto !important; } }

@@ -1,50 +1,54 @@
-import { Check, TriangleAlert, X } from "lucide-react";
+import { Check, AlertTriangle, MinusCircle } from "lucide-react";
+import type { MatchReason } from "@/lib/schemas";
 import { cn } from "@/lib/utils/cn";
-import type { MatchReason } from "@/lib/schemas/common";
-
-const REASON_ICON = {
-  match: Check,
-  caution: TriangleAlert,
-  gap: X,
-} as const;
-
-const REASON_COLOR = {
-  match: "text-[var(--match)]",
-  caution: "text-[var(--caution)]",
-  gap: "text-[var(--gap)]",
-} as const;
 
 interface ReasonListProps {
-  reasons: MatchReason[];
-  /** Card view truncates to 4 with a "+n개 더" line; detail view shows all. */
+  reasons: readonly MatchReason[];
   maxVisible?: number;
 }
 
-/**
- * Renders MatchReason[]. Icons are decorative (aria-hidden) — kind is
- * always conveyed through the icon shape AND the text, never color alone
- * (design-system.md §2 / Rules.md §2.1).
- */
-export function ReasonList({ reasons, maxVisible }: ReasonListProps) {
-  const visible = maxVisible ? reasons.slice(0, maxVisible) : reasons;
-  const remaining = maxVisible ? reasons.length - maxVisible : 0;
+export function ReasonList({ reasons, maxVisible = 3 }: ReasonListProps) {
+  const visibleReasons = reasons.slice(0, maxVisible);
+  const hiddenCount = reasons.length - maxVisible;
+
+  function getIcon(kind: MatchReason["kind"]) {
+    switch (kind) {
+      case "match":
+        return <Check className="h-3.5 w-3.5 text-emerald-600" strokeWidth={2.5} />;
+      case "caution":
+        return <AlertTriangle className="h-3.5 w-3.5 text-amber-600" />;
+      case "gap":
+        return <MinusCircle className="h-3.5 w-3.5 text-slate-400" />;
+    }
+  }
+
+  function tone(kind: MatchReason["kind"]) {
+    switch (kind) {
+      case "match":
+        return "bg-emerald-50 text-emerald-800 ring-emerald-100";
+      case "caution":
+        return "bg-amber-50 text-amber-800 ring-amber-100";
+      case "gap":
+        return "bg-slate-50 text-slate-600 ring-slate-100";
+    }
+  }
 
   return (
-    <ul className="flex flex-col gap-1.5">
-      {visible.map((reason, index) => {
-        const Icon = REASON_ICON[reason.kind];
-        return (
-          <li key={index} className="flex items-start gap-2 text-sm">
-            <Icon
-              aria-hidden="true"
-              className={cn("mt-0.5 h-4 w-4 shrink-0", REASON_COLOR[reason.kind])}
-            />
-            <span className="text-[var(--text)]">{reason.text}</span>
-          </li>
-        );
-      })}
-      {remaining > 0 ? (
-        <li className="pl-6 text-xs text-[var(--text-subtle)]">+{remaining}개 더</li>
+    <ul className="space-y-1.5">
+      {visibleReasons.map((reason, idx) => (
+        <li
+          key={idx}
+          className={cn(
+            "flex items-start gap-2 rounded-xl px-2.5 py-2 text-sm leading-5 ring-1",
+            tone(reason.kind),
+          )}
+        >
+          <span className="mt-0.5">{getIcon(reason.kind)}</span>
+          <span className="flex-1">{reason.text}</span>
+        </li>
+      ))}
+      {hiddenCount > 0 ? (
+        <li className="px-1 text-xs font-medium text-[var(--text-subtle)]">+{hiddenCount}개 더 보기</li>
       ) : null}
     </ul>
   );

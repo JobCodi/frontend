@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { QueryProvider } from "@/components/providers/query-provider";
-import { AppHeader } from "@/components/layout/app-header";
+import { AuthProvider } from "@/lib/auth/context";
 
 export const metadata: Metadata = {
   title: "JobCodi | 목표만 알려주세요, 공고는 저희가 모아옵니다",
@@ -25,10 +25,11 @@ export default function RootLayout({
     <html lang="ko">
       <body>
         <QueryProvider>
-          <div className="flex min-h-screen flex-col">
-            <AppHeader />
-            <div className="flex-1">{children}</div>
-          </div>
+          <AuthProvider>
+            <div className="flex min-h-screen flex-col">
+              <div className="flex-1">{children}</div>
+            </div>
+          </AuthProvider>
         </QueryProvider>
       </body>
     </html>

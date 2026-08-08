@@ -25,8 +25,6 @@ export function JobList({
 }: JobListProps) {
   const sentinelRef = useInfiniteScrollSentinel(onLoadMore, hasNextPage && !isFetchingNextPage);
 
-  // Contract violation, not a valid empty state — never render a card
-  // without at least one MatchReason (AGENTS.md #1 / Rules.md §2.1).
   const renderable = items.filter((item) => {
     if (item.reasons.length === 0) {
       console.error(
@@ -39,15 +37,20 @@ export function JobList({
 
   return (
     <div>
-      <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         {renderable.map((item) => (
           <JobCard key={item.id} job={toJobView(item, context)} sessionId={sessionId} />
         ))}
       </div>
 
       {hasNextPage ? (
-        <div ref={sentinelRef} className="grid grid-cols-1 gap-3 pt-3 md:grid-cols-2" aria-hidden="true">
-          {isFetchingNextPage ? <FeedCardSkeleton /> : null}
+        <div ref={sentinelRef} className="grid grid-cols-1 gap-4 pt-4 md:grid-cols-2" aria-hidden="true">
+          {isFetchingNextPage ? (
+            <>
+              <FeedCardSkeleton />
+              <FeedCardSkeleton />
+            </>
+          ) : null}
         </div>
       ) : null}
     </div>
@@ -56,11 +59,21 @@ export function JobList({
 
 export function FeedCardSkeleton() {
   return (
-    <div className="flex flex-col gap-3 rounded-[var(--radius)] border border-[var(--line)] bg-[var(--surface)] p-5">
-      <Skeleton className="h-4 w-1/3" />
-      <Skeleton className="h-5 w-2/3" />
-      <Skeleton className="h-4 w-1/2" />
-      <Skeleton className="h-16 w-full" />
+    <div className="flex flex-col gap-3 rounded-3xl border border-[var(--line)] bg-white p-6 shadow-[var(--shadow-card)]">
+      <div className="flex items-center gap-3">
+        <Skeleton className="h-11 w-11 rounded-2xl" />
+        <div className="flex-1 space-y-2">
+          <Skeleton className="h-4 w-1/3" />
+          <Skeleton className="h-3 w-1/4" />
+        </div>
+      </div>
+      <Skeleton className="mt-2 h-6 w-2/3" />
+      <div className="flex gap-2">
+        <Skeleton className="h-6 w-16 rounded-lg" />
+        <Skeleton className="h-6 w-14 rounded-lg" />
+      </div>
+      <Skeleton className="h-20 w-full rounded-xl" />
+      <Skeleton className="h-4 w-1/4" />
     </div>
   );
 }
