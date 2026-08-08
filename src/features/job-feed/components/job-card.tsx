@@ -1,7 +1,12 @@
+"use client";
+
 import Link from "next/link";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { z } from "zod";
 import { cn } from "@/lib/utils/cn";
 import { formatDday, formatRelativeTime } from "@/lib/utils/date";
-import { ExternalLink } from "lucide-react";
+import { ExternalLink, Bookmark, X } from "lucide-react";
+import { apiPut } from "@/lib/api/client";
 import type { JobView } from "../lib/to-job-view";
 import { ReasonList } from "./reason-list";
 
@@ -13,6 +18,16 @@ interface JobCardProps {
 const MAX_VISIBLE_REASONS = 3;
 
 export function JobCard({ job, sessionId }: JobCardProps) {
+  const queryClient = useQueryClient();
+  const updatePreference = useMutation({
+    mutationFn: (preference: "saved" | "excluded" | "none") =>
+      apiPut(
+        `/jobs/${job.postingId}/preference`,
+        z.object({ jobId: z.string(), preference: z.enum(["saved", "excluded", "none"]) }),
+        { preference },
+      ),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["feed", sessionId] }),
+  });
   const dday = formatDday(job.closesAt, job.isRolling);
   const postedLabel = formatRelativeTime(job.postedAt);
   const avatarLetter = job.companyName.charAt(0).toUpperCase();
@@ -102,6 +117,32 @@ export function JobCard({ job, sessionId }: JobCardProps) {
               <span>{job.alsoFoundOnLabels.length}개 출처</span>
             </>
           ) : null}
+        </div>
+        <div className="flex items-center gap-1">
+          <button
+            type="button"
+            aria-label={job.preference === "saved" ? "관심 공고 해제" : "관심 공고로 저장"}
+            onClick={(event) => {
+              event.preventDefault();
+              event.stopPropagation();
+              updatePreference.mutate(job.preference === "saved" ? "none" : "saved");
+            }}
+            className={cn("rounded-lg p-1.5 transition-colors", job.preference === "saved" ? "bg-[var(--brand-soft)] text-[var(--brand)]" : "text-[var(--text-subtle)] hover:bg-[var(--surface-soft)]")}
+          >
+            <Bookmark className="h-4 w-4" fill={job.preference === "saved" ? "currentColor" : "none"} />
+          </button>
+          <button
+            type="button"
+            aria-label="이 공고 제외"
+            onClick={(event) => {
+              event.preventDefault();
+              event.stopPropagation();
+              updatePreference.mutate("excluded");
+            }}
+            className="rounded-lg p-1.5 text-[var(--text-subtle)] transition-colors hover:bg-red-50 hover:text-red-600"
+          >
+            <X className="h-4 w-4" />
+          </button>
         </div>
         <div className="flex items-center gap-2">
           {dday ? (
