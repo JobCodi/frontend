@@ -29,7 +29,7 @@ export function StepProgress({ currentStep }: StepProgressProps) {
       aria-label="진행 단계"
       className="border-b border-[var(--line)]/70 bg-white/75 backdrop-blur-xl"
     >
-      <div className="mx-auto max-w-5xl px-4 py-4 sm:px-6">
+      <div className="mx-auto w-full max-w-[var(--content-standard)] px-[var(--page-space-x)] py-4">
         <div className="rounded-2xl border border-[var(--line)]/80 bg-white/90 px-3 py-3 shadow-[var(--shadow-card)] sm:px-5 sm:py-4">
           <div className="mb-3 flex items-center justify-between gap-3">
             <div>

@@ -119,7 +119,7 @@ function buildPayload(form: HTMLFormElement, selectors: SelectorFields): CreateC
 
 function DashboardLoading() {
   return (
-    <main className="relative mx-auto w-full max-w-6xl px-4 py-10" role="status">
+    <main className="ui-page ui-page-wide relative" role="status">
       <div className="rounded-3xl border border-[var(--line)] bg-white p-8 shadow-[var(--shadow-card)]">
         <p className="text-sm text-[var(--text-muted)]">관리자 정보를 확인하는 중…</p>
       </div>
@@ -226,7 +226,7 @@ export function AdminDashboard() {
     crawlSites.data?.crawlSites.filter((site) => site.status === "active").length ?? 0;
 
   return (
-    <main className="relative mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 sm:py-10">
+    <main className="ui-page ui-page-wide relative">
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
         <div className="app-grid absolute inset-0 opacity-40" />
         <div className="absolute left-1/2 top-0 h-72 w-[520px] -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(84,69,244,0.12),transparent_70%)] blur-2xl" />
@@ -276,7 +276,7 @@ export function AdminDashboard() {
 
       <section className="mt-6 overflow-hidden rounded-3xl border border-[var(--line)] bg-white shadow-[var(--shadow-card)]" aria-labelledby="sources-heading">
         <div className="border-b border-[var(--line)] px-5 py-5 sm:px-7">
-          <h2 className="text-lg font-semibold text-[var(--text)]" id="sources-heading">
+          <h2 className="ui-section-title" id="sources-heading">
             사용 중인 수집 소스
           </h2>
           <p className="mt-1 text-sm text-[var(--text-muted)]">현재 파이프라인에 연결된 소스 상태입니다.</p>

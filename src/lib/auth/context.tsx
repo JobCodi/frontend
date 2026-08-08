@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useState, useCallback, type ReactNode } from "react";
 import type { User } from "@/lib/schemas/auth";
-import { getToken, setToken, clearToken, login as loginApi, register as registerApi, me as meApi } from "./client";
+import { getToken, clearToken, login as loginApi, register as registerApi, me as meApi } from "./client";
 
 interface AuthContextValue {
   user: User | null;
@@ -17,21 +17,17 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [token, setTokenState] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [token, setTokenState] = useState<string | null>(() => getToken());
+  const [isLoading, setIsLoading] = useState(() => getToken() !== null);
 
   useEffect(() => {
-    const existing = getToken();
-    if (existing) {
-      setTokenState(existing);
+    if (token) {
       meApi()
         .then((res) => setUser(res.user))
         .catch(() => clearToken())
         .finally(() => setIsLoading(false));
-    } else {
-      setIsLoading(false);
     }
-  }, []);
+  }, [token]);
 
   const login = useCallback(async (email: string, password: string) => {
     const result = await loginApi(email, password);

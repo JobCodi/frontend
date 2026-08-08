@@ -83,7 +83,7 @@ export function CriteriaRow({ field, criteria, source, taxonomy, onSave, isSavin
           </div>
         </div>
       ) : (
-        <div className="mt-2 text-[15px] leading-6 text-[var(--text)]">
+        <div className="ui-body mt-2 text-[var(--text)]">
           <CriteriaValueDisplay field={field} criteria={criteria} options={options} />
         </div>
       )}

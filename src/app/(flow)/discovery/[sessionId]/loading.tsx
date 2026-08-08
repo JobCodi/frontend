@@ -2,7 +2,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export default function DiscoveryLoading() {
   return (
-    <div className="mx-auto flex w-full max-w-2xl flex-col gap-4 px-4 py-8">
+    <div className="ui-page ui-page-narrow flex flex-col gap-4">
       <Skeleton className="ml-auto h-4 w-16" />
       <Skeleton className="h-8 w-3/4" />
       <div className="flex flex-wrap gap-2">

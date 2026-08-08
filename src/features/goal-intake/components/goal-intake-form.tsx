@@ -71,25 +71,29 @@ export function GoalIntakeForm({ taxonomy, taxonomyFailed = false }: GoalIntakeF
   }
 
   return (
-    <form onSubmit={handleSubmit} className="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
+    <form onSubmit={handleSubmit} className="ui-page ui-page-wide">
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_300px]">
         <div className="flex flex-col gap-5">
-          <section className="overflow-hidden rounded-3xl border border-[var(--line)] bg-white shadow-[var(--shadow-elevated)]">
-            <div className="relative border-b border-[var(--line)] bg-gradient-to-br from-white via-[var(--brand-soft)]/40 to-[#f3e8ff]/50 px-5 py-6 sm:px-7 sm:py-7">
+          <section className="overflow-hidden rounded-2xl border border-[var(--line)]/80 bg-white shadow-[var(--shadow-elevated)]">
+            <div className="relative border-b border-[var(--line)]/80 px-5 py-6 sm:px-7 sm:py-7">
+              <div className="absolute inset-0 bg-gradient-to-br from-white via-[var(--brand-soft)]/30 to-[#f3e8ff]/40" aria-hidden="true" />
               <div
                 aria-hidden="true"
                 className="pointer-events-none absolute -right-8 -top-10 h-40 w-40 rounded-full bg-[radial-gradient(circle,rgba(84,69,244,0.18),transparent_70%)]"
               />
               <div className="relative flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                 <div className="flex items-start gap-4">
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-[var(--brand)] to-[#7c3aed] text-white shadow-lg shadow-[rgba(84,69,244,0.28)]">
-                    <Sparkles className="h-6 w-6" />
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-[var(--brand)] to-[#7c3aed] text-white shadow-lg shadow-[rgba(84,69,244,0.3)]">
+                    <Sparkles className="h-6 w-6" strokeWidth={2.5} />
                   </div>
                   <div>
-                    <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--brand)]">
-                      Step 1 · Goal
-                    </p>
-                    <h1 className="mt-1 text-2xl font-semibold tracking-tight text-[var(--text)] sm:text-[28px] sm:leading-9">
+                    <div className="flex items-center gap-2">
+                      <span className="rounded-md bg-[var(--brand-soft)] px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-[var(--brand)]">
+                        Step 1
+                      </span>
+                      <span className="text-xs text-[var(--text-subtle)]">Goal</span>
+                    </div>
+                    <h1 className="mt-2 text-2xl font-semibold tracking-tight text-[var(--text)] sm:text-[28px] sm:leading-9">
                       어떤 곳을 목표로 하고 계세요?
                     </h1>
                     <p className="mt-2 max-w-xl text-sm leading-6 text-[var(--text-muted)]">
@@ -99,18 +103,18 @@ export function GoalIntakeForm({ taxonomy, taxonomyFailed = false }: GoalIntakeF
                   </div>
                 </div>
 
-                <div className="rounded-2xl border border-white/80 bg-white/80 px-4 py-3 shadow-sm backdrop-blur sm:min-w-[148px]">
-                  <p className="text-xs font-medium text-[var(--text-subtle)]">필수 항목</p>
-                  <p className="mt-1 text-lg font-semibold text-[var(--text)]">
-                    <span className="text-[var(--brand)]">{requiredDone}</span>
-                    <span className="text-[var(--text-subtle)]"> / 3</span>
-                  </p>
-                  <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-[var(--line)]">
+                <div className="flex flex-col items-end gap-2 sm:items-end">
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-2xl font-bold text-[var(--brand)]">{requiredDone}</span>
+                    <span className="text-sm text-[var(--text-subtle)]">/ 3</span>
+                  </div>
+                  <div className="h-1.5 w-28 overflow-hidden rounded-full bg-[var(--line)]">
                     <div
-                      className="h-full rounded-full bg-gradient-to-r from-[var(--brand)] to-[#7c3aed] transition-all"
+                      className="h-full rounded-full bg-gradient-to-r from-[var(--brand)] to-[#7c3aed] transition-all duration-500"
                       style={{ width: `${(requiredDone / 3) * 100}%` }}
                     />
                   </div>
+                  <span className="text-xs font-medium text-[var(--text-subtle)]">필수 항목</span>
                 </div>
               </div>
             </div>
@@ -254,7 +258,7 @@ export function GoalIntakeForm({ taxonomy, taxonomyFailed = false }: GoalIntakeF
         </div>
 
         <aside className="flex flex-col gap-4 lg:sticky lg:top-24 lg:self-start">
-          <div className="rounded-3xl border border-[var(--line)] bg-white p-5 shadow-[var(--shadow-card)]">
+          <div className="rounded-2xl border border-[var(--line)]/80 bg-white p-5 shadow-[var(--shadow-card)]">
             <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--brand)]">
               How it works
             </p>
@@ -276,7 +280,7 @@ export function GoalIntakeForm({ taxonomy, taxonomyFailed = false }: GoalIntakeF
             </ol>
           </div>
 
-          <div className="rounded-3xl border border-[var(--line)] bg-gradient-to-b from-white to-[var(--surface-soft)] p-5 shadow-[var(--shadow-card)]">
+          <div className="rounded-2xl border border-[var(--line)]/80 bg-gradient-to-b from-white to-[var(--surface-soft)] p-5 shadow-[var(--shadow-card)]">
             <p className="text-sm font-semibold text-[var(--text)]">알아두면 좋아요</p>
             <ul className="mt-4 space-y-4">
               {TIPS.map((tip) => (

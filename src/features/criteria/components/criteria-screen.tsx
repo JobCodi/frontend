@@ -36,7 +36,7 @@ export function CriteriaScreen({ sessionId, taxonomy, initialCriteria }: Criteri
 
   if (isLoading || !data) {
     return (
-      <div className="mx-auto flex w-full max-w-3xl flex-col gap-4 px-4 py-8">
+      <div className="ui-page ui-page-narrow flex flex-col gap-4">
         <div className="rounded-3xl border border-[var(--line)] bg-white p-6 shadow-sm">
           <Skeleton className="h-8 w-2/3" />
           <Skeleton className="mt-4 h-40 w-full" />
@@ -52,7 +52,7 @@ export function CriteriaScreen({ sessionId, taxonomy, initialCriteria }: Criteri
       return null;
     }
     return (
-      <div className="mx-auto w-full max-w-3xl px-4 py-8">
+      <div className="ui-page ui-page-narrow">
         <ErrorState title="조건을 불러오지 못했어요" onRetry={() => refetch()} />
       </div>
     );
@@ -63,18 +63,22 @@ export function CriteriaScreen({ sessionId, taxonomy, initialCriteria }: Criteri
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-3xl flex-col gap-5 px-4 py-6 sm:px-6 sm:py-8">
-      <section className="overflow-hidden rounded-3xl border border-[var(--line)] bg-white shadow-[var(--shadow-elevated)]">
-        <div className="border-b border-[var(--line)] bg-gradient-to-br from-white via-[var(--brand-soft)]/35 to-[#f3e8ff]/40 px-5 py-6 sm:px-7">
-          <div className="flex items-start gap-4">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-[var(--brand)] to-[#7c3aed] text-white shadow-lg shadow-[rgba(84,69,244,0.25)]">
-              <ListChecks className="h-6 w-6" />
+    <div className="ui-page ui-page-narrow flex flex-col gap-6">
+      <section className="overflow-hidden rounded-2xl border border-[var(--line)]/80 bg-white shadow-[var(--shadow-elevated)]">
+        <div className="relative border-b border-[var(--line)]/80 px-5 py-6 sm:px-7">
+          <div className="absolute inset-0 bg-gradient-to-br from-white via-[var(--brand-soft)]/25 to-[#f3e8ff]/35" aria-hidden="true" />
+          <div className="relative flex items-start gap-4">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-[var(--brand)] to-[#7c3aed] text-white shadow-lg shadow-[rgba(84,69,244,0.3)]">
+              <ListChecks className="h-6 w-6" strokeWidth={2.5} />
             </div>
             <div className="min-w-0 flex-1">
-              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--brand)]">
-                Step 3 · Criteria
-              </p>
-              <h1 className="mt-1 text-2xl font-semibold tracking-tight text-[var(--text)]">
+              <div className="flex items-center gap-2">
+                <span className="rounded-md bg-[var(--brand-soft)] px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-[var(--brand)]">
+                  Step 3
+                </span>
+                <span className="text-xs text-[var(--text-subtle)]">Criteria</span>
+              </div>
+              <h1 className="mt-2 text-2xl font-semibold tracking-tight text-[var(--text)]">
                 이 조건으로 공고를 모아올게요.
               </h1>
               <p className="mt-2 text-sm text-[var(--text-muted)]">

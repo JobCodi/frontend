@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { cn } from "@/lib/utils/cn";
 import { formatDday, formatRelativeTime } from "@/lib/utils/date";
+import { ExternalLink } from "lucide-react";
 import type { JobView } from "../lib/to-job-view";
 import { ReasonList } from "./reason-list";
 
@@ -15,85 +16,108 @@ export function JobCard({ job, sessionId }: JobCardProps) {
   const dday = formatDday(job.closesAt, job.isRolling);
   const postedLabel = formatRelativeTime(job.postedAt);
   const avatarLetter = job.companyName.charAt(0).toUpperCase();
+  const scoreTone =
+    job.score >= 85
+      ? "from-[var(--brand)] to-[#7c3aed]"
+      : job.score >= 70
+        ? "from-[#6366f1] to-[#8b5cf6]"
+        : "from-[var(--text-muted)] to-[var(--text-subtle)]";
 
   return (
     <Link
       href={`/feed/${sessionId}/${job.id}`}
-      className="group relative flex h-full flex-col overflow-hidden rounded-3xl border border-[var(--line)] bg-white p-5 shadow-[var(--shadow-card)] transition-all duration-300 hover:-translate-y-1 hover:border-[var(--brand)]/25 hover:shadow-[var(--shadow-elevated)] sm:p-6"
+      className="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-[var(--line)]/80 bg-white shadow-[var(--shadow-card)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[var(--brand)]/30 hover:shadow-[var(--shadow-elevated)]"
     >
+      {/* Top accent line on hover */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-[var(--brand-soft)]/35 to-transparent opacity-0 transition-opacity group-hover:opacity-100"
+        className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-[var(--brand)] to-[#7c3aed] opacity-0 transition-opacity group-hover:opacity-100"
       />
 
-      <div className="absolute right-4 top-4 flex h-12 w-12 flex-col items-center justify-center rounded-2xl bg-gradient-to-br from-[var(--brand)] to-[#7c3aed] text-white shadow-lg shadow-[rgba(84,69,244,0.28)]">
-        <strong className="text-sm font-bold leading-none">{job.score}</strong>
-        <span className="mt-0.5 text-[9px] font-medium uppercase tracking-wide opacity-80">
-          match
-        </span>
+      {/* Header: Company + Score */}
+      <div className="flex items-start justify-between gap-3 p-5 pb-0">
+        <div className="flex min-w-0 items-center gap-3">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[var(--surface-soft)] to-white text-sm font-bold text-[var(--text)] ring-1 ring-[var(--line)]">
+            {avatarLetter}
+          </div>
+          <div className="min-w-0">
+            <p className="ui-card-title">{job.companyName}</p>
+            <p className="truncate text-xs text-[var(--text-subtle)]">{job.sourceLabel}</p>
+          </div>
+        </div>
+        <div
+          className={cn(
+            "flex h-11 w-11 flex-col items-center justify-center rounded-xl bg-gradient-to-br text-white shadow-md",
+            scoreTone,
+          )}
+        >
+          <strong className="text-sm font-bold leading-none">{job.score}</strong>
+          <span className="mt-0.5 text-[8px] font-semibold uppercase tracking-wider opacity-80">
+            점
+          </span>
+        </div>
       </div>
 
-      <div className="relative flex items-center gap-3 pr-14">
-        <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-[var(--surface-soft)] to-white text-base font-bold text-[var(--text)] ring-1 ring-[var(--line)]">
-          {avatarLetter}
-        </div>
-        <div className="min-w-0">
-          <p className="truncate text-sm font-semibold text-[var(--text)]">{job.companyName}</p>
-          <p className="truncate text-xs text-[var(--text-subtle)]">{job.sourceLabel}</p>
-        </div>
+      {/* Title */}
+      <div className="px-5 pt-4">
+        <h3 className="ui-card-title transition-colors group-hover:text-[var(--brand)]">
+          {job.title}
+        </h3>
       </div>
 
-      <h3 className="relative mt-4 text-lg font-semibold leading-7 text-[var(--text)]">
-        {job.title}
-      </h3>
-
-      <div className="relative mt-3 flex flex-wrap gap-1.5">
+      {/* Tags */}
+      <div className="flex flex-wrap gap-1.5 px-5 pt-3">
         {job.employmentTypeLabel ? (
-          <span className="rounded-lg bg-[var(--surface-soft)] px-2 py-1 text-xs font-medium text-[var(--text-muted)] ring-1 ring-[var(--line)]">
+          <span className="rounded-md bg-[var(--surface-soft)] px-2 py-0.5 text-xs font-medium text-[var(--text-muted)] ring-1 ring-[var(--line)]">
             {job.employmentTypeLabel}
           </span>
         ) : null}
         {job.regionLabel ? (
-          <span className="rounded-lg bg-[var(--surface-soft)] px-2 py-1 text-xs font-medium text-[var(--text-muted)] ring-1 ring-[var(--line)]">
+          <span className="rounded-md bg-[var(--surface-soft)] px-2 py-0.5 text-xs font-medium text-[var(--text-muted)] ring-1 ring-[var(--line)]">
             {job.regionLabel}
           </span>
         ) : null}
         {job.companySizeLabel ? (
-          <span className="rounded-lg bg-[var(--surface-soft)] px-2 py-1 text-xs font-medium text-[var(--text-muted)] ring-1 ring-[var(--line)]">
+          <span className="rounded-md bg-[var(--surface-soft)] px-2 py-0.5 text-xs font-medium text-[var(--text-muted)] ring-1 ring-[var(--line)]">
             {job.companySizeLabel}
             {job.companySizeInferred ? (
-              <span className="ml-1 text-[10px] opacity-60">(추정)</span>
+              <span className="ml-0.5 text-[10px] opacity-60">(추정)</span>
             ) : null}
           </span>
         ) : null}
       </div>
 
-      <div className="relative mt-4 flex-1">
+      {/* Reasons */}
+      <div className="flex-1 px-5 pt-4">
         <ReasonList reasons={job.reasons} maxVisible={MAX_VISIBLE_REASONS} />
       </div>
 
-      <div className="relative mt-4 flex items-center justify-between border-t border-[var(--line)] pt-4">
-        <div className="flex items-center gap-1.5 text-xs text-[var(--text-subtle)]">
+      {/* Footer */}
+      <div className="mx-5 mt-4 flex items-center justify-between border-t border-[var(--line)]/80 py-3">
+        <div className="flex items-center gap-2 text-xs text-[var(--text-subtle)]">
           <span>{postedLabel}</span>
           {job.alsoFoundOnLabels.length > 0 ? (
             <>
-              <span>·</span>
+              <span className="text-[var(--line)]">|</span>
               <span>{job.alsoFoundOnLabels.length}개 출처</span>
             </>
           ) : null}
         </div>
-        {dday ? (
-          <span
-            className={cn(
-              "rounded-full px-2 py-0.5 text-xs font-semibold",
-              dday.urgent
-                ? "bg-red-50 text-red-600 ring-1 ring-red-100"
-                : "bg-[var(--surface-soft)] text-[var(--text-muted)]",
-            )}
-          >
-            {dday.label}
-          </span>
-        ) : null}
+        <div className="flex items-center gap-2">
+          {dday ? (
+            <span
+              className={cn(
+                "rounded-full px-2 py-0.5 text-xs font-semibold",
+                dday.urgent
+                  ? "bg-red-50 text-red-600 ring-1 ring-red-200"
+                  : "bg-[var(--surface-soft)] text-[var(--text-muted)]",
+              )}
+            >
+              {dday.label}
+            </span>
+          ) : null}
+          <ExternalLink className="h-3.5 w-3.5 text-[var(--text-subtle)] opacity-0 transition-opacity group-hover:opacity-60" />
+        </div>
       </div>
     </Link>
   );

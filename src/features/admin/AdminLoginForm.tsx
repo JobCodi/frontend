@@ -44,7 +44,7 @@ export function AdminLoginForm() {
   }
 
   return (
-    <main className="relative mx-auto flex min-h-[70vh] w-full max-w-md items-center px-4 py-12 sm:py-20">
+    <main className="ui-page ui-page-auth relative flex min-h-[70vh] items-center">
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
         <div className="app-grid absolute inset-0 opacity-40" />
         <div className="absolute left-1/2 top-16 h-56 w-56 -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(84,69,244,0.14),transparent_70%)] blur-2xl" />

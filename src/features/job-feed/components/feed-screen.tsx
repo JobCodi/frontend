@@ -73,7 +73,7 @@ export function FeedScreen({ sessionId, labels, ingestionSources }: FeedScreenPr
 
   if (feed.isLoading) {
     return (
-      <div className="mx-auto flex w-full max-w-5xl flex-col gap-4 px-4 py-8">
+      <div className="ui-page ui-page-standard flex flex-col gap-4">
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <FeedCardSkeleton />
           <FeedCardSkeleton />
@@ -90,7 +90,7 @@ export function FeedScreen({ sessionId, labels, ingestionSources }: FeedScreenPr
     }
     const message = feed.error instanceof Error ? feed.error.message : undefined;
     return (
-      <div className="mx-auto w-full max-w-5xl px-4 py-8">
+      <div className="ui-page ui-page-standard">
         <ErrorState title="공고를 불러오지 못했어요" description={message} onRetry={() => feed.refetch()} />
       </div>
     );
@@ -101,26 +101,30 @@ export function FeedScreen({ sessionId, labels, ingestionSources }: FeedScreenPr
   const totalCount = firstPage.status === "ready" ? firstPage.totalCount : undefined;
 
   return (
-    <div className="mx-auto flex w-full max-w-5xl flex-col gap-5 px-4 py-6 sm:px-6 sm:py-8">
-      <section className="overflow-hidden rounded-3xl border border-[var(--line)] bg-white shadow-[var(--shadow-elevated)]">
-        <div className="flex flex-col gap-4 border-b border-[var(--line)] bg-gradient-to-br from-white via-[var(--brand-soft)]/30 to-[#f3e8ff]/35 px-5 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-7">
-          <div className="flex items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-[var(--brand)] to-[#7c3aed] text-white shadow-lg shadow-[rgba(84,69,244,0.25)]">
-              <LayoutGrid className="h-5 w-5" />
+    <div className="ui-page ui-page-standard flex flex-col gap-6">
+      <section className="overflow-hidden rounded-2xl border border-[var(--line)]/80 bg-white shadow-[var(--shadow-elevated)]">
+        <div className="relative flex flex-col gap-4 border-b border-[var(--line)]/80 px-5 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-7">
+          <div className="absolute inset-0 bg-gradient-to-br from-white via-[var(--brand-soft)]/20 to-[#f3e8ff]/25" aria-hidden="true" />
+          <div className="relative flex items-center gap-4">
+            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-[var(--brand)] to-[#7c3aed] text-white shadow-lg shadow-[rgba(84,69,244,0.3)]">
+              <LayoutGrid className="h-5 w-5" strokeWidth={2.5} />
             </div>
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--brand)]">
-                Step 4 · Feed
-              </p>
-              <h1 className="mt-0.5 text-xl font-semibold text-[var(--text)] sm:text-2xl">
+              <div className="flex items-center gap-2">
+                <span className="rounded-md bg-[var(--brand-soft)] px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-[var(--brand)]">
+                  Step 4
+                </span>
+                <span className="text-xs text-[var(--text-subtle)]">Feed</span>
+              </div>
+              <h1 className="mt-1 text-xl font-semibold text-[var(--text)]">
                 맞춤 공고 피드
               </h1>
               <p className="text-sm text-[var(--text-muted)]">
-                AI가 선별한 공고를 점수와 근거와 함께 확인해 보세요
+                AI가 선별한 공고를 점수와 근거와 함께 확인하세요
               </p>
             </div>
           </div>
-          <Button asChild variant="secondary" className="gap-2 rounded-xl border-[var(--line)] bg-white shadow-sm">
+          <Button asChild variant="secondary" className="relative gap-2 rounded-xl border-[var(--line)] bg-white shadow-sm">
             <Link href={`/discovery/${sessionId}/criteria`}>
               <Edit className="h-4 w-4" />
               조건 수정

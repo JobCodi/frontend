@@ -2,7 +2,6 @@ import Link from "next/link";
 import {
   ArrowRight,
   BadgeCheck,
-  Building2,
   Check,
   ChevronRight,
   Clock3,

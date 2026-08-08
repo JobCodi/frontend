@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import { PageFrame } from "@/components/layout/page-frame";
 import { apiGet, ApiError } from "@/lib/api/client";
 import { FeedItemSchema, type FeedItem } from "@/lib/schemas/feed";
 import { ErrorState } from "@/components/feedback/error-state";
@@ -57,9 +58,9 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
 
   if (result.kind === "error") {
     return (
-      <div className="mx-auto w-full max-w-2xl px-4 py-8">
+      <PageFrame size="narrow">
         <ErrorState title="공고 정보를 불러오지 못했어요" description={result.message} />
-      </div>
+      </PageFrame>
     );
   }
 
@@ -69,7 +70,7 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
   });
 
   return (
-    <div className="mx-auto w-full max-w-2xl px-4 py-8">
+    <PageFrame size="narrow">
       <Link
         href={`/feed/${sessionId}`}
         className="mb-4 inline-block text-sm text-[var(--brand)] hover:underline"
@@ -77,6 +78,6 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
         ← 목록으로
       </Link>
       <JobDetail job={job} />
-    </div>
+    </PageFrame>
   );
 }

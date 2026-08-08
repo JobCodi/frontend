@@ -1,3 +1,4 @@
+import { PageFrame } from "@/components/layout/page-frame";
 import Link from "next/link";
 import { Clock3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -8,7 +9,7 @@ export const metadata = {
 
 export default function SessionExpiredPage() {
   return (
-    <main className="relative min-h-[70vh] overflow-hidden px-4 py-16 sm:py-24">
+    <PageFrame size="narrow" className="relative flex min-h-[70vh] items-center">
       <div aria-hidden="true" className="pointer-events-none absolute inset-0">
         <div className="app-grid absolute inset-0 opacity-50" />
         <div className="absolute left-1/2 top-10 h-64 w-64 -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(84,69,244,0.16),transparent_70%)] blur-2xl" />
@@ -34,6 +35,6 @@ export default function SessionExpiredPage() {
           <Link href="/start">새로 시작하기</Link>
         </Button>
       </div>
-    </main>
+    </PageFrame>
   );
 }

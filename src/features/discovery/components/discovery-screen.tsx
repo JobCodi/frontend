@@ -38,7 +38,7 @@ export function DiscoveryScreen({ sessionId }: DiscoveryScreenProps) {
 
   if (isLoading) {
     return (
-      <div className="mx-auto flex w-full max-w-3xl flex-col gap-4 px-4 py-8">
+      <div className="ui-page ui-page-narrow flex flex-col gap-4">
         <div className="rounded-3xl border border-[var(--line)] bg-white p-6 shadow-sm">
           <Skeleton className="h-8 w-3/4" />
           <Skeleton className="mt-4 h-28 w-full" />
@@ -54,7 +54,7 @@ export function DiscoveryScreen({ sessionId }: DiscoveryScreenProps) {
       return null;
     }
     return (
-      <div className="mx-auto w-full max-w-3xl px-4 py-8">
+      <div className="ui-page ui-page-narrow">
         <ErrorState
           title="대화를 불러오지 못했어요"
           description={error instanceof Error ? error.message : undefined}
@@ -69,31 +69,36 @@ export function DiscoveryScreen({ sessionId }: DiscoveryScreenProps) {
   const progressPct = Math.min(100, Math.round((Math.min(currentTurnNumber, TOTAL_TURNS) / TOTAL_TURNS) * 100));
 
   return (
-    <div className="mx-auto flex w-full max-w-3xl flex-col gap-5 px-4 py-6 sm:px-6 sm:py-8">
-      <section className="overflow-hidden rounded-3xl border border-[var(--line)] bg-white shadow-[var(--shadow-elevated)]">
-        <div className="border-b border-[var(--line)] bg-gradient-to-br from-white via-[var(--brand-soft)]/35 to-[#f3e8ff]/40 px-5 py-5 sm:px-7">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-[var(--brand)] to-[#7c3aed] text-white shadow-lg shadow-[rgba(84,69,244,0.25)]">
-                <MessageCircle className="h-5 w-5" />
+    <div className="ui-page ui-page-narrow flex flex-col gap-6">
+      <section className="overflow-hidden rounded-2xl border border-[var(--line)]/80 bg-white shadow-[var(--shadow-elevated)]">
+        <div className="relative border-b border-[var(--line)]/80 px-5 py-5 sm:px-7">
+          <div className="absolute inset-0 bg-gradient-to-br from-white via-[var(--brand-soft)]/25 to-[#f3e8ff]/30" aria-hidden="true" />
+          <div className="relative flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-4">
+              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-[var(--brand)] to-[#7c3aed] text-white shadow-lg shadow-[rgba(84,69,244,0.3)]">
+                <MessageCircle className="h-5 w-5" strokeWidth={2.5} />
               </div>
               <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--brand)]">
-                  Step 2 · Discovery
-                </p>
-                <p className="mt-0.5 text-lg font-semibold text-[var(--text)]">AI 대화로 조건 정교화</p>
+                <div className="flex items-center gap-2">
+                  <span className="rounded-md bg-[var(--brand-soft)] px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-[var(--brand)]">
+                    Step 2
+                  </span>
+                  <span className="text-xs text-[var(--text-subtle)]">Discovery</span>
+                </div>
+                <p className="mt-1 text-lg font-semibold text-[var(--text)]">AI 대화로 조건 정교화</p>
                 <p className="text-sm text-[var(--text-muted)]">맞춤 공고를 찾기 위해 짧게 질문하고 있어요</p>
               </div>
             </div>
-            <div className="rounded-2xl border border-white/80 bg-white/85 px-4 py-3 shadow-sm backdrop-blur sm:min-w-[140px]">
-              <p className="text-xs font-medium text-[var(--text-subtle)]">진행률</p>
-              <p className="mt-1 text-lg font-semibold text-[var(--brand)]">
-                {Math.min(currentTurnNumber, TOTAL_TURNS)}
-                <span className="text-sm text-[var(--text-subtle)]">/{TOTAL_TURNS}</span>
-              </p>
-              <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-[var(--line)]">
+            <div className="flex flex-col items-end gap-2 sm:items-end">
+              <div className="flex items-baseline gap-1">
+                <span className="text-2xl font-bold text-[var(--brand)]">
+                  {Math.min(currentTurnNumber, TOTAL_TURNS)}
+                </span>
+                <span className="text-sm text-[var(--text-subtle)]">/ {TOTAL_TURNS}</span>
+              </div>
+              <div className="h-1.5 w-28 overflow-hidden rounded-full bg-[var(--line)]">
                 <div
-                  className="h-full rounded-full bg-gradient-to-r from-[var(--brand)] to-[#7c3aed] transition-all"
+                  className="h-full rounded-full bg-gradient-to-r from-[var(--brand)] to-[#7c3aed] transition-all duration-500"
                   style={{ width: `${progressPct}%` }}
                 />
               </div>
@@ -127,15 +132,22 @@ export function DiscoveryScreen({ sessionId }: DiscoveryScreenProps) {
             turn={pendingTurn ?? null}
             isSubmitting={submitTurn.isPending}
             showSlowHint={showSlowHint}
-            onSelectChoice={(value) => submitTurn.mutate({ choiceValue: value })}
-            onSubmitFreeText={(text) => submitTurn.mutate({ answer: text })}
+            onSelectChoice={(value) => {
+              if (pendingTurn) {
+                submitTurn.mutate({ turnIndex: pendingTurn.index, choiceValue: value });
+              }
+            }}
+            onSubmitFreeText={(text) => {
+              const turnIndex = pendingTurn?.index ?? currentTurnNumber;
+              submitTurn.mutate({ turnIndex, answer: text });
+            }}
           />
 
           {questionLost ? (
             <div className="rounded-2xl border border-[var(--line)] bg-[var(--surface-soft)]/50 p-4">
               <FreeTextInput
                 disabled={submitTurn.isPending}
-                onSubmit={(text) => submitTurn.mutate({ answer: text })}
+                onSubmit={(text) => submitTurn.mutate({ turnIndex: currentTurnNumber, answer: text })}
               />
             </div>
           ) : null}

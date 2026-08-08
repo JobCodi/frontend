@@ -35,7 +35,7 @@ export function RouteErrorBoundary({ error, reset, sessionId }: RouteErrorBounda
 
   if (code === "SESSION_STATE_INVALID" && sessionId) {
     return (
-      <div className="mx-auto w-full max-w-2xl px-4 py-8">
+      <div className="ui-page ui-page-narrow">
         <ErrorState
           title="화면을 다시 맞추고 있어요"
           description="진행 상황이 바뀌어서 알맞은 화면으로 다시 안내할게요."
@@ -47,7 +47,7 @@ export function RouteErrorBoundary({ error, reset, sessionId }: RouteErrorBounda
 
   if (code === "AI_PROVIDER_UNAVAILABLE") {
     return (
-      <div className="mx-auto w-full max-w-2xl px-4 py-8">
+      <div className="ui-page ui-page-narrow">
         <ErrorState
           title="AI 응답이 불안정해요"
           description="잠시 후 다시 시도해 주세요. 입력하신 정보는 남아 있어요."
@@ -58,7 +58,7 @@ export function RouteErrorBoundary({ error, reset, sessionId }: RouteErrorBounda
   }
 
   return (
-    <div className="mx-auto w-full max-w-2xl px-4 py-8">
+    <div className="ui-page ui-page-narrow">
       <ErrorState
         title="문제가 발생했어요"
         description={error.message || "잠시 후 다시 시도해 주세요."}

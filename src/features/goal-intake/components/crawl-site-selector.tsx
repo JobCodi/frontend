@@ -1,7 +1,7 @@
 "use client";
 
 import { Check } from "lucide-react";
-import { PREBUILT_CRAWL_SITES, type PrebuiltCrawlSite } from "@/lib/fixtures/crawl-sites";
+import { PREBUILT_CRAWL_SITES } from "@/lib/fixtures/crawl-sites";
 import { cn } from "@/lib/utils/cn";
 
 interface CrawlSiteSelectorProps {
