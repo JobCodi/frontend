@@ -80,9 +80,7 @@ export function DiscoveryScreen({ sessionId }: DiscoveryScreenProps) {
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="rounded-md bg-[var(--brand-soft)] px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-[var(--brand)]">
-                    Step 2
-                  </span>
+                  <span className="rounded-md bg-[var(--brand-soft)] px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-[var(--brand)]">Step 2</span>
                   <span className="text-xs text-[var(--text-subtle)]">Discovery</span>
                 </div>
                 <p className="mt-1 text-lg font-semibold text-[var(--text)]">AI 대화로 조건 정교화</p>
@@ -91,16 +89,11 @@ export function DiscoveryScreen({ sessionId }: DiscoveryScreenProps) {
             </div>
             <div className="flex flex-col items-end gap-2 sm:items-end">
               <div className="flex items-baseline gap-1">
-                <span className="text-2xl font-bold text-[var(--brand)]">
-                  {Math.min(currentTurnNumber, TOTAL_TURNS)}
-                </span>
+                <span className="text-2xl font-bold text-[var(--brand)]">{Math.min(currentTurnNumber, TOTAL_TURNS)}</span>
                 <span className="text-sm text-[var(--text-subtle)]">/ {TOTAL_TURNS}</span>
               </div>
               <div className="h-1.5 w-28 overflow-hidden rounded-full bg-[var(--line)]">
-                <div
-                  className="h-full rounded-full bg-gradient-to-r from-[var(--brand)] to-[#7c3aed] transition-all duration-500"
-                  style={{ width: `${progressPct}%` }}
-                />
+                <div className="h-full rounded-full bg-gradient-to-r from-[var(--brand)] to-[#7c3aed] transition-all duration-500" style={{ width: `${progressPct}%` }} />
               </div>
             </div>
           </div>
@@ -111,7 +104,9 @@ export function DiscoveryScreen({ sessionId }: DiscoveryScreenProps) {
           !(submitTurn.error instanceof ApiError && submitTurn.error.status === 422) ? (
             <div className="rounded-2xl border border-red-200 bg-red-50 p-4">
               <p role="alert" className="text-sm text-red-700">
-                답변을 보내지 못했어요. 다시 시도해 주세요.
+                {submitTurn.error instanceof ApiError && submitTurn.error.code === "VALIDATION_FAILED"
+                  ? submitTurn.error.message
+                  : "답변을 보내지 못했어요. 다시 시도해 주세요."}
               </p>
             </div>
           ) : null}
