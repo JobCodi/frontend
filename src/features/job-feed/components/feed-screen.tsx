@@ -28,6 +28,7 @@ import { SortFilterBar } from "./sort-filter-bar";
 import { JobList, FeedCardSkeleton } from "./job-list";
 import { DailyFeedSummaryCard } from "./daily-feed-summary-card";
 import { CriteriaComparisonCard } from "./criteria-comparison-card";
+import { IngestionTransparencyCard } from "./ingestion-transparency-card";
 
 interface FeedScreenProps {
   sessionId: string;
@@ -143,6 +144,12 @@ export function FeedScreen({ sessionId, labels, ingestionSources }: FeedScreenPr
         <div className="space-y-5 px-5 py-5 sm:px-7 sm:py-6">
           {dailySummary.data?.summary ? <DailyFeedSummaryCard summary={dailySummary.data.summary} /> : null}
           {criteriaComparison.data?.comparison ? <CriteriaComparisonCard comparison={criteriaComparison.data.comparison} labels={labels} /> : null}
+          {firstPage.status !== "collecting" ? (
+            <IngestionTransparencyCard
+              generatedAt={firstPage.generatedAt}
+              sourceSummary={sourceSummary}
+            />
+          ) : null}
           {firstPage.status === "collecting" ? (
             <>
               <CollectingChecklist progress={firstPage.progress} />
@@ -172,7 +179,6 @@ export function FeedScreen({ sessionId, labels, ingestionSources }: FeedScreenPr
               <ZeroResultState
                 sessionId={sessionId}
                 labels={labels}
-                sourceSummary={sourceSummary}
                 preference={params.preference}
                 onShowAll={() => setParams({ preference: "all" })}
               />

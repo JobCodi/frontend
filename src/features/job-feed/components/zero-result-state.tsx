@@ -4,15 +4,13 @@ import Link from "next/link";
 import { Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { CriteriaPayload } from "@/lib/schemas/criteria";
-import type { FeedPreference, SourceSummaryEntry } from "@/lib/schemas/feed";
+import type { FeedPreference } from "@/lib/schemas/feed";
 import { labelForCode, type TaxonomyLabelIndex } from "@/lib/taxonomy/labels";
 import { useCriteriaSnapshot } from "../hooks/use-criteria-snapshot";
-import { SourceSummaryList } from "./source-summary-list";
 
 interface ZeroResultStateProps {
   sessionId: string;
   labels: TaxonomyLabelIndex;
-  sourceSummary: SourceSummaryEntry[];
   preference: FeedPreference;
   onShowAll: () => void;
 }
@@ -34,7 +32,7 @@ function biggestConstraintHint(
   return null;
 }
 
-export function ZeroResultState({ sessionId, labels, sourceSummary, preference, onShowAll }: ZeroResultStateProps) {
+export function ZeroResultState({ sessionId, labels, preference, onShowAll }: ZeroResultStateProps) {
   const { data } = useCriteriaSnapshot(sessionId, preference === "all");
   const hint = data ? biggestConstraintHint(data.payload, labels) : null;
   const savedOnly = preference === "saved";
@@ -59,9 +57,6 @@ export function ZeroResultState({ sessionId, labels, sourceSummary, preference, 
             조건을 조금 완화하면 더 많은 공고를 볼 수 있어요.
           </p>
         )}
-      </div>
-      <div className="w-full max-w-xl">
-        <SourceSummaryList sourceSummary={sourceSummary} />
       </div>
       {savedOnly ? (
         <Button

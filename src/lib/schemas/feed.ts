@@ -100,6 +100,7 @@ export const SourceSummaryEntrySchema = z.object({
   status: SourceSummaryStatusSchema,
   fetched: z.number(),
   skipReason: z.string().nullable(),
+  checkedAt: z.string().optional(),
 });
 export type SourceSummaryEntry = z.infer<typeof SourceSummaryEntrySchema>;
 
@@ -135,6 +136,7 @@ export type FeedReadyPage = z.infer<typeof FeedReadyPageSchema>;
 
 export const FeedFailedPageSchema = z.object({
   status: z.literal("failed"),
+  generatedAt: z.string(),
   error: z.object({ code: z.string(), message: z.string() }),
   sourceSummary: z.array(SourceSummaryEntrySchema),
   retryable: z.boolean(),
