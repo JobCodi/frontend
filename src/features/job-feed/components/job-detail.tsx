@@ -2,6 +2,7 @@ import { Building2, Info, MapPin } from "lucide-react";
 import { formatDateLong, formatDday } from "@/lib/utils/date";
 import type { JobView } from "../lib/to-job-view";
 import { ReasonList } from "./reason-list";
+import { MatchEvidencePanel } from "./match-evidence-panel";
 import { OutboundLinkList } from "./outbound-link-list";
 
 interface JobDetailProps {
@@ -52,6 +53,8 @@ export function JobDetail({ job }: JobDetailProps) {
           </div>
         </div>
       </section>
+
+      <MatchEvidencePanel job={job} />
 
       <section
         aria-labelledby="job-detail-reasons"
