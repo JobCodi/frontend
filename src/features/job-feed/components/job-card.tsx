@@ -5,7 +5,8 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { z } from "zod";
 import { cn } from "@/lib/utils/cn";
 import { formatDday, formatRelativeTime } from "@/lib/utils/date";
-import { ExternalLink, Bookmark, X } from "lucide-react";
+import { ExternalLink, Bookmark, BriefcaseBusiness, X } from "lucide-react";
+import { useAddJobApplication } from "@/features/job-applications/queries/use-applications";
 import { apiPut } from "@/lib/api/client";
 import type { JobView } from "../lib/to-job-view";
 import { ReasonList } from "./reason-list";
@@ -19,6 +20,7 @@ const MAX_VISIBLE_REASONS = 3;
 
 export function JobCard({ job, sessionId }: JobCardProps) {
   const queryClient = useQueryClient();
+  const addApplication = useAddJobApplication();
   const updatePreference = useMutation({
     mutationFn: (preference: "saved" | "excluded" | "none") =>
       apiPut(
@@ -133,7 +135,18 @@ export function JobCard({ job, sessionId }: JobCardProps) {
           </button>
           <button
             type="button"
-            aria-label="이 공고 제외"
+            aria-label="지원 관리에 추가"
+            disabled={addApplication.isPending}
+            onClick={(event) => {
+              event.preventDefault();
+              event.stopPropagation();
+              addApplication.mutate(job.postingId);
+            }}
+            className="rounded-lg p-1.5 text-[var(--text-subtle)] transition-colors hover:bg-[var(--brand-soft)] hover:text-[var(--brand)] disabled:opacity-50"
+          >
+            <BriefcaseBusiness className="h-4 w-4" />
+          </button>
+          <button
             onClick={(event) => {
               event.preventDefault();
               event.stopPropagation();

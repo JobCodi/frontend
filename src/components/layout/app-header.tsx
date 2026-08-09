@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { LogOut } from "lucide-react";
+import { BriefcaseBusiness, LogOut } from "lucide-react";
 import { useAuth } from "@/lib/auth/context";
 import { Button } from "@/components/ui/button";
 
@@ -33,6 +33,13 @@ export function AppHeader() {
               className="rounded-lg px-3 py-1.5 font-medium text-[var(--text)] transition-colors hover:bg-[var(--surface-soft)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]"
             >
               탐색
+            </Link>
+            <Link
+              href="/applications"
+              className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 font-medium text-[var(--text)] transition-colors hover:bg-[var(--surface-soft)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]"
+            >
+              <BriefcaseBusiness className="h-3.5 w-3.5" />
+              지원 관리
             </Link>
             <Link
               href="/about"
