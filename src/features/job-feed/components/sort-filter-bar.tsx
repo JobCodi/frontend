@@ -1,8 +1,8 @@
 "use client";
 
 import { MIN_SCORE_OPTIONS, SORT_OPTIONS } from "../types";
-import { SlidersHorizontal } from "lucide-react";
-import type { FeedQueryParams, FeedSort, MinScore } from "@/lib/schemas/feed";
+import { Bookmark, SlidersHorizontal } from "lucide-react";
+import type { FeedPreference, FeedQueryParams, FeedSort, MinScore } from "@/lib/schemas/feed";
 
 interface SortFilterBarProps {
   params: FeedQueryParams;
@@ -37,7 +37,32 @@ export function SortFilterBar({ params, onChange, total }: SortFilterBarProps) {
           <p className="text-xs text-[var(--text-subtle)]">서버 기준으로 다시 정렬·필터합니다</p>
         </div>
       </div>
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-col gap-3 sm:items-end">
+        <div className="inline-flex w-fit rounded-xl bg-[var(--surface-soft)] p-1 ring-1 ring-[var(--line)]" role="group" aria-label="공고 보기">
+          {([
+            { value: "all", label: "전체 공고" },
+            { value: "saved", label: "관심 공고" },
+          ] as const).map((option) => {
+            const active = params.preference === option.value;
+            return (
+              <button
+                key={option.value}
+                type="button"
+                aria-pressed={active}
+                onClick={() => onChange({ preference: option.value as FeedPreference })}
+                className={`inline-flex h-9 items-center gap-1.5 rounded-lg px-3 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] ${
+                  active
+                    ? "bg-white text-[var(--brand)] shadow-sm"
+                    : "text-[var(--text-muted)] hover:text-[var(--text)]"
+                }`}
+              >
+                {option.value === "saved" ? <Bookmark className="h-3.5 w-3.5" /> : null}
+                {option.label}
+              </button>
+            );
+          })}
+        </div>
+        <div className="flex flex-wrap gap-2">
         <label className="sr-only" htmlFor="feed-sort">
           정렬
         </label>
@@ -69,6 +94,7 @@ export function SortFilterBar({ params, onChange, total }: SortFilterBarProps) {
             </option>
           ))}
         </select>
+        </div>
       </div>
     </div>
   );

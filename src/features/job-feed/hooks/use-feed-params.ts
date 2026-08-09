@@ -2,7 +2,7 @@
 
 import { useCallback, useMemo } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { FeedSortSchema, MinScoreSchema, type FeedQueryParams } from "@/lib/schemas/feed";
+import { FeedPreferenceSchema, FeedSortSchema, MinScoreSchema, type FeedQueryParams } from "@/lib/schemas/feed";
 import { DEFAULT_MIN_SCORE, DEFAULT_SORT } from "../types";
 
 /**
@@ -22,13 +22,16 @@ export function useFeedParams(): {
   const params = useMemo<FeedQueryParams>(() => {
     const sortRaw = searchParams.get("sort");
     const minScoreRaw = searchParams.get("minScore");
+    const preferenceRaw = searchParams.get("preference");
     const sortParsed = FeedSortSchema.safeParse(sortRaw);
     const minScoreParsed = MinScoreSchema.safeParse(
       minScoreRaw !== null ? Number(minScoreRaw) : undefined,
     );
+    const preferenceParsed = FeedPreferenceSchema.safeParse(preferenceRaw);
     return {
       sort: sortParsed.success ? sortParsed.data : DEFAULT_SORT,
       minScore: minScoreParsed.success ? minScoreParsed.data : DEFAULT_MIN_SCORE,
+      preference: preferenceParsed.success ? preferenceParsed.data : "all",
     };
   }, [searchParams]);
 
@@ -38,6 +41,7 @@ export function useFeedParams(): {
       const query = new URLSearchParams();
       query.set("sort", merged.sort);
       query.set("minScore", String(merged.minScore));
+      query.set("preference", merged.preference);
       router.replace(`${pathname}?${query.toString()}`);
     },
     [params, pathname, router],

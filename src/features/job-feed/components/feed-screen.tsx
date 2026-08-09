@@ -157,7 +157,16 @@ export function FeedScreen({ sessionId, labels, ingestionSources }: FeedScreenPr
               onRetry={() => refreshFeed.mutate()}
             />
           ) : allItems.length === 0 ? (
-            <ZeroResultState sessionId={sessionId} labels={labels} sourceSummary={sourceSummary} />
+            <>
+              <SortFilterBar params={params} onChange={setParams} total={totalCount} />
+              <ZeroResultState
+                sessionId={sessionId}
+                labels={labels}
+                sourceSummary={sourceSummary}
+                preference={params.preference}
+                onShowAll={() => setParams({ preference: "all" })}
+              />
+            </>
           ) : (
             <>
               <SortFilterBar params={params} onChange={setParams} total={totalCount} />
