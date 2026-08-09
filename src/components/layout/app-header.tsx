@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { BriefcaseBusiness, LogOut } from "lucide-react";
+import { DeadlineReminderMenu } from "@/features/job-applications/components/deadline-reminder-menu";
 import { useAuth } from "@/lib/auth/context";
 import { Button } from "@/components/ui/button";
 
@@ -53,6 +54,7 @@ export function AppHeader() {
         <div className="flex items-center gap-3">
           {user ? (
             <>
+              <DeadlineReminderMenu enabled={Boolean(user)} />
               <div className="hidden items-center gap-2 rounded-full border border-[var(--line)] bg-[var(--surface-soft)] py-1 pl-1 pr-3 sm:flex">
                 <span
                   aria-hidden="true"
