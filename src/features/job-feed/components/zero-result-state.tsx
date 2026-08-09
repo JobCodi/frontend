@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { CriteriaPayload } from "@/lib/schemas/criteria";
-import type { SourceSummaryEntry } from "@/lib/schemas/feed";
+import type { FeedPreference, SourceSummaryEntry } from "@/lib/schemas/feed";
 import { labelForCode, type TaxonomyLabelIndex } from "@/lib/taxonomy/labels";
 import { useCriteriaSnapshot } from "../hooks/use-criteria-snapshot";
 import { SourceSummaryList } from "./source-summary-list";
@@ -13,6 +13,8 @@ interface ZeroResultStateProps {
   sessionId: string;
   labels: TaxonomyLabelIndex;
   sourceSummary: SourceSummaryEntry[];
+  preference: FeedPreference;
+  onShowAll: () => void;
 }
 
 function biggestConstraintHint(
@@ -32,9 +34,10 @@ function biggestConstraintHint(
   return null;
 }
 
-export function ZeroResultState({ sessionId, labels, sourceSummary }: ZeroResultStateProps) {
-  const { data } = useCriteriaSnapshot(sessionId, true);
+export function ZeroResultState({ sessionId, labels, sourceSummary, preference, onShowAll }: ZeroResultStateProps) {
+  const { data } = useCriteriaSnapshot(sessionId, preference === "all");
   const hint = data ? biggestConstraintHint(data.payload, labels) : null;
+  const savedOnly = preference === "saved";
 
   return (
     <div className="flex flex-col items-center gap-5 rounded-3xl border border-[var(--line)] bg-white px-8 py-14 text-center shadow-[var(--shadow-card)]">
@@ -43,9 +46,11 @@ export function ZeroResultState({ sessionId, labels, sourceSummary }: ZeroResult
       </div>
       <div>
         <p className="text-xl font-semibold tracking-tight text-[var(--text)]">
-          조건에 맞는 공고를 찾지 못했어요.
+          {savedOnly ? "아직 관심 공고가 없어요." : "조건에 맞는 공고를 찾지 못했어요."}
         </p>
-        {hint ? (
+        {savedOnly ? (
+          <p className="mt-2 text-sm text-[var(--text-muted)]">마음에 드는 공고의 북마크를 눌러 나중에 다시 확인하세요.</p>
+        ) : hint ? (
           <p className="mt-2 text-sm text-[var(--text-muted)]">
             가장 큰 제약은 &apos;{hint}&apos;로 보입니다.
           </p>
@@ -58,13 +63,23 @@ export function ZeroResultState({ sessionId, labels, sourceSummary }: ZeroResult
       <div className="w-full max-w-xl">
         <SourceSummaryList sourceSummary={sourceSummary} />
       </div>
-      <Button
-        asChild
-        size="lg"
-        className="rounded-xl bg-gradient-to-br from-[var(--brand)] to-[#7c3aed] text-white shadow-lg shadow-[rgba(84,69,244,0.25)]"
-      >
-        <Link href={`/discovery/${sessionId}/criteria`}>조건 완화하고 다시 찾기</Link>
-      </Button>
+      {savedOnly ? (
+        <Button
+          size="lg"
+          onClick={onShowAll}
+          className="rounded-xl bg-gradient-to-br from-[var(--brand)] to-[#7c3aed] text-white shadow-lg shadow-[rgba(84,69,244,0.25)]"
+        >
+          전체 공고 보기
+        </Button>
+      ) : (
+        <Button
+          asChild
+          size="lg"
+          className="rounded-xl bg-gradient-to-br from-[var(--brand)] to-[#7c3aed] text-white shadow-lg shadow-[rgba(84,69,244,0.25)]"
+        >
+          <Link href={`/discovery/${sessionId}/criteria`}>조건 완화하고 다시 찾기</Link>
+        </Button>
+      )}
     </div>
   );
 }

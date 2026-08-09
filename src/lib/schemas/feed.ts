@@ -147,4 +147,5 @@ export type RefreshFeedResponse = z.infer<typeof RefreshFeedResponseSchema>;
 export interface FeedQueryParams {
   sort: FeedSort;
   minScore: MinScore;
+  preference: FeedPreference;
 }

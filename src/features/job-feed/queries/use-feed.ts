@@ -12,6 +12,7 @@ function buildFeedPath(sessionId: string, params: FeedQueryParams, cursor: strin
   query.set("limit", "20");
   query.set("sort", params.sort);
   query.set("minScore", String(params.minScore));
+  query.set("preference", params.preference);
   return `/sessions/${sessionId}/feed?${query.toString()}`;
 }
 
