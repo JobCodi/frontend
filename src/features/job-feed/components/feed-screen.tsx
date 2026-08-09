@@ -12,8 +12,10 @@ import type { SourceSummaryEntry } from "@/lib/schemas/feed";
 import type { TaxonomyLabelIndex } from "@/lib/taxonomy/labels";
 import { routeForStatus } from "@/lib/session/route-for-status";
 import { useSession } from "@/lib/session/use-session";
+import { useAuth } from "@/lib/auth/context";
 import { useFeed } from "../queries/use-feed";
 import { useRefreshFeed } from "../queries/use-refresh-feed";
+import { useDailyFeedSummary } from "../queries/use-daily-feed-summary";
 import { useFeedParams } from "../hooks/use-feed-params";
 import { usePollingTimedOut } from "../hooks/use-polling-timed-out";
 import { buildSourceNameIndex } from "../lib/source-names";
@@ -23,6 +25,7 @@ import { FailureState } from "./failure-state";
 import { ZeroResultState } from "./zero-result-state";
 import { SortFilterBar } from "./sort-filter-bar";
 import { JobList, FeedCardSkeleton } from "./job-list";
+import { DailyFeedSummaryCard } from "./daily-feed-summary-card";
 
 interface FeedScreenProps {
   sessionId: string;
@@ -32,10 +35,12 @@ interface FeedScreenProps {
 
 export function FeedScreen({ sessionId, labels, ingestionSources }: FeedScreenProps) {
   const router = useRouter();
+  const { user } = useAuth();
   const { params, setParams } = useFeedParams();
   const { data: session, isFetching: isFetchingSession } = useSession(sessionId);
   const feed = useFeed(sessionId, params);
   const refreshFeed = useRefreshFeed(sessionId, params);
+  const dailySummary = useDailyFeedSummary(Boolean(user));
 
   const firstPage = feed.data?.pages[0];
   const status = firstPage?.status;
@@ -133,6 +138,7 @@ export function FeedScreen({ sessionId, labels, ingestionSources }: FeedScreenPr
         </div>
 
         <div className="space-y-5 px-5 py-5 sm:px-7 sm:py-6">
+          {dailySummary.data?.summary ? <DailyFeedSummaryCard summary={dailySummary.data.summary} /> : null}
           {firstPage.status === "collecting" ? (
             <>
               <CollectingChecklist progress={firstPage.progress} />
