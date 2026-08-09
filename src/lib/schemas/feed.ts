@@ -56,11 +56,17 @@ export type JobPosting = z.infer<typeof JobPostingSchema>;
  * array is a contract violation the UI must report and skip per card
  * (AGENTS.md #1), not a reason to fail the whole page at the boundary.
  */
+export const JobPreferenceSchema = z.enum(["saved", "excluded", "none"]);
+export type JobPreference = z.infer<typeof JobPreferenceSchema>;
+export const FeedPreferenceSchema = z.enum(["all", "saved"]);
+export type FeedPreference = z.infer<typeof FeedPreferenceSchema>;
+
 export const FeedItemSchema = z.object({
   id: z.string(),
   rank: z.number(),
   score: z.number(),
   reasons: z.array(MatchReasonSchema),
+  preference: JobPreferenceSchema,
   posting: JobPostingSchema,
 });
 export type FeedItem = z.infer<typeof FeedItemSchema>;

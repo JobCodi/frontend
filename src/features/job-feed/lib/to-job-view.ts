@@ -11,6 +11,8 @@ import { sourceName, type SourceNameIndex } from "./source-names";
  */
 export interface JobView {
   id: string;
+  postingId: string;
+  preference: "saved" | "excluded" | "none";
   title: string;
   companyName: string;
   score: number;
@@ -47,6 +49,8 @@ export function toJobView(item: FeedItem, context: JobViewContext): JobView {
 
   return {
     id: item.id,
+    postingId: posting.id,
+    preference: item.preference,
     title: posting.title,
     companyName: posting.companyName,
     score: item.score,

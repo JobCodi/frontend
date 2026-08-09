@@ -17,7 +17,7 @@ export class ApiError extends Error {
   }
 }
 
-type HttpMethod = "GET" | "POST" | "PATCH" | "DELETE";
+type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
 export interface ApiFetchOptions<T> {
   method?: HttpMethod;
@@ -154,6 +154,15 @@ export function apiPost<T>(
   init?: Pick<ApiFetchOptions<T>, "signal">,
 ): Promise<T> {
   return apiFetch(path, { method: "POST", schema, body, ...init });
+}
+
+export function apiPut<T>(
+  path: string,
+  schema: z.ZodType<T>,
+  body?: unknown,
+  init?: Pick<ApiFetchOptions<T>, "signal">,
+): Promise<T> {
+  return apiFetch(path, { method: "PUT", schema, body, ...init });
 }
 
 export function apiPatch<T>(
