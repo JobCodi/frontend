@@ -2,6 +2,15 @@ import { z } from "zod";
 import { isSafeOutboundUrl } from "../utils/outbound-url";
 import { MatchReasonSchema } from "./common";
 
+export const ScoreBreakdownSchema = z.object({
+  techMatch: z.number(),
+  roleMatch: z.number(),
+  regionMatch: z.number(),
+  freshness: z.number(),
+  penalty: z.number(),
+});
+export type ScoreBreakdown = z.infer<typeof ScoreBreakdownSchema>;
+
 export const FeedSortSchema = z.enum(["score", "recent", "deadline"]);
 export type FeedSort = z.infer<typeof FeedSortSchema>;
 
@@ -65,6 +74,7 @@ export const FeedItemSchema = z.object({
   id: z.string(),
   rank: z.number(),
   score: z.number(),
+  scoreBreakdown: ScoreBreakdownSchema,
   reasons: z.array(MatchReasonSchema),
   preference: JobPreferenceSchema,
   posting: JobPostingSchema,

@@ -16,6 +16,7 @@ export interface JobView {
   title: string;
   companyName: string;
   score: number;
+  scoreBreakdown: FeedItem["scoreBreakdown"];
   reasons: MatchReason[];
   employmentTypeLabel: string | null;
   companySizeLabel: string | null;
@@ -54,6 +55,7 @@ export function toJobView(item: FeedItem, context: JobViewContext): JobView {
     title: posting.title,
     companyName: posting.companyName,
     score: item.score,
+    scoreBreakdown: item.scoreBreakdown,
     reasons: item.reasons,
     employmentTypeLabel: labelForCode(context.labels, "employmentType", posting.employmentType),
     companySizeLabel: labelForCode(context.labels, "companySize", posting.companySize),
