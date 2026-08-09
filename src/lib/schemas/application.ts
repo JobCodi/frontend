@@ -24,6 +24,17 @@ export const JobApplicationSchema = z.object({
 });
 export type JobApplication = z.infer<typeof JobApplicationSchema>;
 
+export const DeadlineReminderSchema = z.object({
+  id: z.string(),
+  status: z.enum(["reviewing", "planned"]),
+  job: ApplicationJobSchema,
+});
+export type DeadlineReminder = z.infer<typeof DeadlineReminderSchema>;
+
+export const DeadlineReminderResponseSchema = z.object({
+  reminders: z.array(DeadlineReminderSchema),
+});
+
 export const JobApplicationListSchema = z.array(JobApplicationSchema);
 export const ApplicationUpdateSchema = z.object({
   status: ApplicationStatusSchema.optional(),
