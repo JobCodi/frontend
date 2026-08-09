@@ -16,6 +16,7 @@ import { useAuth } from "@/lib/auth/context";
 import { useFeed } from "../queries/use-feed";
 import { useRefreshFeed } from "../queries/use-refresh-feed";
 import { useDailyFeedSummary } from "../queries/use-daily-feed-summary";
+import { useCriteriaComparison } from "../queries/use-criteria-comparison";
 import { useFeedParams } from "../hooks/use-feed-params";
 import { usePollingTimedOut } from "../hooks/use-polling-timed-out";
 import { buildSourceNameIndex } from "../lib/source-names";
@@ -26,6 +27,7 @@ import { ZeroResultState } from "./zero-result-state";
 import { SortFilterBar } from "./sort-filter-bar";
 import { JobList, FeedCardSkeleton } from "./job-list";
 import { DailyFeedSummaryCard } from "./daily-feed-summary-card";
+import { CriteriaComparisonCard } from "./criteria-comparison-card";
 
 interface FeedScreenProps {
   sessionId: string;
@@ -41,6 +43,7 @@ export function FeedScreen({ sessionId, labels, ingestionSources }: FeedScreenPr
   const feed = useFeed(sessionId, params);
   const refreshFeed = useRefreshFeed(sessionId, params);
   const dailySummary = useDailyFeedSummary(Boolean(user));
+  const criteriaComparison = useCriteriaComparison(Boolean(user));
 
   const firstPage = feed.data?.pages[0];
   const status = firstPage?.status;
@@ -139,6 +142,7 @@ export function FeedScreen({ sessionId, labels, ingestionSources }: FeedScreenPr
 
         <div className="space-y-5 px-5 py-5 sm:px-7 sm:py-6">
           {dailySummary.data?.summary ? <DailyFeedSummaryCard summary={dailySummary.data.summary} /> : null}
+          {criteriaComparison.data?.comparison ? <CriteriaComparisonCard comparison={criteriaComparison.data.comparison} labels={labels} /> : null}
           {firstPage.status === "collecting" ? (
             <>
               <CollectingChecklist progress={firstPage.progress} />
