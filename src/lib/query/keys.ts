@@ -16,6 +16,7 @@ export const queryKeys = {
   criteria: (id: string) => ["criteria", id] as const,
   feed: (id: string, params: FeedQueryParams) => ["feed", id, params] as const,
   job: (sessionId: string, itemId: string) => ["job", sessionId, itemId] as const,
+  applications: () => ["applications"] as const,
   ingestionSources: () => ["ingestion-sources"] as const,
   adminMe: () => ["admin-me"] as const,
   adminSources: () => ["admin-sources"] as const,
