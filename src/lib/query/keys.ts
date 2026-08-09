@@ -19,6 +19,7 @@ export const queryKeys = {
   applications: () => ["applications"] as const,
   deadlineReminders: () => ["deadline-reminders"] as const,
   dailyFeedSummary: () => ["daily-feed-summary"] as const,
+  criteriaComparison: () => ["criteria-comparison"] as const,
   ingestionSources: () => ["ingestion-sources"] as const,
   adminMe: () => ["admin-me"] as const,
   adminSources: () => ["admin-sources"] as const,
