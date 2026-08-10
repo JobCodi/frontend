@@ -17,4 +17,4 @@
 - count는 Backend 기준이며 브라우저에서 계산하지 않는다.
 - 조건 payload는 코드가 아니라 label resolver를 거친 요약만 보여준다.
 - API loading/error/empty는 Feed를 막지 않는다.
-- 자동 되돌리기와 조건 편집 lifecycle 변경은 별도 slice다.
+- 조건 version 비교는 기존 조건 편집 lifecycle을 변경하지 않는다.
