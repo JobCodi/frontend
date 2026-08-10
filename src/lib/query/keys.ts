@@ -13,7 +13,8 @@ export const queryKeys = {
    * submit-turn responses and never re-fetched.
    */
   pendingTurn: (id: string) => ["pending-turn", id] as const,
-  criteria: (id: string) => ["criteria", id] as const,
+  criteria: (sessionId: string) => ['criteria', sessionId] as const,
+  criteriaHistory: (sessionId: string) => ['criteria-history', sessionId] as const,
   feed: (id: string, params: FeedQueryParams) => ["feed", id, params] as const,
   job: (sessionId: string, itemId: string) => ["job", sessionId, itemId] as const,
   applications: () => ["applications"] as const,

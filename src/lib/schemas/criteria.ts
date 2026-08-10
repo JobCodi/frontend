@@ -123,6 +123,29 @@ export type ConfirmCriteriaResponse = z.infer<typeof ConfirmCriteriaResponseSche
 /** PATCH body: any subset of the patchable criteria fields. */
 export type PatchCriteriaRequest = Partial<Pick<CriteriaPayload, PatchableCriteriaFieldKey>>;
 
+/** `GET /sessions/:id/criteria/history` -> 200. */
+export const CriteriaHistoryResponseSchema = z.object({
+  versions: z.array(
+    z.object({
+      version: z.number(),
+      createdAt: z.string(),
+      estimatedCount: z.number(),
+      payload: CriteriaPayloadSchema,
+    })
+  ),
+});
+export type CriteriaHistoryResponse = z.infer<typeof CriteriaHistoryResponseSchema>;
+
+/** `POST /sessions/:id/criteria/revert` -> 201. */
+export const CriteriaRevertResponseSchema = z.object({
+  version: z.number(),
+  revertedFrom: z.number(),
+  revertedTo: z.number(),
+  estimatedCount: z.number(),
+  payload: CriteriaPayloadSchema,
+});
+export type CriteriaRevertResponse = z.infer<typeof CriteriaRevertResponseSchema>;
+
 /**
  * The five conversation slots the backend reports in `unfilledSlots`.
  * These are slot names, not criteria field keys.
