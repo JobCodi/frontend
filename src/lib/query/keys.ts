@@ -17,6 +17,7 @@ export const queryKeys = {
   feed: (id: string, params: FeedQueryParams) => ["feed", id, params] as const,
   job: (sessionId: string, itemId: string) => ["job", sessionId, itemId] as const,
   applications: () => ["applications"] as const,
+  activeProfile: () => ["active-profile"] as const,
   deadlineReminders: () => ["deadline-reminders"] as const,
   dailyFeedSummary: () => ["daily-feed-summary"] as const,
   criteriaComparison: () => ["criteria-comparison"] as const,
