@@ -25,13 +25,14 @@ function buildFeedPath(sessionId: string, params: FeedQueryParams, cursor: strin
  * Only the "ready" variant paginates; "collecting" and "failed" bodies
  * carry no cursor, so `getNextPageParam` stops there.
  */
-export function useFeed(sessionId: string, params: FeedQueryParams) {
+export function useFeed(sessionId: string, params: FeedQueryParams, enabled = true) {
   const pollStartedAt = useRef<number | null>(null);
 
   return useInfiniteQuery({
     queryKey: queryKeys.feed(sessionId, params),
     queryFn: ({ pageParam }) => apiGet(buildFeedPath(sessionId, params, pageParam), FeedPageSchema),
     initialPageParam: null as string | null,
+    enabled,
     getNextPageParam: (lastPage) =>
       lastPage.status === "ready" && lastPage.hasMore ? lastPage.nextCursor : undefined,
     refetchInterval: (query) => {

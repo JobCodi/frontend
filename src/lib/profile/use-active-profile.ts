@@ -5,11 +5,12 @@ import { apiGet } from "@/lib/api/client";
 import { queryKeys } from "@/lib/query/keys";
 import { ActiveProfileResponseSchema } from "@/lib/schemas/profile";
 
-export function useActiveProfile() {
+export function useActiveProfile(enabled = true) {
   return useQuery({
     queryKey: queryKeys.activeProfile(),
     queryFn: () => apiGet("/profiles/active", ActiveProfileResponseSchema),
     retry: false,
     staleTime: 30_000,
+    enabled,
   });
 }

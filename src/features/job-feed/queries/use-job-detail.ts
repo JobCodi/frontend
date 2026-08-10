@@ -35,7 +35,7 @@ function findCachedFeedItem(
  * not `GET /jobs/:id` — is the one to use here: `/jobs/:id` returns posting
  * metadata with no score or reasons, and this screen must show reasons.
  */
-export function useJobDetail(sessionId: string, itemId: string) {
+export function useJobDetail(sessionId: string, itemId: string, enabled = true) {
   const queryClient = useQueryClient();
 
   return useQuery({
@@ -46,5 +46,6 @@ export function useJobDetail(sessionId: string, itemId: string) {
       return apiGet(`/sessions/${sessionId}/feed/${itemId}`, FeedItemSchema);
     },
     staleTime: 60_000,
+    enabled,
   });
 }

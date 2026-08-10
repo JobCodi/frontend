@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { readFileSync } from "node:fs";
 import { FeedFailedPageSchema, SourceSummaryEntrySchema } from "@/lib/schemas/feed";
 import {
   describeSourceSummaryEntry,
@@ -24,6 +25,11 @@ const sourceSummary = [
     skipReason: "관리자 설정으로 비활성화",
   },
 ];
+
+const transparencyCardSource = readFileSync(
+  new URL("../components/ingestion-transparency-card.tsx", import.meta.url),
+  "utf8",
+);
 
 describe("Feed 수집 투명성", () => {
   it("attemptedAt이 있거나 없는 source entry를 모두 허용하고 failed generatedAt을 보존한다", () => {
@@ -64,5 +70,10 @@ describe("Feed 수집 투명성", () => {
     expect(getIngestionSummary("2026-08-10T03:05:00.000Z", 1).updatedAt).toBe(
       "2026. 8. 10. 오후 12:05",
     );
+  });
+
+  it("출처 요약이 비어 있어도 수집 정보 부재를 명시한다", () => {
+    expect(transparencyCardSource).not.toContain("if (sourceSummary.length === 0) return null");
+    expect(transparencyCardSource).toContain("수집 출처 정보가 없어요");
   });
 });
