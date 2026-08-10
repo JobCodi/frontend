@@ -38,10 +38,11 @@ interface FeedScreenProps {
 
 export function FeedScreen({ sessionId, labels, ingestionSources }: FeedScreenProps) {
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, isLoading: isAuthLoading } = useAuth();
+  const isAuthenticated = !isAuthLoading && Boolean(user);
   const { params, setParams } = useFeedParams();
-  const { data: session, isFetching: isFetchingSession } = useSession(sessionId);
-  const feed = useFeed(sessionId, params);
+  const { data: session, isFetching: isFetchingSession } = useSession(sessionId, isAuthenticated);
+  const feed = useFeed(sessionId, params, isAuthenticated);
   const refreshFeed = useRefreshFeed(sessionId, params);
   const dailySummary = useDailyFeedSummary(Boolean(user));
   const criteriaComparison = useCriteriaComparison(Boolean(user));
@@ -49,6 +50,12 @@ export function FeedScreen({ sessionId, labels, ingestionSources }: FeedScreenPr
   const firstPage = feed.data?.pages[0];
   const status = firstPage?.status;
   const pollingTimedOut = usePollingTimedOut(status);
+
+  useEffect(() => {
+    if (!isAuthLoading && !user) {
+      router.replace(`/login?redirect=${encodeURIComponent(`/feed/${sessionId}`)}`);
+    }
+  }, [isAuthLoading, router, sessionId, user]);
 
   const sourceSummary = useMemo<SourceSummaryEntry[]>(
     () =>
@@ -80,7 +87,7 @@ export function FeedScreen({ sessionId, labels, ingestionSources }: FeedScreenPr
     }
   }, [sessionNotFound, router]);
 
-  if (feed.isLoading) {
+  if (!isAuthenticated || feed.isLoading) {
     return (
       <div className="ui-page ui-page-standard flex flex-col gap-4">
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">

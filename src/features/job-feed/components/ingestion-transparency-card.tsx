@@ -20,9 +20,25 @@ export function IngestionTransparencyCard({
 }: IngestionTransparencyCardProps) {
   const [expanded, setExpanded] = useState(false);
 
-  if (sourceSummary.length === 0) return null;
-
   const summary = getIngestionSummary(generatedAt, sourceSummary.length);
+
+  if (sourceSummary.length === 0) {
+    return (
+      <aside className="rounded-2xl border border-[var(--line)] bg-[var(--surface-soft)]/60 px-4 py-3 sm:px-5">
+        <div className="flex items-center gap-3">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white text-[var(--text-muted)] shadow-sm">
+            <Database aria-hidden="true" className="h-4 w-4" />
+          </span>
+          <div>
+            <p className="text-sm font-semibold text-[var(--text)]">수집 출처 정보가 없어요</p>
+            <p className="mt-0.5 text-xs text-[var(--text-muted)]">
+              마지막 Feed 업데이트 {summary.updatedAt}
+            </p>
+          </div>
+        </div>
+      </aside>
+    );
+  }
 
   return (
     <aside className="overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--surface-soft)]/60">

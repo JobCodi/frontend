@@ -2,6 +2,7 @@
 
 import { Skeleton } from "@/components/ui/skeleton";
 import type { FeedItem } from "@/lib/schemas/feed";
+import { filterRenderableFeedItems } from "../lib/filter-renderable-feed-items";
 import { useInfiniteScrollSentinel } from "../hooks/use-infinite-scroll-sentinel";
 import { toJobView, type JobViewContext } from "../lib/to-job-view";
 import { JobCard } from "./job-card";
@@ -25,15 +26,7 @@ export function JobList({
 }: JobListProps) {
   const sentinelRef = useInfiniteScrollSentinel(onLoadMore, hasNextPage && !isFetchingNextPage);
 
-  const renderable = items.filter((item) => {
-    if (item.reasons.length === 0) {
-      console.error(
-        `[job-feed] item ${item.id} has empty reasons — API contract violation, skipping render.`,
-      );
-      return false;
-    }
-    return true;
-  });
+  const renderable = filterRenderableFeedItems(items);
 
   return (
     <div>

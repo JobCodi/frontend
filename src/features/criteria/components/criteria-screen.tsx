@@ -1,6 +1,7 @@
 "use client";
 
 import { Info, ListChecks, Sparkles } from "lucide-react";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { ErrorState } from "@/components/feedback/error-state";
@@ -33,6 +34,23 @@ export function CriteriaScreen({ sessionId, taxonomy, initialCriteria }: Criteri
   const patchCriteria = usePatchCriteria(sessionId);
   const confirmCriteria = useConfirmCriteria(sessionId);
   const cancelEdit = useCriteriaEditStore((s) => s.cancelEdit);
+  const isSessionNotFound = error instanceof ApiError
+    && (error.code === "SESSION_NOT_FOUND" || error.status === 404);
+
+  useEffect(() => {
+    if (isSessionNotFound) {
+      router.replace("/session-expired");
+    }
+  }, [isSessionNotFound, router]);
+
+  if (isError) {
+    if (isSessionNotFound) return null;
+    return (
+      <div className="ui-page ui-page-narrow">
+        <ErrorState title="조건을 불러오지 못했어요" onRetry={() => refetch()} />
+      </div>
+    );
+  }
 
   if (isLoading || !data) {
     return (
@@ -41,19 +59,6 @@ export function CriteriaScreen({ sessionId, taxonomy, initialCriteria }: Criteri
           <Skeleton className="h-8 w-2/3" />
           <Skeleton className="mt-4 h-40 w-full" />
         </div>
-      </div>
-    );
-  }
-
-  if (isError) {
-    const notFound = error instanceof ApiError && error.status === 404;
-    if (notFound) {
-      router.replace("/session-expired");
-      return null;
-    }
-    return (
-      <div className="ui-page ui-page-narrow">
-        <ErrorState title="조건을 불러오지 못했어요" onRetry={() => refetch()} />
       </div>
     );
   }

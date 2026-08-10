@@ -6,9 +6,10 @@ import { queryKeys } from "@/lib/query/keys";
 import { SessionSchema } from "@/lib/schemas/session";
 
 /** Shared GET /sessions/:id query — used by discovery, criteria and feed. */
-export function useSession(sessionId: string) {
+export function useSession(sessionId: string, enabled = true) {
   return useQuery({
     queryKey: queryKeys.session(sessionId),
     queryFn: () => apiGet(`/sessions/${sessionId}`, SessionSchema),
+    enabled,
   });
 }

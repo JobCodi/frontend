@@ -62,8 +62,8 @@ export type JobPosting = z.infer<typeof JobPostingSchema>;
 /**
  * One scored feed item: server-side `rank`/`score`, the evidence, and the
  * nested posting. `reasons` is intentionally not `.min(1)` here — an empty
- * array is a contract violation the UI must report and skip per card
- * (AGENTS.md #1), not a reason to fail the whole page at the boundary.
+ * array is a contract violation the UI reports and skips per item, not a
+ * reason to hide the rest of a valid feed page.
  */
 export const JobPreferenceSchema = z.enum(["saved", "excluded", "none"]);
 export type JobPreference = z.infer<typeof JobPreferenceSchema>;
