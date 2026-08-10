@@ -17,7 +17,7 @@ function formatFeedDateTime(value: string): string {
 
 export function describeSourceSummaryEntry(entry: SourceSummaryEntry): {
   outcome: string;
-  checkedAt: string | null;
+  attemptedAt: string | null;
 } {
   const status = STATUS_TEXT[entry.status];
   const outcome =
@@ -27,7 +27,7 @@ export function describeSourceSummaryEntry(entry: SourceSummaryEntry): {
 
   return {
     outcome: entry.skipReason ? `${outcome} · ${entry.skipReason}` : outcome,
-    checkedAt: entry.checkedAt ? `확인 ${formatFeedDateTime(entry.checkedAt)}` : null,
+    attemptedAt: entry.attemptedAt ? `확인 ${formatFeedDateTime(entry.attemptedAt)}` : null,
   };
 }
 

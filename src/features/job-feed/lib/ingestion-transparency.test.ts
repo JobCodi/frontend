@@ -13,7 +13,7 @@ const sourceSummary = [
     status: "succeeded" as const,
     fetched: 18,
     skipReason: null,
-    checkedAt: "2026-08-10T01:20:00.000Z",
+    attemptedAt: "2026-08-10T01:20:00.000Z",
   },
   {
     sourceId: "legacy-crawler",
@@ -26,11 +26,11 @@ const sourceSummary = [
 ];
 
 describe("Feed 수집 투명성", () => {
-  it("checkedAt이 있거나 없는 source entry를 모두 허용하고 failed generatedAt을 보존한다", () => {
-    expect(SourceSummaryEntrySchema.parse(sourceSummary[0]).checkedAt).toBe(
+  it("attemptedAt이 있거나 없는 source entry를 모두 허용하고 failed generatedAt을 보존한다", () => {
+    expect(SourceSummaryEntrySchema.parse(sourceSummary[0]).attemptedAt).toBe(
       "2026-08-10T01:20:00.000Z",
     );
-    expect(SourceSummaryEntrySchema.parse(sourceSummary[1]).checkedAt).toBeUndefined();
+    expect(SourceSummaryEntrySchema.parse(sourceSummary[1]).attemptedAt).toBeUndefined();
 
     const failed = FeedFailedPageSchema.parse({
       status: "failed",
@@ -45,11 +45,11 @@ describe("Feed 수집 투명성", () => {
   it("출처별 상태, 성공 건수, 확인 시각과 건너뜀 사유를 텍스트로 만든다", () => {
     expect(describeSourceSummaryEntry(sourceSummary[0])).toEqual({
       outcome: "18건 · 수집 완료",
-      checkedAt: "확인 2026. 8. 10. 오전 10:20",
+      attemptedAt: "확인 2026. 8. 10. 오전 10:20",
     });
     expect(describeSourceSummaryEntry(sourceSummary[1])).toEqual({
       outcome: "사용 안 함 · 관리자 설정으로 비활성화",
-      checkedAt: null,
+      attemptedAt: null,
     });
   });
 

@@ -38,8 +38,8 @@ export function SourceSummaryList({ sourceSummary }: SourceSummaryListProps) {
             <div className="min-w-0 flex-1">
               <p className="truncate text-sm font-medium text-[var(--text)]">{entry.displayName}</p>
               <p className="text-xs text-[var(--text-muted)]">{description.outcome}</p>
-              {description.checkedAt ? (
-                <p className="mt-0.5 text-[11px] text-[var(--text-subtle)]">{description.checkedAt}</p>
+              {description.attemptedAt ? (
+                <p className="mt-0.5 text-[11px] text-[var(--text-subtle)]">{description.attemptedAt}</p>
               ) : null}
             </div>
           </li>

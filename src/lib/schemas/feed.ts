@@ -100,7 +100,7 @@ export const SourceSummaryEntrySchema = z.object({
   status: SourceSummaryStatusSchema,
   fetched: z.number(),
   skipReason: z.string().nullable(),
-  checkedAt: z.string().optional(),
+  attemptedAt: z.string().optional(),
 });
 export type SourceSummaryEntry = z.infer<typeof SourceSummaryEntrySchema>;
 
