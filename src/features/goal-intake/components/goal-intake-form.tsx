@@ -19,6 +19,7 @@ import { isGoalInputSubmittable } from "../types";
 import { GoalFieldSection } from "./goal-field-section";
 import { ExistingSessionNotice } from "./existing-session-notice";
 import { CrawlSiteSelector } from "./crawl-site-selector";
+import { getMandatoryProgress } from "../lib/mandatory-progress";
 
 interface GoalIntakeFormProps {
   taxonomy: Taxonomy;
@@ -48,12 +49,7 @@ export function GoalIntakeForm({ taxonomy, taxonomyFailed = false }: GoalIntakeF
   const selectedFamily = taxonomy.jobFamilies.find((f) => f.code === goal.jobFamily);
   const canSubmit = isGoalInputSubmittable(goal) && !createSession.isPending;
 
-  const requiredDone = [
-    goal.companySizes.length > 0,
-    Boolean(goal.jobFamily),
-    Boolean(goal.experienceLevel),
-    goal.selectedCrawlSites.length > 0,
-  ].filter(Boolean).length;
+  const mandatoryProgress = getMandatoryProgress(goal);
 
   function handleFamilyChange(value: string) {
     setField("jobFamily", value === goal.jobFamily ? "" : value);
@@ -105,13 +101,17 @@ export function GoalIntakeForm({ taxonomy, taxonomyFailed = false }: GoalIntakeF
 
                 <div className="flex flex-col items-end gap-2 sm:items-end">
                   <div className="flex items-baseline gap-1">
-                    <span className="text-2xl font-bold text-[var(--brand)]">{requiredDone}</span>
-                    <span className="text-sm text-[var(--text-subtle)]">/ 3</span>
+                    <span className="text-2xl font-bold text-[var(--brand)]">
+                      {mandatoryProgress.completed}
+                    </span>
+                    <span className="text-sm text-[var(--text-subtle)]">
+                      / {mandatoryProgress.total}
+                    </span>
                   </div>
                   <div className="h-1.5 w-28 overflow-hidden rounded-full bg-[var(--line)]">
                     <div
                       className="h-full rounded-full bg-gradient-to-r from-[var(--brand)] to-[#7c3aed] transition-all duration-500"
-                      style={{ width: `${(requiredDone / 3) * 100}%` }}
+                      style={{ width: `${mandatoryProgress.percent}%` }}
                     />
                   </div>
                   <span className="text-xs font-medium text-[var(--text-subtle)]">필수 항목</span>

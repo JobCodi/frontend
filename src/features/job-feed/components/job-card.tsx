@@ -41,8 +41,7 @@ export function JobCard({ job, sessionId }: JobCardProps) {
         : "from-[var(--text-muted)] to-[var(--text-subtle)]";
 
   return (
-    <Link
-      href={`/feed/${sessionId}/${job.id}`}
+    <article
       className="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-[var(--line)]/80 bg-white shadow-[var(--shadow-card)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[var(--brand)]/30 hover:shadow-[var(--shadow-elevated)]"
     >
       {/* Top accent line on hover */}
@@ -77,9 +76,11 @@ export function JobCard({ job, sessionId }: JobCardProps) {
 
       {/* Title */}
       <div className="px-5 pt-4">
-        <h3 className="ui-card-title transition-colors group-hover:text-[var(--brand)]">
-          {job.title}
-        </h3>
+        <Link href={`/feed/${sessionId}/${job.id}`} className="rounded-sm">
+          <h3 className="ui-card-title transition-colors group-hover:text-[var(--brand)] group-focus-within:text-[var(--brand)]">
+            {job.title}
+          </h3>
+        </Link>
       </div>
 
       {/* Tags */}
@@ -147,9 +148,9 @@ export function JobCard({ job, sessionId }: JobCardProps) {
             <BriefcaseBusiness className="h-4 w-4" />
           </button>
           <button
-            onClick={(event) => {
-              event.preventDefault();
-              event.stopPropagation();
+            type="button"
+            aria-label="추천에서 제외"
+            onClick={() => {
               updatePreference.mutate("excluded");
             }}
             className="rounded-lg p-1.5 text-[var(--text-subtle)] transition-colors hover:bg-red-50 hover:text-red-600"
@@ -173,6 +174,6 @@ export function JobCard({ job, sessionId }: JobCardProps) {
           <ExternalLink className="h-3.5 w-3.5 text-[var(--text-subtle)] opacity-0 transition-opacity group-hover:opacity-60" />
         </div>
       </div>
-    </Link>
+    </article>
   );
 }
