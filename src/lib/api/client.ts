@@ -29,18 +29,20 @@ export interface ApiFetchOptions<T> {
   next?: NextFetchRequestConfig;
   cache?: RequestCache;
   signal?: AbortSignal;
+  /** Admin-only requests retain their direct backend transport. */
+  useBff?: boolean;
 }
 
 const UNKNOWN_ERROR_MESSAGE = "알 수 없는 오류가 발생했어요.";
 const NETWORK_ERROR_CODE = "NETWORK_ERROR";
 const INVALID_RESPONSE_CODE = "INVALID_RESPONSE_SHAPE";
 
-const BROWSER_TOKEN_KEY = "jobcodi_token";
-
-function browserAuthorizationHeader(): HeadersInit {
-  if (typeof window === "undefined") return {};
-  const token = window.sessionStorage.getItem(BROWSER_TOKEN_KEY);
-  return token === null ? {} : { Authorization: `Bearer ${token}` };
+function requestUrl(path: string, useBff: boolean | undefined): string {
+  if (typeof window === "undefined" || useBff === false) return apiUrl(path);
+  if (path === "/auth/login" || path === "/auth/register" || path === "/auth/me" || path === "/auth/logout") {
+    return `/api${path}`;
+  }
+  return `/api/bff${path}`;
 }
 
 async function parseErrorBody(res: Response): Promise<{ code: string; message: string }> {
@@ -77,7 +79,7 @@ export async function apiFetch<T>(
 ): Promise<T> {
   const method = options.method ?? "GET";
   const maxAttempts = maxAttemptsFor(method);
-  const url = apiUrl(path);
+  const url = requestUrl(path, options.useBff);
   const hasBody = options.body !== undefined;
 
   let lastError: unknown;
@@ -88,7 +90,6 @@ export async function apiFetch<T>(
         method,
         headers: {
           ...(hasBody ? { "Content-Type": "application/json" } : {}),
-          ...browserAuthorizationHeader(),
           ...options.headers,
         },
         body: hasBody ? JSON.stringify(options.body) : undefined,
@@ -142,7 +143,7 @@ export async function apiFetch<T>(
 export function apiGet<T>(
   path: string,
   schema: z.ZodType<T>,
-  init?: Pick<ApiFetchOptions<T>, "next" | "cache" | "signal">,
+  init?: Pick<ApiFetchOptions<T>, "next" | "cache" | "signal" | "useBff">,
 ): Promise<T> {
   return apiFetch(path, { method: "GET", schema, ...init });
 }
@@ -151,7 +152,7 @@ export function apiPost<T>(
   path: string,
   schema: z.ZodType<T>,
   body?: unknown,
-  init?: Pick<ApiFetchOptions<T>, "signal">,
+  init?: Pick<ApiFetchOptions<T>, "signal" | "useBff">,
 ): Promise<T> {
   return apiFetch(path, { method: "POST", schema, body, ...init });
 }
@@ -160,7 +161,7 @@ export function apiPut<T>(
   path: string,
   schema: z.ZodType<T>,
   body?: unknown,
-  init?: Pick<ApiFetchOptions<T>, "signal">,
+  init?: Pick<ApiFetchOptions<T>, "signal" | "useBff">,
 ): Promise<T> {
   return apiFetch(path, { method: "PUT", schema, body, ...init });
 }
@@ -169,7 +170,7 @@ export function apiPatch<T>(
   path: string,
   schema: z.ZodType<T>,
   body?: unknown,
-  init?: Pick<ApiFetchOptions<T>, "signal">,
+  init?: Pick<ApiFetchOptions<T>, "signal" | "useBff">,
 ): Promise<T> {
   return apiFetch(path, { method: "PATCH", schema, body, ...init });
 }

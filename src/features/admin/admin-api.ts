@@ -15,13 +15,14 @@ const adminAuthorization = (accessToken: string): HeadersInit => ({
 });
 
 export function loginAdmin(email: string, password: string) {
-  return apiPost("/admin/auth/login", AdminSessionSchema, { email, password });
+  return apiPost("/admin/auth/login", AdminSessionSchema, { email, password }, { useBff: false });
 }
 
 export function getAdminMe(accessToken: string) {
   return apiFetch("/admin/auth/me", {
     schema: AdminMeResponseSchema,
     headers: adminAuthorization(accessToken),
+    useBff: false,
   });
 }
 
@@ -29,6 +30,7 @@ export function getAdminSources(accessToken: string) {
   return apiFetch("/ingestion/sources", {
     schema: IngestionSourcesResponseSchema,
     headers: adminAuthorization(accessToken),
+    useBff: false,
   });
 }
 
@@ -36,6 +38,7 @@ export function getCrawlPlugins(accessToken: string) {
   return apiFetch("/ingestion/plugins", {
     schema: CrawlPluginsResponseSchema,
     headers: adminAuthorization(accessToken),
+    useBff: false,
   });
 }
 
@@ -43,6 +46,7 @@ export function getCrawlSites(accessToken: string) {
   return apiFetch("/ingestion/crawl-sites", {
     schema: CrawlSitesResponseSchema,
     headers: adminAuthorization(accessToken),
+    useBff: false,
   });
 }
 
@@ -61,6 +65,7 @@ export function createCrawlSite(accessToken: string, payload: CreateCrawlSitePay
     body: payload,
     schema: CrawlSiteSchema,
     headers: adminAuthorization(accessToken),
+    useBff: false,
   });
 }
 
@@ -74,6 +79,7 @@ export function updateCrawlSiteStatus(
     body: { status },
     schema: CrawlSiteSchema,
     headers: adminAuthorization(accessToken),
+    useBff: false,
   });
 }
 
@@ -83,5 +89,6 @@ export function runCrawlSite(accessToken: string, siteId: string) {
     body: {},
     schema: ManualRunResponseSchema,
     headers: adminAuthorization(accessToken),
+    useBff: false,
   });
 }
