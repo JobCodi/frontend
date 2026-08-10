@@ -59,4 +59,10 @@ describe("Feed 수집 투명성", () => {
       sourceCount: "2개 출처 확인",
     });
   });
+
+  it("런타임 ICU 표기와 관계없이 한국어 오후 시각을 만든다", () => {
+    expect(getIngestionSummary("2026-08-10T03:05:00.000Z", 1).updatedAt).toBe(
+      "2026. 8. 10. 오후 12:05",
+    );
+  });
 });

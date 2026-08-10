@@ -8,11 +8,22 @@ const STATUS_TEXT: Record<SourceSummaryEntry["status"], string> = {
 };
 
 function formatFeedDateTime(value: string): string {
-  return new Intl.DateTimeFormat("ko-KR", {
-    dateStyle: "medium",
-    timeStyle: "short",
+  const parts = new Intl.DateTimeFormat("en-CA-u-nu-latn", {
+    year: "numeric",
+    month: "numeric",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    hourCycle: "h23",
     timeZone: "Asia/Seoul",
-  }).format(new Date(value));
+  }).formatToParts(new Date(value));
+  const part = (type: Intl.DateTimeFormatPartTypes): string =>
+    parts.find((item) => item.type === type)?.value ?? "";
+  const hour = Number(part("hour"));
+  const period = hour < 12 ? "오전" : "오후";
+  const displayHour = hour % 12 || 12;
+
+  return `${part("year")}. ${Number(part("month"))}. ${Number(part("day"))}. ${period} ${displayHour}:${part("minute")}`;
 }
 
 export function describeSourceSummaryEntry(entry: SourceSummaryEntry): {
