@@ -19,7 +19,7 @@ export function middleware(request: NextRequest) {
   }
   
   // Check for auth cookie (SSR-friendly)
-  const token = request.cookies.get("jobcodi_token")?.value;
+  const token = request.cookies.get("jobcodi_session")?.value;
   
   if (!token) {
     const loginUrl = new URL("/login", request.url);

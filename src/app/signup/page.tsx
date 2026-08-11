@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AuthShell } from "@/components/layout/auth-shell";
 import { useAuth } from "@/lib/auth/context";
+import { safeAuthRedirect } from "@/lib/auth/redirect";
 
 export default function SignupPage() {
   const router = useRouter();
@@ -22,7 +23,7 @@ export default function SignupPage() {
     try {
       await register(email, password, displayName);
       const redirect = new URLSearchParams(window.location.search).get("redirect");
-      router.push(redirect ?? "/start");
+      router.push(safeAuthRedirect(redirect));
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "회원가입에 실패했습니다");
     } finally {

@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useState } from "react";
 import { BriefcaseBusiness, LogOut } from "lucide-react";
 import { DeadlineReminderMenu } from "@/features/job-applications/components/deadline-reminder-menu";
 import { useAuth } from "@/lib/auth/context";
@@ -9,7 +10,22 @@ import { Button } from "@/components/ui/button";
 
 export function AppHeader() {
   const { user, logout } = useAuth();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [logoutError, setLogoutError] = useState<string | null>(null);
   const initial = user?.email?.charAt(0).toUpperCase() ?? "U";
+
+  const handleLogout = async () => {
+    setIsLoggingOut(true);
+    setLogoutError(null);
+
+    try {
+      await logout();
+    } catch {
+      setLogoutError("로그아웃에 실패했습니다. 다시 시도해 주세요.");
+    } finally {
+      setIsLoggingOut(false);
+    }
+  };
 
   return (
     <header className="sticky top-0 z-50 border-b border-[var(--line)]/80 bg-white/80 backdrop-blur-xl">
@@ -67,14 +83,25 @@ export function AppHeader() {
                 </span>
               </div>
               <Button
-                onClick={logout}
+                onClick={() => {
+                  void handleLogout();
+                }}
+                disabled={isLoggingOut}
+                aria-label={isLoggingOut ? "로그아웃 중" : "로그아웃"}
                 size="sm"
                 variant="secondary"
                 className="gap-1.5 rounded-lg border-[var(--line)] bg-white shadow-sm"
               >
                 <LogOut className="h-3.5 w-3.5" />
-                <span className="hidden sm:inline">로그아웃</span>
+                <span className="hidden sm:inline">
+                  {isLoggingOut ? "로그아웃 중" : "로그아웃"}
+                </span>
               </Button>
+              {logoutError ? (
+                <p role="alert" className="text-xs text-[var(--danger)]">
+                  {logoutError}
+                </p>
+              ) : null}
             </>
           ) : null}
         </div>
