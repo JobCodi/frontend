@@ -7,6 +7,7 @@ import {
   Building2,
   CalendarClock,
   CheckCircle2,
+  ChevronDown,
   MapPin,
   Sparkles,
   UserRound,
@@ -15,7 +16,12 @@ import { Button } from "@/components/ui/button";
 import { TARGET_START_AT_OPTIONS, type Taxonomy } from "@/lib/schemas/taxonomy";
 import { useGoalIntakeStore } from "../stores/goal-intake-store";
 import { useCreateSession } from "../queries/use-create-session";
-import { isGoalInputSubmittable } from "../types";
+import {
+  EXCLUSION_FLAG_OPTIONS,
+  isGoalInputSubmittable,
+  WORK_MODE_OPTIONS,
+  WORK_SCHEDULE_FLAG_OPTIONS,
+} from "../types";
 import { GoalFieldSection } from "./goal-field-section";
 import { ExistingSessionNotice } from "./existing-session-notice";
 import { CrawlSiteSelector } from "./crawl-site-selector";
@@ -209,6 +215,65 @@ export function GoalIntakeForm({ taxonomy, taxonomyFailed = false }: GoalIntakeF
                     setField("targetStartAt", value === goal.targetStartAt ? null : value)
                   }
                 />
+
+                <details className="group rounded-2xl border border-[var(--line)] bg-[var(--surface-soft)] shadow-sm">
+                  <summary className="flex cursor-pointer list-none items-center justify-between gap-3 rounded-2xl px-4 py-4 text-sm font-semibold text-[var(--text)] marker:content-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--brand)] sm:px-5">
+                    더 정교하게 찾기
+                    <ChevronDown
+                      className="h-4 w-4 shrink-0 text-[var(--text-muted)] transition-transform group-open:rotate-180"
+                      aria-hidden="true"
+                    />
+                  </summary>
+                  <div className="grid gap-4 border-t border-[var(--line)] px-4 py-4 sm:px-5">
+                    <GoalFieldSection
+                      label="출퇴근 방식"
+                      hint="복수 선택"
+                      options={WORK_MODE_OPTIONS}
+                      mode="multiple"
+                      selected={goal.workModes}
+                      onToggle={(value) => toggleInArray("workModes", value)}
+                    />
+                    <GoalFieldSection
+                      label="근무 시간"
+                      hint="복수 선택"
+                      options={WORK_SCHEDULE_FLAG_OPTIONS}
+                      mode="multiple"
+                      selected={goal.workScheduleFlags}
+                      onToggle={(value) => toggleInArray("workScheduleFlags", value)}
+                    />
+                    <GoalFieldSection
+                      label="피하고 싶은 조건"
+                      hint="복수 선택"
+                      description="공고에 해당 조건이 명시된 경우에만 적용돼요."
+                      options={EXCLUSION_FLAG_OPTIONS}
+                      mode="multiple"
+                      selected={goal.exclusionFlags}
+                      onToggle={(value) => toggleInArray("exclusionFlags", value)}
+                    />
+                    <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-[var(--line)] bg-white p-4 shadow-sm transition-colors">
+                      <input
+                        type="checkbox"
+                        checked={goal.includeStretchJobs}
+                        onChange={(event) => setField("includeStretchJobs", event.target.checked)}
+                        className="peer sr-only"
+                      />
+                      <span
+                        aria-hidden="true"
+                        className="relative mt-0.5 flex h-6 w-11 shrink-0 items-center rounded-full bg-[var(--line)] p-0.5 transition-colors peer-checked:bg-[var(--brand)] peer-checked:[&>span]:translate-x-5 peer-focus-visible:ring-2 peer-focus-visible:ring-[var(--brand)] peer-focus-visible:ring-offset-2"
+                      >
+                        <span className="h-5 w-5 rounded-full bg-white shadow-sm transition-transform" />
+                      </span>
+                      <span>
+                        <span className="block text-sm font-semibold text-[var(--text)]">조건 차이 공고도 함께 보기</span>
+                        <span className="mt-1 block text-xs leading-5 text-[var(--text-muted)]">
+                          {goal.includeStretchJobs
+                            ? "조건 차이가 있는 공고도 함께 기록해 둘게요. 결과 화면에서는 차이점을 분명히 안내해요."
+                            : "기본값은 현재 선택한 조건을 기준으로 공고를 살펴보는 방식이에요."}
+                        </span>
+                      </span>
+                    </label>
+                  </div>
+                </details>
 
                 <div className="rounded-2xl border border-[var(--line)] bg-[var(--surface-soft)] p-5">
                   <CrawlSiteSelector

@@ -11,6 +11,7 @@ interface GoalFieldSectionProps {
   selected: string[];
   onToggle: (value: string) => void;
   emptyMessage?: string;
+  description?: string;
   icon?: React.ReactNode;
 }
 
@@ -23,6 +24,7 @@ export function GoalFieldSection({
   selected,
   onToggle,
   emptyMessage = "선택지를 불러오지 못했어요.",
+  description,
   icon,
 }: GoalFieldSectionProps) {
   const filled = selected.length > 0;
@@ -59,6 +61,8 @@ export function GoalFieldSection({
           </span>
         ) : null}
       </legend>
+
+      {description ? <p className="mb-3 px-1 text-xs leading-5 text-[var(--text-muted)]">{description}</p> : null}
 
       {options.length === 0 ? (
         <div className="rounded-xl border border-dashed border-[var(--line)] bg-[var(--surface-soft)] px-4 py-6 text-center text-sm text-[var(--text-subtle)]">
