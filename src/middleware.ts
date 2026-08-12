@@ -1,32 +1,9 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-const PUBLIC_PATHS = ["/", "/login", "/signup", "/about", "/admin/login"];
-const PROTECTED_PREFIXES = ["/start", "/discovery", "/feed", "/applications", "/admin"];
-
 export function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
-  
-  // Check if path is public
-  if (PUBLIC_PATHS.includes(pathname) || pathname.startsWith("/_next") || pathname.startsWith("/api")) {
-    return NextResponse.next();
-  }
-  
-  // Check if path needs protection
-  const needsAuth = PROTECTED_PREFIXES.some((prefix) => pathname.startsWith(prefix));
-  if (!needsAuth) {
-    return NextResponse.next();
-  }
-  
-  // Check for auth cookie (SSR-friendly)
-  const token = request.cookies.get("jobcodi_session")?.value;
-  
-  if (!token) {
-    const loginUrl = new URL("/login", request.url);
-    loginUrl.searchParams.set("redirect", pathname);
-    return NextResponse.redirect(loginUrl);
-  }
-  
+  void request;
+  // Access credentials are memory-only, so middleware cannot truthfully authenticate SSR requests.
   return NextResponse.next();
 }
 

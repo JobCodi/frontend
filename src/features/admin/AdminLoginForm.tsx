@@ -6,9 +6,8 @@ import { Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { loginAdmin } from "@/features/admin/admin-api";
+import { getAdminAccessToken, setAdminAccessToken } from "@/features/admin/admin-access-token";
 import { ApiError } from "@/lib/api/client";
-
-const ADMIN_ACCESS_TOKEN_KEY = "jobcodi.admin.access-token";
 
 export function AdminLoginForm() {
   const router = useRouter();
@@ -18,7 +17,7 @@ export function AdminLoginForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    if (sessionStorage.getItem(ADMIN_ACCESS_TOKEN_KEY) !== null) {
+    if (getAdminAccessToken() !== null) {
       router.replace("/admin");
     }
   }, [router]);
@@ -30,7 +29,7 @@ export function AdminLoginForm() {
 
     try {
       const session = await loginAdmin(email.trim(), password);
-      sessionStorage.setItem(ADMIN_ACCESS_TOKEN_KEY, session.accessToken);
+      setAdminAccessToken(session.accessToken);
       router.replace("/admin");
     } catch (error) {
       setErrorMessage(
@@ -121,5 +120,3 @@ export function AdminLoginForm() {
     </main>
   );
 }
-
-export { ADMIN_ACCESS_TOKEN_KEY };

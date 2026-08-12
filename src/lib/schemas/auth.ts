@@ -8,8 +8,9 @@ export const UserSchema = z.object({
 
 export type User = z.infer<typeof UserSchema>;
 
-/** Browser-safe login payload. The session token lives only in an HttpOnly cookie. */
+/** Browser-safe auth payload. The short-lived access token remains in JS memory only. */
 export const AuthResponseSchema = z.object({
+  accessToken: z.string().min(1),
   expiresAt: z.string(),
   user: UserSchema,
 });
