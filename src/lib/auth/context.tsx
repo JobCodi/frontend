@@ -4,8 +4,10 @@ import { createContext, useContext, useEffect, useState, useCallback, useRef, ty
 import { useQueryClient } from "@tanstack/react-query";
 import type { User } from "@/lib/schemas/auth";
 import { clearUserServerCache } from "@/lib/query/clear-user-server-cache";
+import { clearAccessToken, setAccessToken } from "./access-token";
+import { bootstrapAuthSession } from "./auth-bootstrap";
 import { isCurrentAuthInitialization } from "./auth-initialization";
-import { login as loginApi, register as registerApi, me as meApi, logout as logoutApi } from "./client";
+import { login as loginApi, refresh as refreshApi, register as registerApi, logout as logoutApi } from "./client";
 
 interface AuthContextValue {
   user: User | null;
@@ -36,14 +38,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       && isCurrentAuthInitialization(requestGeneration, authInitializationGeneration.current)
     );
 
-    meApi()
-      .then((res) => {
-        if (canApplyInitialization()) setUser(res.user);
-      })
-      .catch(() => {
+    bootstrapAuthSession(refreshApi)
+      .then((result) => {
         if (!canApplyInitialization()) return;
-        clearUserServerCache(queryClient);
-        setUser(null);
+        if (result.status === "authenticated") {
+          setAccessToken(result.session.accessToken, result.session.expiresAt);
+          setUser(result.session.user);
+        } else {
+          clearAccessToken();
+          clearUserServerCache(queryClient);
+          setUser(null);
+        }
       })
       .finally(() => {
         if (canApplyInitialization()) setIsLoading(false);
