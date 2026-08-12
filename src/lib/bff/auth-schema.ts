@@ -1,9 +1,13 @@
 import "server-only";
 
 import { z } from "zod";
-import { AuthResponseSchema } from "@/lib/schemas/auth";
+import { UserSchema } from "@/lib/schemas/auth";
 
-/** Backend-only contract. Keep accessToken outside browser-importable auth schemas. */
-export const BackendAuthResponseSchema = AuthResponseSchema.extend({
-  accessToken: z.string(),
+/** Backend-only credentials must not be imported by browser code. */
+export const BackendAuthResponseSchema = z.object({
+  accessToken: z.string().min(1),
+  refreshToken: z.string().min(1),
+  expiresAt: z.string(),
+  refreshExpiresAt: z.string(),
+  user: UserSchema,
 });

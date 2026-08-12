@@ -1,5 +1,12 @@
 import type { z } from "zod";
 import { apiUrl } from "@/lib/config/env";
+import {
+  clearAccessToken,
+  getAccessToken,
+  isAccessTokenExpired,
+  setAccessToken,
+} from "@/lib/auth/access-token";
+import { AuthResponseSchema } from "@/lib/schemas/auth";
 import { ApiErrorBodySchema } from "@/lib/schemas/error";
 
 /**
@@ -29,20 +36,53 @@ export interface ApiFetchOptions<T> {
   next?: NextFetchRequestConfig;
   cache?: RequestCache;
   signal?: AbortSignal;
-  /** Admin-only requests retain their direct backend transport. */
-  useBff?: boolean;
 }
 
 const UNKNOWN_ERROR_MESSAGE = "알 수 없는 오류가 발생했어요.";
 const NETWORK_ERROR_CODE = "NETWORK_ERROR";
 const INVALID_RESPONSE_CODE = "INVALID_RESPONSE_SHAPE";
 
-function requestUrl(path: string, useBff: boolean | undefined): string {
-  if (typeof window === "undefined" || useBff === false) return apiUrl(path);
-  if (path === "/auth/login" || path === "/auth/register" || path === "/auth/me" || path === "/auth/logout") {
-    return `/api${path}`;
+const AUTH_ADAPTER_PATHS = new Set(["/auth/login", "/auth/register", "/auth/logout", "/auth/refresh"]);
+
+function isBrowser(): boolean {
+  return typeof window !== "undefined";
+}
+
+function requestUrl(path: string): string {
+  if (isBrowser() && AUTH_ADAPTER_PATHS.has(path)) return `/api${path}`;
+  return apiUrl(path);
+}
+
+let refreshPromise: Promise<string> | null = null;
+
+async function refreshAccessToken(): Promise<string> {
+  if (refreshPromise === null) {
+    refreshPromise = fetch("/api/auth/refresh", {
+      method: "POST",
+      credentials: "same-origin",
+    })
+      .then(async (response) => {
+        if (!response.ok) throw new Error("인증 갱신에 실패했습니다.");
+        const payload = AuthResponseSchema.safeParse(await response.json());
+        if (!payload.success) {
+          throw new ApiError(
+            INVALID_RESPONSE_CODE,
+            response.status,
+            `인증 갱신 응답이 예상한 형태와 달라요: ${payload.error.message}`,
+          );
+        }
+        setAccessToken(payload.data.accessToken, payload.data.expiresAt);
+        return payload.data.accessToken;
+      })
+      .catch((error: unknown) => {
+        clearAccessToken();
+        throw error;
+      })
+      .finally(() => {
+        refreshPromise = null;
+      });
   }
-  return `/api/bff${path}`;
+  return refreshPromise;
 }
 
 async function parseErrorBody(res: Response): Promise<{ code: string; message: string }> {
@@ -54,15 +94,17 @@ async function parseErrorBody(res: Response): Promise<{ code: string; message: s
       return { code, message: details?.[0]?.message ?? message };
     }
   } catch {
-    // response wasn't JSON (proxy error page, empty body, ...)
+    // response wasn't JSON (gateway error page, empty body, ...)
   }
   return { code: `HTTP_${res.status}`, message: UNKNOWN_ERROR_MESSAGE };
 }
 
 /**
  * Retry policy (Rules.md §3 / data-flow.md §6): GET retries up to 2 extra
- * times on network failure or 5xx. POST/PATCH/DELETE never retry — retrying
- * a session-create or turn-submit would duplicate server-side effects.
+ * times on network failure or 5xx. POST/PUT/PATCH/DELETE never retry — retrying
+ * a session-create or turn-submit would duplicate server-side effects. A
+ * GET authentication recovery is a separate, single retry; state-changing
+ * methods are never replayed because they may have completed before a 401.
  */
 function maxAttemptsFor(method: HttpMethod): number {
   return method === "GET" ? 3 : 1;
@@ -78,11 +120,29 @@ export async function apiFetch<T>(
   options: ApiFetchOptions<T>,
 ): Promise<T> {
   const method = options.method ?? "GET";
-  const maxAttempts = maxAttemptsFor(method);
-  const url = requestUrl(path, options.useBff);
+  const normalMaxAttempts = maxAttemptsFor(method);
+  const maxAttempts = normalMaxAttempts + 1;
+  const url = requestUrl(path);
   const hasBody = options.body !== undefined;
+  const isAdapterRequest = isBrowser() && AUTH_ADAPTER_PATHS.has(path);
+  const hasExplicitAuthorization = new Headers(options.headers).has("Authorization");
+  const canRefresh =
+    method === "GET" && isBrowser() && !isAdapterRequest && !hasExplicitAuthorization;
+  const shouldRefreshBeforeMutation =
+    method !== "GET" &&
+    isBrowser() &&
+    !isAdapterRequest &&
+    !hasExplicitAuthorization &&
+    getAccessToken() !== null &&
+    isAccessTokenExpired();
+
+  if (shouldRefreshBeforeMutation) {
+    await refreshAccessToken();
+  }
 
   let lastError: unknown;
+  let refreshed = false;
+  let networkRetryCount = 0;
 
   for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
     try {
@@ -90,15 +150,24 @@ export async function apiFetch<T>(
         method,
         headers: {
           ...(hasBody ? { "Content-Type": "application/json" } : {}),
+          ...(isBrowser() && !isAdapterRequest && getAccessToken()
+            ? { Authorization: `Bearer ${getAccessToken()}` }
+            : {}),
           ...options.headers,
         },
         body: hasBody ? JSON.stringify(options.body) : undefined,
         cache: options.cache,
         next: options.next,
         signal: options.signal,
+        credentials: isAdapterRequest ? "same-origin" : "omit",
       });
 
       if (!res.ok) {
+        if (res.status === 401 && canRefresh && !refreshed) {
+          refreshed = true;
+          await refreshAccessToken();
+          continue;
+        }
         const { code, message } = await parseErrorBody(res);
         throw new ApiError(code, res.status, message);
       }
@@ -122,7 +191,7 @@ export async function apiFetch<T>(
 
       const isRetryable =
         method === "GET" &&
-        attempt < maxAttempts - 1 &&
+        networkRetryCount < normalMaxAttempts - 1 &&
         (!(err instanceof ApiError) || err.status >= 500);
 
       if (!isRetryable) {
@@ -133,6 +202,8 @@ export async function apiFetch<T>(
           err instanceof Error ? err.message : UNKNOWN_ERROR_MESSAGE,
         );
       }
+
+      networkRetryCount += 1;
     }
   }
 
@@ -143,7 +214,7 @@ export async function apiFetch<T>(
 export function apiGet<T>(
   path: string,
   schema: z.ZodType<T>,
-  init?: Pick<ApiFetchOptions<T>, "next" | "cache" | "signal" | "useBff">,
+  init?: Pick<ApiFetchOptions<T>, "next" | "cache" | "signal">,
 ): Promise<T> {
   return apiFetch(path, { method: "GET", schema, ...init });
 }
@@ -152,7 +223,7 @@ export function apiPost<T>(
   path: string,
   schema: z.ZodType<T>,
   body?: unknown,
-  init?: Pick<ApiFetchOptions<T>, "signal" | "useBff">,
+  init?: Pick<ApiFetchOptions<T>, "signal">,
 ): Promise<T> {
   return apiFetch(path, { method: "POST", schema, body, ...init });
 }
@@ -161,7 +232,7 @@ export function apiPut<T>(
   path: string,
   schema: z.ZodType<T>,
   body?: unknown,
-  init?: Pick<ApiFetchOptions<T>, "signal" | "useBff">,
+  init?: Pick<ApiFetchOptions<T>, "signal">,
 ): Promise<T> {
   return apiFetch(path, { method: "PUT", schema, body, ...init });
 }
@@ -170,7 +241,7 @@ export function apiPatch<T>(
   path: string,
   schema: z.ZodType<T>,
   body?: unknown,
-  init?: Pick<ApiFetchOptions<T>, "signal" | "useBff">,
+  init?: Pick<ApiFetchOptions<T>, "signal">,
 ): Promise<T> {
   return apiFetch(path, { method: "PATCH", schema, body, ...init });
 }

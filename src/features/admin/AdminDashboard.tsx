@@ -23,7 +23,7 @@ import {
   updateCrawlSiteStatus,
   type CreateCrawlSitePayload,
 } from "@/features/admin/admin-api";
-import { ADMIN_ACCESS_TOKEN_KEY } from "@/features/admin/AdminLoginForm";
+import { clearAdminAccessToken, getAdminAccessToken } from "@/features/admin/admin-access-token";
 import { ApiError } from "@/lib/api/client";
 import { queryKeys } from "@/lib/query/keys";
 import type { CrawlSite, CrawlSiteStatus } from "@/lib/schemas/admin";
@@ -130,9 +130,7 @@ function DashboardLoading() {
 export function AdminDashboard() {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const [accessToken] = useState(() =>
-    typeof window === "undefined" ? null : sessionStorage.getItem(ADMIN_ACCESS_TOKEN_KEY),
-  );
+  const [accessToken] = useState(getAdminAccessToken);
   const [selectors, setSelectors] = useState<SelectorFields>(emptySelectors);
   const [formError, setFormError] = useState<string | null>(null);
 
@@ -160,7 +158,7 @@ export function AdminDashboard() {
 
   useEffect(() => {
     if (accessToken === null || me.isError) {
-      sessionStorage.removeItem(ADMIN_ACCESS_TOKEN_KEY);
+      clearAdminAccessToken();
       router.replace("/admin/login");
     }
   }, [accessToken, me.isError, router]);
@@ -192,7 +190,7 @@ export function AdminDashboard() {
   }
 
   function handleLogout() {
-    sessionStorage.removeItem(ADMIN_ACCESS_TOKEN_KEY);
+    clearAdminAccessToken();
     queryClient.removeQueries({ queryKey: queryKeys.adminMe() });
     router.replace("/admin/login");
   }

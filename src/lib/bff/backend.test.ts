@@ -1,24 +1,30 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import { authenticatedResponse, loggedOutResponse } from "./auth";
-import { forwardProxyRequest, passthroughResponse, USER_SESSION_COOKIE } from "./backend";
+import { passthroughResponse, REFRESH_TOKEN_COOKIE } from "./backend";
 
 const backendAuthPayload = {
   accessToken: "backend-secret-token",
+  refreshToken: "backend-refresh-token",
   expiresAt: "2026-12-31T00:00:00.000Z",
+  refreshExpiresAt: "2027-01-31T00:00:00.000Z",
   user: { id: "63a24bd1-98fb-4d8b-9aeb-dde3cb4cda73", email: "user@example.com", displayName: "사용자" },
 };
 
 describe("BFF 인증 응답", () => {
-  it("accessToken을 직렬화하지 않고 HttpOnly 세션 쿠키에만 저장한다", async () => {
+  it("accessToken만 브라우저 JSON으로 반환하고 refreshToken은 HttpOnly 제한 쿠키에만 저장한다", async () => {
     const response = await authenticatedResponse(Response.json(backendAuthPayload));
 
     expect(await response.json()).toEqual({
+      accessToken: backendAuthPayload.accessToken,
       expiresAt: backendAuthPayload.expiresAt,
       user: backendAuthPayload.user,
     });
-    expect(response.headers.get("set-cookie")).toContain(`${USER_SESSION_COOKIE}=backend-secret-token`);
+    expect(response.headers.get("set-cookie")).toContain(`${REFRESH_TOKEN_COOKIE}=backend-refresh-token`);
     expect(response.headers.get("set-cookie")).toContain("HttpOnly");
-    expect(response.headers.get("set-cookie")).not.toContain("accessToken");
+    expect(response.headers.get("set-cookie")).toMatch(/(?:^|;)\s*SameSite=Lax(?:;|$)/i);
+    expect(response.headers.get("set-cookie")).toContain("Path=/api/auth");
+    expect(response.headers.get("set-cookie")).not.toContain("backend-secret-token");
+    expect(response.headers.get("set-cookie")).not.toContain("refreshToken");
   });
 
   it("백엔드 오류 envelope와 상태를 그대로 전달한다", async () => {
@@ -31,39 +37,16 @@ describe("BFF 인증 응답", () => {
     await expect(response.json()).resolves.toEqual({ error: { code: "INVALID_CREDENTIALS", message: "실패" } });
   });
 
-  it("로그아웃은 세션 쿠키를 만료한다", () => {
+  it("로그아웃은 refresh 쿠키를 만료한다", () => {
     const response = loggedOutResponse();
 
     expect(response.status).toBe(204);
-    expect(response.headers.get("set-cookie")).toContain(`${USER_SESSION_COOKIE}=`);
+    expect(response.headers.get("set-cookie")).toContain(`${REFRESH_TOKEN_COOKIE}=`);
     expect(response.headers.get("set-cookie")).toContain("Max-Age=0");
   });
 });
 
-describe("BFF 프록시", () => {
-  afterEach(() => vi.unstubAllGlobals());
-
-  it("고정 백엔드 URL로 쿼리와 본문을 전달하고 쿠키 토큰만 Authorization에 사용한다", async () => {
-    const fetchMock = vi.fn().mockResolvedValue(new Response("ok"));
-    vi.stubGlobal("fetch", fetchMock);
-    const request = new Request("https://app.example/api/bff/sessions/abc?cursor=next", {
-      method: "PATCH",
-      headers: { "content-type": "application/json", authorization: "Bearer injected" },
-      body: JSON.stringify({ name: "변경" }),
-    });
-
-    await forwardProxyRequest(request, ["sessions", "abc"], "cookie-token");
-
-    expect(fetchMock).toHaveBeenCalledWith(
-      "http://localhost:4000/api/v1/sessions/abc?cursor=next",
-      expect.objectContaining({ method: "PATCH" }),
-    );
-    const init = fetchMock.mock.calls[0]?.[1] as RequestInit;
-    expect(new Headers(init.headers).get("authorization")).toBe("Bearer cookie-token");
-    expect(new Headers(init.headers).get("authorization")).not.toBe("Bearer injected");
-    expect(await new Response(init.body).text()).toBe('{"name":"변경"}');
-  });
-
+describe("백엔드 응답 전달", () => {
   it("백엔드 응답의 상태와 오류 본문을 그대로 전달한다", async () => {
     const response = await passthroughResponse(new Response(JSON.stringify({ error: { code: "FORBIDDEN", message: "권한 없음" } }), {
       status: 403,
