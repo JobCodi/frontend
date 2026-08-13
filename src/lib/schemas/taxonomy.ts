@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { TaxonomyOptionSchema, type TaxonomyOption } from "./common";
+import { TaxonomyOptionSchema } from "./common";
 
 export { TaxonomyOptionSchema } from "./common";
 export type { TaxonomyOption } from "./common";
@@ -33,15 +33,3 @@ export const EMPTY_TAXONOMY: Taxonomy = {
   employmentTypes: [],
   experienceLevels: [],
 };
-
-/**
- * `targetStartAt` choices. Unlike every other choice list these are NOT part
- * of `GET /taxonomy` — the backend only validates the enum on POST /sessions
- * — so the labels live here and must track the backend's TARGET_START_AT.
- */
-export const TARGET_START_AT_OPTIONS: readonly TaxonomyOption[] = [
-  { code: "IMMEDIATE", label: "즉시" },
-  { code: "WITHIN_3M", label: "3개월 이내" },
-  { code: "WITHIN_6M", label: "6개월 이내" },
-  { code: "FLEXIBLE", label: "유동적" },
-];

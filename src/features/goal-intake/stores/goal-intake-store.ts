@@ -14,9 +14,6 @@ interface GoalIntakeStore {
       | "roles"
       | "regions"
       | "employmentTypes"
-      | "workModes"
-      | "workScheduleFlags"
-      | "exclusionFlags"
       | "selectedCrawlSites",
     value: string,
   ) => void;

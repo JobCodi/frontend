@@ -35,17 +35,6 @@ export const GoalInputSchema = z.object({
   experienceLevel: z.string(),
   regions: z.array(z.string()),
   employmentTypes: z.array(z.string()),
-  targetStartAt: z.string().nullable(),
-  workModes: z.array(z.enum(["ONSITE", "HYBRID", "REMOTE"])).optional().default([]),
-  workScheduleFlags: z
-    .array(z.enum(["DAYTIME", "FLEXIBLE", "SHIFT_NIGHT"]))
-    .optional()
-    .default([]),
-  exclusionFlags: z
-    .array(z.enum(["DISPATCH", "OUTSOURCED_ONSITE", "SHIFT_NIGHT", "RELOCATION"]))
-    .optional()
-    .default([]),
-  includeStretchJobs: z.boolean().optional().default(false),
   selectedCrawlSites: z.array(z.enum(["work24", "saramin", "jobkorea", "jasoseol"])).optional(),
 });
 export type GoalInputResponse = z.infer<typeof GoalInputSchema>;
