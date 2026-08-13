@@ -8,7 +8,15 @@ import { EMPTY_GOAL_INPUT, type GoalInput } from "../types";
 interface GoalIntakeStore {
   goal: GoalInput;
   setField: <K extends keyof GoalInput>(key: K, value: GoalInput[K]) => void;
-  toggleInArray: (key: "companySizes" | "roles" | "regions" | "employmentTypes" | "selectedCrawlSites", value: string) => void;
+  toggleInArray: (
+    key:
+      | "companySizes"
+      | "roles"
+      | "regions"
+      | "employmentTypes"
+      | "selectedCrawlSites",
+    value: string,
+  ) => void;
   reset: () => void;
 }
 

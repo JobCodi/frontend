@@ -5,14 +5,13 @@ import {
   ArrowRight,
   Briefcase,
   Building2,
-  CalendarClock,
   CheckCircle2,
   MapPin,
   Sparkles,
   UserRound,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { TARGET_START_AT_OPTIONS, type Taxonomy } from "@/lib/schemas/taxonomy";
+import { type Taxonomy } from "@/lib/schemas/taxonomy";
 import { useGoalIntakeStore } from "../stores/goal-intake-store";
 import { useCreateSession } from "../queries/use-create-session";
 import { isGoalInputSubmittable } from "../types";
@@ -198,17 +197,6 @@ export function GoalIntakeForm({ taxonomy, taxonomyFailed = false }: GoalIntakeF
                     onToggle={(value) => toggleInArray("employmentTypes", value)}
                   />
                 </div>
-
-                <GoalFieldSection
-                  label="언제부터 일하고 싶으세요?"
-                  icon={<CalendarClock className="h-3.5 w-3.5" />}
-                  options={TARGET_START_AT_OPTIONS}
-                  mode="single"
-                  selected={goal.targetStartAt ? [goal.targetStartAt] : []}
-                  onToggle={(value) =>
-                    setField("targetStartAt", value === goal.targetStartAt ? null : value)
-                  }
-                />
 
                 <div className="rounded-2xl border border-[var(--line)] bg-[var(--surface-soft)] p-5">
                   <CrawlSiteSelector
