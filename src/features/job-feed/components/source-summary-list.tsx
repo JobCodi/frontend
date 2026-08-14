@@ -1,6 +1,6 @@
 import { Check, CircleAlert, MinusCircle, TriangleAlert } from "lucide-react";
 import type { SourceSummaryEntry } from "@/lib/schemas/feed";
-import { describeSourceSummaryEntry } from "../lib/ingestion-transparency";
+import { describeRetrievalProjection, describeSourceSummaryEntry } from "../lib/ingestion-transparency";
 
 function StatusIcon({ status }: { status: SourceSummaryEntry["status"] }) {
   if (status === "succeeded") {
@@ -40,6 +40,16 @@ export function SourceSummaryList({ sourceSummary }: SourceSummaryListProps) {
               <p className="text-xs text-[var(--text-muted)]">{description.outcome}</p>
               {description.attemptedAt ? (
                 <p className="mt-0.5 text-[11px] text-[var(--text-subtle)]">{description.attemptedAt}</p>
+              ) : null}
+              {entry.retrievalProjection ? (
+                <dl className="mt-2 grid gap-1 border-t border-[var(--line)] pt-2 text-xs text-[var(--text-muted)]">
+                  {describeRetrievalProjection(entry.retrievalProjection).map((item) => (
+                    <div key={item.label} className="flex gap-1.5">
+                      <dt className="shrink-0 font-medium text-[var(--text)]">{item.label}</dt>
+                      <dd className="min-w-0 break-words">{item.value}</dd>
+                    </div>
+                  ))}
+                </dl>
               ) : null}
             </div>
           </li>

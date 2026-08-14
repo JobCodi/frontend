@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
 import { FeedFailedPageSchema, SourceSummaryEntrySchema } from "@/lib/schemas/feed";
 import {
+  describeRetrievalProjection,
   describeSourceSummaryEntry,
   getIngestionSummary,
 } from "./ingestion-transparency";
@@ -28,6 +29,10 @@ const sourceSummary = [
 
 const transparencyCardSource = readFileSync(
   new URL("../components/ingestion-transparency-card.tsx", import.meta.url),
+  "utf8",
+);
+const sourceSummaryListSource = readFileSync(
+  new URL("../components/source-summary-list.tsx", import.meta.url),
   "utf8",
 );
 
@@ -75,5 +80,48 @@ describe("Feed 수집 투명성", () => {
   it("출처 요약이 비어 있어도 수집 정보 부재를 명시한다", () => {
     expect(transparencyCardSource).not.toContain("if (sourceSummary.length === 0) return null");
     expect(transparencyCardSource).toContain("수집 출처 정보가 없어요");
+  });
+
+  it("API가 공개한 소스별 검색어와 지역만 표시용으로 만든다", () => {
+    const entry = SourceSummaryEntrySchema.parse({
+      ...sourceSummary[0],
+      retrievalProjection: {
+        searchTerms: ["프론트엔드", "TypeScript"],
+        regions: ["서울", "경기"],
+      },
+    });
+
+    expect(entry.retrievalProjection).toEqual({
+      searchTerms: ["프론트엔드", "TypeScript"],
+      regions: ["서울", "경기"],
+    });
+    if (!entry.retrievalProjection) throw new Error("retrievalProjection이 필요합니다.");
+
+    expect(describeRetrievalProjection(entry.retrievalProjection)).toEqual([
+      { label: "검색어", value: "프론트엔드, TypeScript" },
+      { label: "지역", value: "서울, 경기" },
+    ]);
+  });
+
+  it("retrievalProjection이 없는 소스에는 검색 조건을 추정하지 않는다", () => {
+    const entry = SourceSummaryEntrySchema.parse(sourceSummary[1]);
+
+    expect(entry.retrievalProjection).toBeUndefined();
+    expect(sourceSummaryListSource).toContain("entry.retrievalProjection ?");
+  });
+
+  it("API가 빈 검색어와 지역을 명시하면 빈 값 그대로 안내한다", () => {
+    const entry = SourceSummaryEntrySchema.parse({
+      ...sourceSummary[0],
+      retrievalProjection: { searchTerms: [], regions: [] },
+    });
+
+    expect(entry.retrievalProjection).toBeDefined();
+    if (!entry.retrievalProjection) throw new Error("retrievalProjection이 필요합니다.");
+
+    expect(describeRetrievalProjection(entry.retrievalProjection)).toEqual([
+      { label: "검색어", value: "없음" },
+      { label: "지역", value: "없음" },
+    ]);
   });
 });
