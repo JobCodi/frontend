@@ -43,6 +43,7 @@ const NETWORK_ERROR_CODE = "NETWORK_ERROR";
 const INVALID_RESPONSE_CODE = "INVALID_RESPONSE_SHAPE";
 
 const AUTH_ADAPTER_PATHS = new Set(["/auth/login", "/auth/register", "/auth/logout", "/auth/refresh"]);
+const ADMIN_AUTH_PATH_PREFIX = "/admin/auth/";
 
 function isBrowser(): boolean {
   return typeof window !== "undefined";
@@ -51,6 +52,37 @@ function isBrowser(): boolean {
 function requestUrl(path: string): string {
   if (isBrowser() && AUTH_ADAPTER_PATHS.has(path)) return `/api${path}`;
   return apiUrl(path);
+}
+
+function isAdminAuthenticationPath(path: string): boolean {
+  return path.startsWith(ADMIN_AUTH_PATH_PREFIX);
+}
+
+function waitForRefreshForCaller(signal?: AbortSignal): Promise<string> {
+  if (signal?.aborted) return Promise.reject(signal.reason);
+
+  const refresh = refreshAccessToken();
+  if (signal === undefined) return refresh;
+
+  return new Promise<string>((resolve, reject) => {
+    const removeAbortListener = () => signal.removeEventListener("abort", onAbort);
+    const onAbort = () => {
+      removeAbortListener();
+      reject(signal.reason);
+    };
+    signal.addEventListener("abort", onAbort, { once: true });
+
+    refresh.then(
+      (accessToken) => {
+        removeAbortListener();
+        resolve(accessToken);
+      },
+      (error: unknown) => {
+        removeAbortListener();
+        reject(error);
+      },
+    );
+  });
 }
 
 let refreshPromise: Promise<string> | null = null;
@@ -132,12 +164,12 @@ export async function apiFetch<T>(
     method !== "GET" &&
     isBrowser() &&
     !isAdapterRequest &&
+    !isAdminAuthenticationPath(path) &&
     !hasExplicitAuthorization &&
-    getAccessToken() !== null &&
-    isAccessTokenExpired();
+    (getAccessToken() === null || isAccessTokenExpired());
 
   if (shouldRefreshBeforeMutation) {
-    await refreshAccessToken();
+    await waitForRefreshForCaller(options.signal);
   }
 
   let lastError: unknown;

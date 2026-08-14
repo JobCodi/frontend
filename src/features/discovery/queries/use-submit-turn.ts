@@ -28,10 +28,7 @@ export function useSubmitTurn(sessionId: string) {
 
   return useMutation({
     mutationFn: (vars: SubmitTurnRequest) => {
-      const pendingTurn = queryClient.getQueryData<TurnQuestion | null>(pendingTurnKey) ?? null;
-      const session = queryClient.getQueryData<Session>(sessionKey);
-      const turnIndex = pendingTurn?.index ?? (session !== undefined ? session.turnIndex + 1 : undefined);
-      return apiPost(`/sessions/${sessionId}/turns`, SubmitTurnResponseSchema, { ...vars, turnIndex }, {
+      return apiPost(`/sessions/${sessionId}/turns`, SubmitTurnResponseSchema, vars, {
         // 30s hard timeout — screens.md's discovery loading spec treats a
         // turn that never resolves as an error rather than hanging forever.
         signal: AbortSignal.timeout(30_000),

@@ -95,6 +95,69 @@ describe("브라우저 API 인증", () => {
     expect(fetchMock.mock.calls.filter(([url]) => url === "/api/auth/refresh")).toHaveLength(0);
   });
 
+  it("미인증 admin 로그인 POST는 user refresh 없이 한 번만 직접 전송한다", async () => {
+    vi.stubGlobal("window", {});
+    const fetchMock = vi.fn().mockResolvedValue(Response.json({ ok: true }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(apiFetch("/admin/auth/login", {
+      method: "POST",
+      body: { email: "admin@example.com", password: "password" },
+      schema: z.object({ ok: z.boolean() }),
+    })).resolves.toEqual({ ok: true });
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(fetchMock).toHaveBeenCalledWith(
+      "http://localhost:4000/api/v1/admin/auth/login",
+      expect.objectContaining({ method: "POST", credentials: "omit" }),
+    );
+    expect(fetchMock.mock.calls.filter(([url]) => url === "/api/auth/refresh")).toHaveLength(0);
+  });
+
+  it("access token이 없는 POST는 refresh 뒤 회전된 bearer로 정확히 한 번 전송한다", async () => {
+    vi.stubGlobal("window", {});
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(Response.json({
+        accessToken: "rotated-access",
+        expiresAt: "2099-01-01T00:00:00.000Z",
+        user: { id: "63a24bd1-98fb-4d8b-9aeb-dde3cb4cda73", email: "user@example.com", displayName: "사용자" },
+      }))
+      .mockResolvedValueOnce(Response.json({ ok: true }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(apiFetch("/sessions", {
+      method: "POST",
+      body: { goal: "backend" },
+      schema: z.object({ ok: z.boolean() }),
+    })).resolves.toEqual({ ok: true });
+
+    const sessionCalls = fetchMock.mock.calls.filter(([url]) => url === "http://localhost:4000/api/v1/sessions");
+    expect(fetchMock.mock.calls.filter(([url]) => url === "/api/auth/refresh")).toHaveLength(1);
+    expect(sessionCalls).toHaveLength(1);
+    expect(new Headers(sessionCalls[0]?.[1]?.headers).get("authorization")).toBe("Bearer rotated-access");
+  });
+
+  it("사전 refresh 뒤 mutation 401은 추가 refresh나 재전송 없이 그대로 전달한다", async () => {
+    vi.stubGlobal("window", {});
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(Response.json({
+        accessToken: "rotated-access",
+        expiresAt: "2099-01-01T00:00:00.000Z",
+        user: { id: "63a24bd1-98fb-4d8b-9aeb-dde3cb4cda73", email: "user@example.com", displayName: "사용자" },
+      }))
+      .mockResolvedValueOnce(new Response(null, { status: 401 }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(apiFetch("/sessions", {
+      method: "POST",
+      body: { goal: "backend" },
+      schema: z.object({ ok: z.boolean() }),
+    })).rejects.toMatchObject({ code: "HTTP_401", status: 401 });
+
+    expect(fetchMock.mock.calls.filter(([url]) => url === "/api/auth/refresh")).toHaveLength(1);
+    expect(fetchMock.mock.calls.filter(([url]) => url === "http://localhost:4000/api/v1/sessions")).toHaveLength(1);
+  });
+
   it("만료된 메모리 token의 POST는 갱신 뒤 회전된 bearer로 정확히 한 번만 전송한다", async () => {
     vi.stubGlobal("window", {});
     const fetchMock = vi.fn()
@@ -149,6 +212,39 @@ describe("브라우저 API 인증", () => {
     expect(fetchMock).toHaveBeenCalledTimes(1);
     expect(fetchMock).toHaveBeenCalledWith("/api/auth/refresh", expect.objectContaining({
       credentials: "same-origin",
+    }));
+  });
+
+  it("mutation 사전 refresh 대기는 호출자 signal이 취소되면 mutation을 전송하지 않는다", async () => {
+    vi.stubGlobal("window", {});
+    let resolveRefresh: ((response: Response) => void) | undefined;
+    const refreshResponse = new Promise<Response>((resolve) => {
+      resolveRefresh = resolve;
+    });
+    const fetchMock = vi.fn().mockReturnValue(refreshResponse);
+    vi.stubGlobal("fetch", fetchMock);
+    const controller = new AbortController();
+
+    const request = apiFetch("/sessions", {
+      method: "POST",
+      body: { goal: "backend" },
+      schema: z.object({ ok: z.boolean() }),
+      signal: controller.signal,
+    });
+
+    await vi.waitFor(() => {
+      expect(fetchMock.mock.calls.filter(([url]) => url === "/api/auth/refresh")).toHaveLength(1);
+    });
+    controller.abort(new DOMException("요청이 취소됐어요.", "AbortError"));
+
+    await expect(request).rejects.toMatchObject({ name: "AbortError" });
+    expect(fetchMock.mock.calls.filter(([url]) => url === "http://localhost:4000/api/v1/sessions")).toHaveLength(0);
+
+    if (resolveRefresh === undefined) throw new Error("refresh 응답 resolve 함수를 만들지 못했습니다.");
+    resolveRefresh(Response.json({
+      accessToken: "rotated-access",
+      expiresAt: "2099-01-01T00:00:00.000Z",
+      user: { id: "63a24bd1-98fb-4d8b-9aeb-dde3cb4cda73", email: "user@example.com", displayName: "사용자" },
     }));
   });
 });
