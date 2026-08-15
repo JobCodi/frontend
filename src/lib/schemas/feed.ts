@@ -92,6 +92,13 @@ export const SourceSummaryStatusSchema = z.enum([
 ]);
 export type SourceSummaryStatus = z.infer<typeof SourceSummaryStatusSchema>;
 
+/** Public-safe criteria a source explicitly reports using for this run. */
+export const RetrievalProjectionSchema = z.object({
+  searchTerms: z.array(z.string()),
+  regions: z.array(z.string()),
+});
+export type RetrievalProjection = z.infer<typeof RetrievalProjectionSchema>;
+
 /** Per-source outcome of the collection run that produced this feed. */
 export const SourceSummaryEntrySchema = z.object({
   sourceId: z.string(),
@@ -101,6 +108,7 @@ export const SourceSummaryEntrySchema = z.object({
   fetched: z.number(),
   skipReason: z.string().nullable(),
   attemptedAt: z.string().optional(),
+  retrievalProjection: RetrievalProjectionSchema.optional(),
 });
 export type SourceSummaryEntry = z.infer<typeof SourceSummaryEntrySchema>;
 

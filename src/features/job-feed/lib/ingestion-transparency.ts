@@ -1,4 +1,4 @@
-import type { SourceSummaryEntry } from "@/lib/schemas/feed";
+import type { RetrievalProjection, SourceSummaryEntry } from "@/lib/schemas/feed";
 
 const STATUS_TEXT: Record<SourceSummaryEntry["status"], string> = {
   succeeded: "수집 완료",
@@ -40,6 +40,22 @@ export function describeSourceSummaryEntry(entry: SourceSummaryEntry): {
     outcome: entry.skipReason ? `${outcome} · ${entry.skipReason}` : outcome,
     attemptedAt: entry.attemptedAt ? `확인 ${formatFeedDateTime(entry.attemptedAt)}` : null,
   };
+}
+
+export function describeRetrievalProjection(projection: RetrievalProjection): Array<{
+  label: "검색어" | "지역";
+  value: string;
+}> {
+  return [
+    {
+      label: "검색어",
+      value: projection.searchTerms.length > 0 ? projection.searchTerms.join(", ") : "없음",
+    },
+    {
+      label: "지역",
+      value: projection.regions.length > 0 ? projection.regions.join(", ") : "없음",
+    },
+  ];
 }
 
 export function getIngestionSummary(generatedAt: string, sourceCount: number): {
